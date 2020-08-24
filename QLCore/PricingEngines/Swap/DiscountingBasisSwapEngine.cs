@@ -1,0 +1,68 @@
+﻿/*
+ Copyright (C) 2020 Jean-Camille Tournier (mail@tournierjc.fr)
+
+ This file is part of QLCore Project https://github.com/OpenDerivatives/QLCore
+
+ QLCore is free software: you can redistribute it and/or modify it
+ under the terms of the QLCore and QLNet license. You should have received a
+ copy of the license along with this program; if not, license is
+ available at https://github.com/OpenDerivatives/QLCore/LICENSE.
+
+ QLCore is a forked of QLNet which is a based on QuantLib, a free-software/open-source
+ library for financial quantitative analysts and developers - http://quantlib.org/
+ The QuantLib license is available online at http://quantlib.org/license.shtml and the
+ QLNet license is available online at https://github.com/amaggiulli/QLNet/blob/develop/LICENSE.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICAR PURPOSE. See the license for more details.
+*/
+
+using System;
+using System.Collections.Generic;
+
+namespace QLCore
+{
+   public class DiscountingBasisSwapEngine : Swap.SwapEngine
+   {
+      private List<Handle<YieldTermStructure>> discountCurve_;
+
+      public DiscountingBasisSwapEngine(Handle<YieldTermStructure> discountCurve1,
+                                        Handle<YieldTermStructure> discountCurve2)
+      {
+         discountCurve_ = new List<Handle<YieldTermStructure>>();
+         discountCurve_.Add(discountCurve1);
+         discountCurve_.Add(discountCurve2);
+      }
+
+      // Instrument interface
+      public override void calculate()
+      {
+         if (discountCurve_.empty())
+            throw new ArgumentException("no discounting term structure set");
+         if (discountCurve_.Count != arguments_.legs.Count)
+            throw new ArgumentException("no discounting term structure set for all legs");
+
+         results_.value = results_.cash = 0;
+         results_.errorEstimate = null;
+         results_.legNPV = new InitializedList < double? >(arguments_.legs.Count);
+         results_.legBPS = new InitializedList < double? >(arguments_.legs.Count);
+         List < double? > startDiscounts = new InitializedList < double? >(arguments_.legs.Count);
+         for (int i = 0; i < arguments_.legs.Count; ++i)
+         {
+            results_.value += results_.legNPV[i];
+            results_.cash += arguments_.payer[i] * CashFlows.cash(arguments_.legs[i]);
+            try
+            {
+               Date d = CashFlows.startDate(arguments_.legs[i]);
+               startDiscounts[i] = discountCurve_[i].link.discount(d);
+            }
+            catch
+            {
+               startDiscounts[i] = null;
+            }
+         }
+         results_.additionalResults.Add("startDiscounts", startDiscounts);
+      }
+   }
+}

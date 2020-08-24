@@ -1,0 +1,9 @@
+TestResults
+obj
+bin
+.vs
+*.user
+*.suo
+*.tss
+.sonarqube
+dotCover
