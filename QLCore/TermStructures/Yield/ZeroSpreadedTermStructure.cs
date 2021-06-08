@@ -46,9 +46,6 @@ namespace QLCore
          comp_ = comp;
          freq_ = freq;
          dc_ = dc;
-
-         originalCurve_.registerWith(update);
-         spread_.registerWith(update);
       }
 
 

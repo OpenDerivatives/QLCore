@@ -38,8 +38,8 @@ namespace QLCore
       // data members
       protected GeneralizedBlackScholesProcess process_;
       protected int maxTimeStepsPerYear_;
-      protected int requiredSamples_, maxSamples_;
-      double requiredTolerance_;
+      protected int? requiredSamples_, maxSamples_;
+      double? requiredTolerance_;
       bool brownianBridge_;
       ulong seed_;
 
@@ -50,9 +50,9 @@ namespace QLCore
          bool brownianBridge,
          bool antitheticVariate,
          bool controlVariate,
-         int requiredSamples,
-         double requiredTolerance,
-         int maxSamples,
+         int? requiredSamples,
+         double? requiredTolerance,
+         int? maxSamples,
          ulong seed) : base(antitheticVariate, controlVariate)
       {
          process_ = process;
@@ -62,7 +62,6 @@ namespace QLCore
          requiredTolerance_ = requiredTolerance;
          brownianBridge_ = brownianBridge;
          seed_ = seed;
-         process_.registerWith(update);
       }
 
       public void calculate()
@@ -132,31 +131,7 @@ namespace QLCore
       public IPricingEngineArguments getArguments() { return arguments_; }
       public IPricingEngineResults getResults() { return results_; }
       public void reset() { results_.reset(); }
-
-      #region Observer & Observable
-      // observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public void update() { notifyObservers(); }
-      #endregion
+      public void update() { process_.update(); }
       #endregion
    }
 }

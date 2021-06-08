@@ -48,8 +48,6 @@ namespace QLCore
          jumpTimes_ = new List<double>(jumpDates_.Count);
          nJumps_ = jumps_.Count;
          setJumps();
-         for (int i = 0; i < nJumps_; ++i)
-            jumps_[i].registerWith(update);
       }
 
       protected DefaultProbabilityTermStructure(Date referenceDate, Calendar cal = null, DayCounter dc = null,
@@ -69,8 +67,6 @@ namespace QLCore
          jumpTimes_ = new List<double>(jumpDates_.Count);
          nJumps_ = jumps_.Count;
          setJumps();
-         for (int i = 0; i < nJumps_; ++i)
-            jumps_[i].registerWith(update);
       }
 
       protected DefaultProbabilityTermStructure(int settlementDays, Calendar cal, DayCounter dc = null,
@@ -90,8 +86,6 @@ namespace QLCore
          jumpTimes_ = new List<double>(jumpDates_.Count);
          nJumps_ = jumps_.Count;
          setJumps();
-         for (int i = 0; i < nJumps_; ++i)
-            jumps_[i].registerWith(update);
       }
 
       #endregion

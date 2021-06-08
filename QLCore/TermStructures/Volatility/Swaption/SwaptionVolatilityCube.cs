@@ -64,19 +64,13 @@ namespace QLCore
                              ") and number of columns (" + volSpreads_[i].Count +
                              ") in the " + (i + 1) + " row");
 
-         atmVol_.registerWith(update);
          atmVol_.link.enableExtrapolation();
-
-         swapIndexBase_.registerWith(update);
-         shortSwapIndexBase_.registerWith(update);
 
          Utils.QL_REQUIRE(shortSwapIndexBase_.tenor()<swapIndexBase_.tenor(), () =>
                           "short index tenor (" + shortSwapIndexBase_.tenor() +
                           ") is not less than index tenor (" +
                           swapIndexBase_.tenor() + ")");
 
-         registerWithVolatilitySpread();
-         Settings.Instance.registerWith(update);
          evaluationDate_ = Settings.Instance.evaluationDate();
       }
       // TermStructure interface
@@ -183,13 +177,6 @@ namespace QLCore
 
       public override VolatilityType volatilityType() { return atmVol_.link.volatilityType(); }
 
-      protected void registerWithVolatilitySpread()
-      {
-         for (int i = 0; i < nStrikes_; i++)
-            for (int j = 0; j < nOptionTenors_; j++)
-               for (int k = 0; k < nSwapTenors_; k++)
-                  volSpreads_[j * nSwapTenors_ + k][i].registerWith(update);
-      }
       protected virtual int requiredNumberOfStrikes() { return 2; }
       protected override double volatilityImpl(double optionTime, double swapLength, double strike)
       {

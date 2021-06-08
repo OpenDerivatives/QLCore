@@ -77,9 +77,6 @@ namespace QLCore
          numericalFix_ = numericalFix;
          accrualBias_ = accrualBias;
          forwardsInCouponPeriod_ = forwardsInCouponPeriod;
-
-         probability_.registerWith(update);
-         discountCurve_.registerWith(update);
       }
 
       public Handle<YieldTermStructure> isdaRateCurve() { return discountCurve_; }

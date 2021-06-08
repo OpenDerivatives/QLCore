@@ -53,7 +53,6 @@ namespace QLCore
       public JuQuadraticApproximationEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -180,6 +179,12 @@ namespace QLCore
                               lambda * (1 - lambda) / (spot * spot * (1 - chi))) *
                              (phi * (Sk - payoff.strike()) - black_Sk) * Math.Pow((spot / Sk), lambda);
          } // end of "early exercise can be optimal"
+      }
+
+      public override void update()
+      {
+         process_.update();
+         base.update();
       }
    }
 

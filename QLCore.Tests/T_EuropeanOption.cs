@@ -246,7 +246,6 @@ namespace TestSuite
       void testEngineConsistency(EngineType engine, int binomialSteps, int samples, Dictionary<string, double> tolerance,
                                  bool testGreeks)
       {
-
          //QL_TEST_START_TIMING
 
          Dictionary<string, double> calculated = new Dictionary<string, double>(), expected = new Dictionary<string, double>();
@@ -305,6 +304,9 @@ namespace TestSuite
                               qRate.setValue(q);
                               rRate.setValue(r);
                               vol.setValue(v);
+
+                              refOption.update();
+                              option.update();
 
                               expected.Clear();
                               calculated.Clear();

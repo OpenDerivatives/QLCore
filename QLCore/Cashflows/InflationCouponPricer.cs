@@ -41,7 +41,7 @@ namespace QLCore
        We add the inverse prices so that conventional caps can be
        priced simply.
    */
-   public class InflationCouponPricer : IObserver, IObservable
+   public class InflationCouponPricer
    {
       // Interface
       public virtual double swapletPrice() {return 0; }
@@ -51,32 +51,6 @@ namespace QLCore
       public virtual double floorletPrice(double effectiveFloor) { return 0; }
       public virtual double floorletRate(double effectiveFloor) { return 0; }
       public virtual void initialize(InflationCoupon i) {}
-
-      #region Observer & observable
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      // observer interface
-      public void update() { notifyObservers(); }
-      #endregion
-
       protected Handle<YieldTermStructure> rateCurve_;
       protected Date paymentDate_;
 
@@ -91,9 +65,6 @@ namespace QLCore
       public YoYInflationCouponPricer(Handle<YoYOptionletVolatilitySurface> capletVol = null)
       {
          capletVol_ = capletVol ?? new Handle<YoYOptionletVolatilitySurface>();
-
-         if (!capletVol_.empty())
-            capletVol_.registerWith(update);
       }
 
       public virtual Handle<YoYOptionletVolatilitySurface> capletVolatility()
@@ -106,7 +77,6 @@ namespace QLCore
          Utils.QL_REQUIRE(!capletVol.empty(), () => "empty capletVol handle");
 
          capletVol_ = capletVol;
-         capletVol_.registerWith(update);
       }
 
       // InflationCouponPricer interface

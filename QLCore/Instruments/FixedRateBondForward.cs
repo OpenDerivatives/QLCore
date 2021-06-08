@@ -87,7 +87,6 @@ namespace QLCore
       {
          fixedCouponBond_ = fixedCouponBond;
          incomeDiscountCurve_ = incomeDiscountCurve;
-         incomeDiscountCurve_.registerWith(update);
       }
 
       // Calculations

@@ -42,8 +42,6 @@ namespace QLCore
       {
          rho_ = equityShortRateCorrelation;
          process_ = process;
-
-         process_.registerWith(update);
       }
 
       public override void calculate()

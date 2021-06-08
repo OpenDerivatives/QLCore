@@ -53,8 +53,6 @@ namespace QLCore
          jumpTimes_ = new List<double>(jumpDates_.Count);
          nJumps_ = jumps_.Count;
          setJumps();
-         for (int i = 0; i < nJumps_; ++i)
-            jumps_[i].registerWith(update);
       }
 
       protected YieldTermStructure(Date referenceDate, Calendar cal = null, DayCounter dc = null,
@@ -74,8 +72,6 @@ namespace QLCore
          jumpTimes_ = new List<double>(jumpDates_.Count);
          nJumps_ = jumps_.Count;
          setJumps();
-         for (int i = 0; i < nJumps_; ++i)
-            jumps_[i].registerWith(update);
       }
 
       protected YieldTermStructure(int settlementDays, Calendar cal, DayCounter dc = null,
@@ -95,8 +91,6 @@ namespace QLCore
          jumpTimes_ = new List<double>(jumpDates_.Count);
          nJumps_ = jumps_.Count;
          setJumps();
-         for (int i = 0; i < nJumps_; ++i)
-            jumps_[i].registerWith(update);
       }
 
       #endregion
@@ -256,16 +250,12 @@ namespace QLCore
 
       #endregion
 
-      #region Observer interface
-
       public override void update()
       {
          base.update();
          if (referenceDate() != latestReference_)
             setJumps();
       }
-
-      #endregion
 
       #region Calculations
 

@@ -44,7 +44,6 @@ namespace QLCore
          b_ = arguments_[1] = new NullParameter(); //to change
          lambda_ = arguments_[3] = new NullParameter(); //to change
          generateArguments();
-         termStructure.registerWith(update);
       }
 
       public HullWhite(Handle<YieldTermStructure> termStructure,

@@ -161,6 +161,11 @@ namespace QLCore
          payoff_ = args.payoff;
       }
       public virtual void calculate(IPricingEngineResults r) { throw new NotSupportedException(); }
+      public virtual void update()
+      {
+         if (process_ != null)
+            process_.update();
+      }
    }
 
 
@@ -185,8 +190,7 @@ namespace QLCore
       //public FDEngineAdapter(GeneralizedBlackScholesProcess process, Size timeSteps=100, Size gridPoints=100, bool timeDependent = false)
       public FDEngineAdapter(GeneralizedBlackScholesProcess process, int timeSteps, int gridPoints, bool timeDependent)
       {
-         optionBase = (Base) FastActivator<Base>.Create().factory(process, timeSteps, gridPoints, timeDependent);
-         process.registerWith(update);
+         optionBase = (Base)FastActivator<Base>.Create().factory(process, timeSteps, gridPoints, timeDependent);
       }
 
       public void calculate()
@@ -203,31 +207,11 @@ namespace QLCore
       public IPricingEngineArguments getArguments() { return engine_.getArguments(); }
       public IPricingEngineResults getResults() { return engine_.getResults(); }
       public void reset() { engine_.reset(); }
-      #endregion
-
-      #region Observer & Observable
-      // observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
+      public override void update()
       {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
+         optionBase.update();
+         base.update();
       }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public void update() { notifyObservers(); }
       #endregion
    }
 }

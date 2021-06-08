@@ -38,7 +38,7 @@ namespace QLCore
       It is advised that a bootstrap helper for an instrument contains an instance of the actual instrument
     * class to ensure consistancy between the algorithms used during bootstrapping
       and later instrument pricing. This is not yet fully enforced in the available rate helpers. */
-   public class BootstrapHelper<TS> : IObservable, IObserver
+   public class BootstrapHelper<TS>
    {
       protected Handle<Quote> quote_;
       protected TS termStructure_;
@@ -50,7 +50,6 @@ namespace QLCore
       public BootstrapHelper(Handle<Quote> quote)
       {
          quote_ = quote;
-         quote_.registerWith(update);
       }
       public BootstrapHelper(double quote)
       {
@@ -124,31 +123,6 @@ namespace QLCore
             return pillarDate_;
          return latestDate_;
       }
-
-
-      #region observer interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public virtual void update() { notifyObservers(); }
-      #endregion
    }
 
    //! Bootstrap helper with date schedule relative to global evaluation date
@@ -159,26 +133,23 @@ namespace QLCore
         public RelativeDateBootstrapHelper(Handle<Quote> quote)
             : base(quote)
         {
-            Settings.Instance.evaluationDate().registerWith(update);
             evaluationDate_ = Settings.Instance.evaluationDate();
         }
 
         public RelativeDateBootstrapHelper(double quote)
             : base(quote)
         {
-            Settings.Instance.evaluationDate().registerWith(update);
             evaluationDate_ = Settings.Instance.evaluationDate();
         }
 
         //! \name Observer interface
         //@{
-        public override void update()
+        public void update()
         {
             if (evaluationDate_ != Settings.Instance.evaluationDate()) {
                 evaluationDate_ = Settings.Instance.evaluationDate();
                 initializeDates();
             }
-            base.update();
         }
         //@}
       protected virtual void initializeDates() { }

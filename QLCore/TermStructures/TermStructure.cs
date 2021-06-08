@@ -78,8 +78,6 @@ namespace QLCore
          calendar_ = cal;
          settlementDays_ = settlementDays;
          dayCounter_ = dc;
-
-         Settings.Instance.registerWith(update);
       }
 
 
@@ -117,21 +115,14 @@ namespace QLCore
 
       #endregion
 
-      #region observable & observer interface
-
-      // observer interface
       public override void update()
       {
          if (moving_)
             updated_ = false;
 
-         // recheck. this is in order to notify observers in the base method of LazyObject
          calculated_ = true;
          base.update();
-         // otherwise the following code would be required
-         // the grand reason is that multiple inheritance is not allowed in c# and we need to notify observers in such way
       }
-      #endregion
 
       //! date-range check
       protected virtual void checkRange(Date d, bool extrapolate)

@@ -27,7 +27,7 @@ namespace QLCore
    // this class performs no check that the provided/requested fixings are for dates in the past,
    // i.e. for dates less than or equal to the evaluation date. It is up to the client code to take care of
    // possible inconsistencies due to "seeing in the future"
-   public abstract class Index : IObservable
+   public abstract class Index
    {
       // Returns the name of the index.
       // This method is used for output and comparison between indexes.
@@ -86,7 +86,7 @@ namespace QLCore
 
       // Stores historical fixings at the given dates
       // The dates passed as arguments must be the actual calendar dates of the fixings; no settlement days must be used.
-      public void addFixings(List<Date> d, List<double> v, bool forceOverwrite = false)
+      public virtual void addFixings(List<Date> d, List<double> v, bool forceOverwrite = false)
       {
          if ((d.Count != v.Count) || d.Count == 0)
             throw new ArgumentException("Wrong collection dimensions when creating index fixings");
@@ -98,7 +98,7 @@ namespace QLCore
       }
 
       // Clears all stored historical fixings
-      public void clearFixings()
+      public virtual void clearFixings()
       {
          checkNativeFixingsAllowed();
          IndexManager.Instance.clearHistory(name());
@@ -110,29 +110,5 @@ namespace QLCore
          Utils.QL_REQUIRE(allowsNativeFixings(), () =>
                           "native fixings not allowed for " + name() + "; refer to underlying indices instead");
       }
-
-
-
-      #region observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-      #endregion
    }
 }

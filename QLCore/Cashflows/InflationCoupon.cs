@@ -29,7 +29,7 @@ namespace QLCore
 
        \note inflation indices do not contain day counters or calendars.
    */
-   public class InflationCoupon : Coupon, IObserver
+   public class InflationCoupon : Coupon
    {
 
       public InflationCoupon(Date paymentDate,
@@ -49,9 +49,6 @@ namespace QLCore
          observationLag_ = observationLag;
          dayCounter_ = dayCounter;
          fixingDays_ = fixingDays;
-
-         index_.registerWith(update);
-         Settings.Instance.registerWith(update);
       }
 
       // CashFlow interface
@@ -110,22 +107,10 @@ namespace QLCore
          return index_.fixing(fixingDate());
       }
 
-
-      public void update() { notifyObservers(); }
-
       public void setPricer(InflationCouponPricer pricer)
       {
          Utils.QL_REQUIRE(checkPricerImpl(pricer), () => "pricer given is wrong type");
-
-         if (pricer_ != null)
-            pricer_.unregisterWith(update);
-
          pricer_ = pricer;
-
-         if (pricer_ != null)
-            pricer_.registerWith(update);
-
-         update();
       }
 
       public InflationCouponPricer pricer() {return pricer_;}

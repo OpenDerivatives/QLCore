@@ -51,7 +51,7 @@ namespace QLCore
             Utils.QL_REQUIRE(volHandles_[i].Count == nStrikes_, () =>
                              (i + 1) + " row of vol handles has size " +
                              volHandles_[i].Count + " instead of " + nStrikes_);
-         registerWithMarketData();
+
          for (int i = 0; i < vols_.rows(); ++i)
             for (int j = 0; j < vols_.columns(); ++j)
                vols_[i, j] = volHandles_[i][j].link.value();
@@ -82,7 +82,7 @@ namespace QLCore
          for (int i = 0; i < nOptionTenors_; ++i)
             Utils.QL_REQUIRE(volHandles_[i].Count == nStrikes_, () =>
                              (i + 1) + " row of vol handles has size " + volHandles_[i].Count + " instead of " + nStrikes_);
-         registerWithMarketData();
+
          for (int i = 0; i < vols_.rows(); ++i)
             for (int j = 0; j < vols_.columns(); ++j)
                vols_[i, j] = volHandles_[i][j].link.value();
@@ -240,12 +240,6 @@ namespace QLCore
          }
       }
 
-      private void registerWithMarketData()
-      {
-         for (int i = 0; i < nOptionTenors_; ++i)
-            for (int j = 0; j < nStrikes_; ++j)
-               volHandles_[i][j] .registerWith(update);
-      }
       private void interpolate()
       {
          interpolation_ = new BicubicSpline(strikes_, strikes_.Count, optionTimes_, optionTimes_.Count, vols_);

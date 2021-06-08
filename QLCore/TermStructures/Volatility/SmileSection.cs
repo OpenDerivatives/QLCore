@@ -38,7 +38,6 @@ namespace QLCore
          isFloating_ = referenceDate == null;
          if (isFloating_)
          {
-            Settings.Instance.registerWith(update);
             referenceDate_ = Settings.Instance.evaluationDate();
          }
          else

@@ -99,7 +99,7 @@ namespace TestSuite
                                         capletVols, new Actual360());
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testSimpleCovarianceModels()
       {
          // Testing simple covariance models
@@ -177,7 +177,7 @@ namespace TestSuite
          }
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testCapletPricing()
       {
          // Testing caplet pricing
@@ -219,7 +219,7 @@ namespace TestSuite
                          + "\n    expected:   " + expected);
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testCalibration()
       {
          // Testing calibration of a Libor forward model
@@ -322,7 +322,7 @@ namespace TestSuite
                          + "\n    expected : smaller than  " + tolerance);
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testSwaptionPricing()
       {
          // Testing forward swap and swaption pricing

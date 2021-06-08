@@ -86,12 +86,6 @@ namespace QLCore
          .withNotionals(nominal)
          .withPaymentAdjustment(paymentConvention_);
 
-         foreach (var cf in floating1Leg)
-            cf.registerWith(update);
-         foreach (var cf in floating2Leg)
-            cf.registerWith(update);
-
-
          legs_[0] = floating1Leg;
          legs_[1] = floating2Leg;
          if (type_ == Type.Payer)

@@ -81,9 +81,6 @@ namespace QLCore
          .withNotionals(nominal_)
          .withPaymentAdjustment(paymentConvention_);
 
-         yoyLeg.ForEach((i, x) =>  x.registerWith(update));
-
-
          legs_[0] = fixedLeg;
          legs_[1] = yoyLeg;
          if (type_ == Type.Payer)

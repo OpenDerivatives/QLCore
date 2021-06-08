@@ -367,6 +367,9 @@ namespace TestSuite
       {
          Calendar calendar = new TARGET();
 
+         // ensure apple-to-apple comparison
+         SavedSettings backup = new SavedSettings();
+         Settings.Instance.includeTodaysCashFlows = true;
          Date today = Settings.Instance.evaluationDate();
 
          int settlementDays = 1;
@@ -409,10 +412,6 @@ namespace TestSuite
 
          double notional = 1.0;
          double tolerance = 1.0e-6;
-
-         // ensure apple-to-apple comparison
-         SavedSettings backup = new SavedSettings();
-         Settings.Instance.includeTodaysCashFlows = true;
 
          for (int i=0; i<n.Count; i++) {
                Date protectionStart = today + settlementDays;

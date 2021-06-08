@@ -53,14 +53,6 @@ namespace QLCore
 
          Utils.QL_REQUIRE(!domesticTS_.empty(), () => "domestic yield curve is not defined");
          Utils.QL_REQUIRE(!foreignTS_.empty(), () => "foreign yield curve is not defined");
-
-         atmVol_.registerWith(update);
-         vol25Put_.registerWith(update);
-         vol25Call_.registerWith(update);
-         spotFX_.registerWith(update);
-         domesticTS_.registerWith(update);
-         foreignTS_.registerWith(update);
-
       }
 
       public override void calculate()

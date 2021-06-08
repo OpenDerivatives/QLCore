@@ -55,10 +55,6 @@ namespace QLCore
          sigma_ = sigma;
          rho_ = rho;
          discretization_ = d;
-
-         riskFreeRate_.registerWith(update);
-         dividendYield_.registerWith(update) ;
-         s0_.registerWith(update) ;
       }
 
       public override int size() { return 2; }

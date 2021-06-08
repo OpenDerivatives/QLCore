@@ -31,9 +31,6 @@ namespace QLCore
       {
          underlyingSection_ = underlyingSection;
          spread_ = spread;
-
-         underlyingSection_.registerWith(update);
-         spread_.registerWith(update);
       }
       // SmileSection interface
       public override double minStrike() { return underlyingSection_.minStrike(); }
@@ -45,10 +42,6 @@ namespace QLCore
       public override Date referenceDate() { return underlyingSection_.referenceDate(); }
       public override VolatilityType volatilityType() { return underlyingSection_.volatilityType(); }
       public override double shift() { return underlyingSection_.shift(); }
-
-      // LazyObject interface
-      public override void update() { notifyObservers(); }
-
       protected override double volatilityImpl(double k)
       {
          return underlyingSection_.volatility(k) + spread_.link.value();

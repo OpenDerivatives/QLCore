@@ -60,10 +60,6 @@ namespace QLCore
          arguments_[2] = sigma;
          arguments_[3] = rho;
          arguments_[4] = new ConstantParameter(v0, new PositiveConstraint());
-
-         s0.registerWith(update) ;
-         riskFreeRate.registerWith(update) ;
-         dividendYield.registerWith(update) ;
       }
 
       // variance mean version level

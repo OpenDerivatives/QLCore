@@ -53,7 +53,6 @@ namespace QLCore
       protected bool brownianBridge_;
       protected ulong seed_;
 
-
       protected MCVanillaEngine(StochasticProcess process,
                                 int? timeSteps,
                                 int? timeStepsPerYear,
@@ -83,8 +82,6 @@ namespace QLCore
          if (timeStepsPerYear != null)
             Utils.QL_REQUIRE(timeStepsPerYear > 0, () =>
                              "timeStepsPerYear must be positive, " + timeStepsPerYear + " not allowed");
-
-         process_.registerWith(update);
       }
 
 
@@ -152,31 +149,8 @@ namespace QLCore
       public IPricingEngineArguments getArguments() { return arguments_; }
       public IPricingEngineResults getResults() { return results_; }
       public void reset() { results_.reset(); }
+      public void update() { process_.update(); }
 
-      #region Observer & Observable
-      // observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public void update() { notifyObservers(); }
-      #endregion
       #endregion
    }
 }

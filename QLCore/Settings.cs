@@ -29,23 +29,22 @@ namespace QLCore
    {
       public Settings() {}
 
-      private ObservableValue<Date> evaluationDate_;
+      private Date evaluationDate_;
       private bool includeReferenceDateEvents_;
       private bool enforcesTodaysHistoricFixings_;
       private bool? includeTodaysCashFlows_;
 
-      public ObservableValue<Date> evaluationDate()
+      public Date evaluationDate()
       {
          if (evaluationDate_ == null)
-            evaluationDate_ = new ObservableValue<Date>(Date.Today);
+            evaluationDate_ = new Date(Date.Today);
          return evaluationDate_;
       }
 
 
       public void setEvaluationDate(Date d)
       {
-         evaluationDate().Assign(d);
-         notifyObservers();
+         evaluationDate_ = d;
       }
 
       public bool enforcesTodaysHistoricFixings
@@ -83,39 +82,13 @@ namespace QLCore
             includeTodaysCashFlows_ = value;
          }
       }
-
-      ////////////////////////////////////////////////////
-      // Observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      private void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public void clearObservers()
-      {
-         eventSource.Clear();
-      }
    }
+      
 
    // helper class to temporarily and safely change the settings
    public class SavedSettings : IDisposable
    {
-      private ObservableValue<Date> evaluationDate_;
+      private Date evaluationDate_;
       private bool enforcesTodaysHistoricFixings_;
       private bool includeReferenceDateEvents_;
       private bool? includeTodaysCashFlows_;
@@ -131,7 +104,7 @@ namespace QLCore
       public void Dispose()
       {
          if (evaluationDate_ != Settings.Instance.evaluationDate())
-            Settings.Instance.setEvaluationDate(evaluationDate_.value());
+            Settings.Instance.setEvaluationDate(evaluationDate_);
          Settings.Instance.enforcesTodaysHistoricFixings = enforcesTodaysHistoricFixings_;
          Settings.Instance.includeReferenceDateEvents = includeReferenceDateEvents_;
          Settings.Instance.includeTodaysCashFlows = includeTodaysCashFlows_;

@@ -75,7 +75,6 @@ namespace QLCore
             schedule_ = new Schedule();
 
             initializeDates();
-            discountCurve_.registerWith(update);
         }
 
         public CdsHelper(double quote,
@@ -114,24 +113,17 @@ namespace QLCore
             schedule_ = new Schedule();
 
             initializeDates();
-            discountCurve_.registerWith(update);
         }
 
         public override void setTermStructure(DefaultProbabilityTermStructure ts)
         {
             base.setTermStructure(ts);
-            probability_.linkTo(ts, false);
+            probability_.linkTo(ts);
             resetEngine();
         }
 
         public CreditDefaultSwap swap()  {
             return swap_;
-        }
-
-        public override void update() 
-        {
-            base.update();
-            resetEngine();
         }
 
         protected override void initializeDates()
@@ -341,7 +333,6 @@ namespace QLCore
 
         public override double impliedQuote()
         {
-            SavedSettings backup = new SavedSettings();
             Settings.Instance.includeTodaysCashFlows = true;
             swap_.recalculate();
             return swap_.fairUpfront();

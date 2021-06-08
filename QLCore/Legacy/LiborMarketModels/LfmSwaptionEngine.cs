@@ -36,7 +36,6 @@ namespace QLCore
          : base(model)
       {
          discountCurve_ = discountCurve;
-         discountCurve_.registerWith(update);
       }
 
       public override void calculate()

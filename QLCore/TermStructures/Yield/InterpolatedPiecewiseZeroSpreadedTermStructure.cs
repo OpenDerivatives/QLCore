@@ -47,11 +47,6 @@ namespace QLCore
          Utils.QL_REQUIRE(!spreads_.empty(), () => "no spreads given");
          Utils.QL_REQUIRE(spreads_.Count == dates_.Count, () => "spread and date vector have different sizes");
 
-         originalCurve_.registerWith(update);
-
-         for (int i = 0; i < spreads_.Count; i++)
-            spreads_[i].registerWith(update);
-
          if (!originalCurve_.empty())
             updateInterpolation();
       }
@@ -94,7 +89,7 @@ namespace QLCore
             return interpolator_.value(t, true);
       }
 
-      protected new void update()
+      public override void update()
       {
          if (!originalCurve_.empty())
          {

@@ -62,12 +62,6 @@ namespace QLCore
          vegaWeighted_ = vegaWeighted;
          endCriteria_ = endCriteria;
          method_ = method;
-
-         forward_.registerWith(update);
-         atmVolatility_.registerWith(update);
-
-         for (int i = 0; i < volHandles_.Count; ++i)
-            volHandles_[i].registerWith(update);
       }
 
       public SabrInterpolatedSmileSection(

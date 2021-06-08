@@ -43,7 +43,6 @@ namespace QLCore
          : base(model)
       {
          termStructure_ = termStructure;
-         termStructure_.registerWith(update);
       }
 
       public override void calculate()

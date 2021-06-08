@@ -261,6 +261,10 @@ namespace TestSuite
             rQuote      .setValue(values[i].r);
             qQuote      .setValue(values[i].q);
 
+            rTS.update();
+            qTS.update();
+            volTS.update();
+
             discDom = rTS.discount(exDate);
             discFor = qTS.discount(exDate);
             implVol = Math.Sqrt(volTS.blackVariance(exDate, 0.0));

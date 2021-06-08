@@ -145,8 +145,6 @@ namespace QLCore
 
          Utils.QL_REQUIRE(!cashflows().empty(), () => "bond with no cashflows!");
          Utils.QL_REQUIRE(redemptions_.Count == 1, () => "multiple redemptions created");
-
-         iborIndex.registerWith(update);
       }
 
       public FloatingCatBond(int settlementDays,
@@ -217,8 +215,6 @@ namespace QLCore
 
          Utils.QL_REQUIRE(!cashflows().empty(), () => "bond with no cashflows!");
          Utils.QL_REQUIRE(redemptions_.Count == 1, () => "multiple redemptions created");
-
-         iborIndex.registerWith(update);
       }
    }
 }

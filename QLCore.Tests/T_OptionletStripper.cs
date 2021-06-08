@@ -382,9 +382,7 @@ namespace TestSuite
          {
             for (int tenorIndex = 0; tenorIndex < vars.optionTenors.Count; ++tenorIndex)
             {
-
                double strippedVol1 = vol1.link.volatility(vars.optionTenors[tenorIndex], vars.strikes[strikeIndex], true);
-
                double strippedVol2 = vol2.link.volatility(vars.optionTenors[tenorIndex], vars.strikes[strikeIndex], true);
 
                // vol from flat vol surface (for comparison only)

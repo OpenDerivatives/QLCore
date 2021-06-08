@@ -47,7 +47,6 @@ namespace QLCore
          if (diff.IsNotEqual(0.0))
          {
             value_ = value;
-            notifyObservers();
          }
          return diff.GetValueOrDefault();
       }

@@ -42,7 +42,6 @@ namespace QLCore
       public AnalyticDiscreteGeometricAverageStrikeAsianEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
       public override void calculate()
       {

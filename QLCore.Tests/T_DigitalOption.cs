@@ -294,6 +294,10 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
                                                                                    new Handle<YieldTermStructure>(rTS),
@@ -359,6 +363,10 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
                                                                                    new Handle<YieldTermStructure>(rTS),
@@ -422,6 +430,10 @@ namespace TestSuite
             qRate.setValue(values[i].q);
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
+
+            qTS.update();
+            rTS.update();
+            volTS.update();
 
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
@@ -496,6 +508,10 @@ namespace TestSuite
             qRate.setValue(values[i].q);
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
+
+            qTS.update();
+            rTS.update();
+            volTS.update();
 
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
@@ -601,6 +617,7 @@ namespace TestSuite
                                  qRate.setValue(q);
                                  rRate.setValue(r);
                                  vol.setValue(v);
+                                 opt.update();
 
                                  // theta, dividend rho and vega are not available for
                                  // digital option with american exercise. Greeks of
@@ -616,22 +633,28 @@ namespace TestSuite
                                     // perturb spot and get delta and gamma
                                     double du = u * 1.0e-4;
                                     spot.setValue(u + du);
+                                    opt.update();
                                     double value_p = opt.NPV(),
                                            delta_p = opt.delta();
                                     spot.setValue(u - du);
+                                    opt.update();
                                     double value_m = opt.NPV(),
                                            delta_m = opt.delta();
                                     spot.setValue(u);
+                                    opt.update();
                                     expected["delta"] = (value_p - value_m) / (2 * du);
                                     expected["gamma"] = (delta_p - delta_m) / (2 * du);
 
                                     // perturb rates and get rho and dividend rho
                                     double dr = r * 1.0e-4;
                                     rRate.setValue(r + dr);
+                                    opt.update();
                                     value_p = opt.NPV();
                                     rRate.setValue(r - dr);
+                                    opt.update();
                                     value_m = opt.NPV();
                                     rRate.setValue(r);
+                                    opt.update();
                                     expected["rho"] = (value_p - value_m) / (2 * dr);
 
                                     // check

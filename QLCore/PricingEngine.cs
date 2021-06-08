@@ -24,12 +24,13 @@ namespace QLCore
 {
    // Pricing Engine interfaces
    // these interfaces replace the abstract PricingEngine class below
-   public interface IPricingEngine : IObservable
+   public interface IPricingEngine
    {
       IPricingEngineArguments getArguments();
       IPricingEngineResults getResults();
       void reset();
       void calculate();
+      void update();
    }
 
    public interface IPricingEngineArguments
@@ -42,7 +43,7 @@ namespace QLCore
       void reset();
    }
 
-   public interface IGenericEngine : IPricingEngine, IObserver
+   public interface IGenericEngine : IPricingEngine
    {}
 
    // template base class for option pricing engines
@@ -74,43 +75,6 @@ namespace QLCore
          throw new NotSupportedException();
       }
 
-      #region Observer & Observable
-
-      // observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler)
-      {
-         notifyObserversEvent += handler;
-      }
-
-      public void unregisterWith(Callback handler)
-      {
-         notifyObserversEvent -= handler;
-      }
-
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public virtual void update()
-      {
-         notifyObservers();
-      }
-
-      #endregion
+      public virtual void update() {}
    }
 }

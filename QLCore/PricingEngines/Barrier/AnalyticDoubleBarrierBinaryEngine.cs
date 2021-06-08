@@ -179,7 +179,6 @@ namespace QLCore
       public AnalyticDoubleBarrierBinaryEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
 
       public override void calculate()

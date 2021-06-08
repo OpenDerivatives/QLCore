@@ -405,43 +405,9 @@ namespace TestSuite
       }
 
       [Fact]
-      public void testObservability()
-      {
-         // "Testing observability of piecewise yield curve...");
-
-         CommonVars vars = new CommonVars();
-
-         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settlementDays,
-                                                                           vars.calendar, vars.instruments, new Actual360());
-         Flag f = new Flag();
-         vars.termStructure.registerWith(f.update);
-
-         for (int i = 0; i < vars.deposits + vars.swaps; i++)
-         {
-            double testTime = new Actual360().yearFraction(vars.settlement, vars.instruments[i].latestDate());
-            double discount = vars.termStructure.discount(testTime);
-            f.lower();
-            vars.rates[i].setValue(vars.rates[i].value() * 1.01);
-            if (!f.isUp())
-               QAssert.Fail("Observer was not notified of underlying rate change");
-            double discount_new = vars.termStructure.discount(testTime, true);
-            if (discount_new == discount)
-               QAssert.Fail("rate change did not trigger recalculation");
-            vars.rates[i].setValue(vars.rates[i].value() / 1.01);
-         }
-
-         f.lower();
-         Settings.Instance.setEvaluationDate(vars.calendar.advance(vars.today, 15, TimeUnit.Days));
-         if (!f.isUp())
-            QAssert.Fail("Observer was not notified of date change");
-      }
-
-      [Fact]
       public void testLiborFixing()
       {
-
          // "Testing use of today's LIBOR fixings in swap curve...");
-
          CommonVars vars = new CommonVars();
 
          var swapHelpers = new InitializedList<RateHelper>();
@@ -487,15 +453,7 @@ namespace TestSuite
             }
          }
 
-         Flag f = new Flag();
-         vars.termStructure.registerWith(f.update);
-         f.lower();
-
          index.addFixing(vars.today, 0.0425);
-
-         if (!f.isUp())
-            QAssert.Fail("Observer was not notified of rate fixing");
-
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -622,8 +580,6 @@ namespace TestSuite
       [Fact]
       public void testDiscountCopy()
       {
-         //BOOST_MESSAGE("Testing copying of discount curve...");
-
          CommonVars vars = new CommonVars();
          testCurveCopy<Discount, LogLinear>(vars);
       }
@@ -631,8 +587,6 @@ namespace TestSuite
       [Fact]
       public void testForwardCopy()
       {
-         //BOOST_MESSAGE("Testing copying of forward-rate curve...");
-
          CommonVars vars = new CommonVars();
          testCurveCopy<ForwardRate, BackwardFlat>(vars);
       }
@@ -640,8 +594,6 @@ namespace TestSuite
       [Fact]
       public void testZeroCopy()
       {
-         //BOOST_MESSAGE("Testing copying of zero-rate curve...");
-
          CommonVars vars = new CommonVars();
          testCurveCopy<ZeroYield, Linear>(vars);
       }
@@ -893,6 +845,7 @@ namespace TestSuite
 
          // now the original curve should have changed; the copied
          // curve should not.
+         curve.update();
          double r3 = curve.zeroRate(t, Compounding.Continuous).value();
          double r4 = copiedCurve.zeroRate(t, Compounding.Continuous).value();
          if (Utils.close(r1, r3))

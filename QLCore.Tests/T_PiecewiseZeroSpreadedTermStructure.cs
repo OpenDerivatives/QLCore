@@ -473,6 +473,7 @@ namespace TestSuite
                + "    expected: " + expectedRate);
 
          spread2.setValue(0.025);
+         spreadedTermStructure.update();
 
          interpolatedZeroRate = spreadedTermStructure.zeroRate(t, vars.compounding).value();
          expectedRate = vars.termStructure.zeroRate(t, vars.compounding).value() +

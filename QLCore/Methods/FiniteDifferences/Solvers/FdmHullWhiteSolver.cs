@@ -32,7 +32,6 @@ namespace QLCore
          solverDesc_ = solverDesc;
          schemeDesc_ = schemeDesc ?? new FdmSchemeDesc().Hundsdorfer();
          model_ = model;
-         model_.registerWith(update);
       }
 
       public double valueAt(double s)

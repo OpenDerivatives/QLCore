@@ -78,10 +78,6 @@ namespace QLCore
             Utils.QL_FAIL("Need one leg of the basis swap to have its forward curve.");
          }
 
-         shortIndex_.registerWith(update);
-         longIndex_.registerWith(update);
-         discountHandle_.registerWith(update);
-
          initializeDates();
       }
 
@@ -161,9 +157,9 @@ namespace QLCore
       {
          // do not set the relinkable handle as an observer -
          // force recalculation when needed
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
-         discountRelinkableHandle_.linkTo(discountHandle_.empty() ? t : discountHandle_, false);
+         discountRelinkableHandle_.linkTo(discountHandle_.empty() ? t : discountHandle_);
       }
 
       protected int settlementDays_;

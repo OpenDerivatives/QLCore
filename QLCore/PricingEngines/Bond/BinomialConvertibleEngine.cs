@@ -32,7 +32,6 @@ namespace QLCore
          timeSteps_ = timeSteps;
 
          Utils.QL_REQUIRE(timeSteps > 0, () => " timeSteps must be positive");
-         process_.registerWith(update);
       }
       public override void calculate()
       {

@@ -175,8 +175,6 @@ namespace QLCore
          Utils.QL_REQUIRE(n_ + 1 >= ts_.interpolator_.requiredPoints, () =>
                           "not enough instruments: " + n_ + " provided, " + (ts_.interpolator_.requiredPoints - 1) + " required");
 
-         ts_.instruments_.ForEach((i, x) => ts_.registerWith(x));
-
          loopRequired_ = ts_.interpolator_.global;
       }
 

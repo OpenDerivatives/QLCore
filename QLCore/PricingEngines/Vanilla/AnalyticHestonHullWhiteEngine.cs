@@ -54,7 +54,6 @@ namespace QLCore
          hullWhiteModel_ = hullWhiteModel;
 
          update();
-         hullWhiteModel_.registerWith(update);
       }
 
       public AnalyticHestonHullWhiteEngine(HestonModel hestonModel,
@@ -65,7 +64,6 @@ namespace QLCore
          hullWhiteModel_ = hullWhiteModel;
 
          update();
-         hullWhiteModel_.registerWith(update);
       }
 
       public void setupArguments(VanillaOption.Arguments args)

@@ -37,19 +37,11 @@ namespace QLCore
          element1_ = element1;
          element2_ = element2;
          f_ = f;
-
-         element1_.registerWith(this.update);
-         element2_.registerWith(this.update);
       }
 
       // inspectors
       public double value1() { return element1_.link.value(); }
       public double value2() { return element2_.link.value(); }
-
-      public void update()
-      {
-         notifyObservers();
-      }
 
       //! Quote interface
       public override double value()

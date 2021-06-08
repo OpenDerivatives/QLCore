@@ -31,13 +31,13 @@ namespace QLCore
           \note the term structure is only needed when the short-rate
                 model cannot provide one itself.
       */
-      public TreeCallableFixedRateBondEngine(ShortRateModel model, int  timeSteps,
+      public TreeCallableFixedRateBondEngine(ShortRateModel model, 
+                                             int timeSteps,
                                              Handle<YieldTermStructure> termStructure)
          : base(model, timeSteps)
 
       {
          termStructure_ = termStructure;
-         termStructure_.registerWith(update);
       }
 
 
@@ -46,7 +46,6 @@ namespace QLCore
          : base(model, timeGrid)
       {
          termStructure_ = termStructure;
-         termStructure_.registerWith(update);
       }
 
       public override void calculate()

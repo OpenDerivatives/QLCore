@@ -74,9 +74,6 @@ namespace QLCore
          discountCurve_ = discountCurve;
 
          maturityDate_ = calendar_.adjust(maturityDate_, businessDayConvention_);
-
-         Settings.Instance.registerWith(update);
-         discountCurve_.registerWith(update);
       }
 
       public virtual Date settlementDate()

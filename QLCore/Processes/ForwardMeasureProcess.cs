@@ -33,7 +33,6 @@ namespace QLCore
       public virtual void setForwardMeasureTime(double T)
       {
          T_ = T;
-         notifyObservers();
       }
       public double getForwardMeasureTime() { return T_; }
 
@@ -79,7 +78,6 @@ namespace QLCore
       public virtual void setForwardMeasureTime(double T)
       {
          T_ = T;
-         notifyObservers();
       }
       public double getForwardMeasureTime()
       {

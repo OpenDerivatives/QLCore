@@ -33,7 +33,6 @@ namespace QLCore
       public AnalyticDividendEuropeanEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -101,6 +100,11 @@ namespace QLCore
 
       }
 
+      public override void update()
+      {
+         process_.update();
+         base.update();
+      }
 
       private GeneralizedBlackScholesProcess process_;
    }

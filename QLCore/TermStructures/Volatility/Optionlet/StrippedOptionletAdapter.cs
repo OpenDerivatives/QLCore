@@ -35,8 +35,6 @@ namespace QLCore
          optionletStripper_ = s;
          nInterpolations_ = s.optionletMaturities();
          strikeInterpolations_ = new List<Interpolation>(nInterpolations_);
-
-         optionletStripper_.registerWith(update);
       }
 
       // TermStructure interface

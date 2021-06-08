@@ -55,8 +55,6 @@ namespace QLCore
          maturityDate_ = calendar.advance(iborStartDate, new Period(lengthInMonths, TimeUnit.Months), convention, endOfMonth);
          yearFraction_ = dayCounter.yearFraction(earliestDate_, maturityDate_);
          pillarDate_ = latestDate_ = latestRelevantDate_ = maturityDate_;
-
-         convAdj_.registerWith(update);
       }
 
 
@@ -150,8 +148,6 @@ namespace QLCore
          earliestDate_ = iborStartDate;
          yearFraction_ = dayCounter.yearFraction(earliestDate_, maturityDate_);
          pillarDate_ = latestDate_ = latestRelevantDate_ = maturityDate_;
-
-         convAdj_.registerWith(update);
       }
 
       public FuturesRateHelper(double price,
@@ -241,7 +237,6 @@ namespace QLCore
          maturityDate_ = cal.advance(iborStartDate, i.tenor(), i.businessDayConvention());
          yearFraction_ = i.dayCounter().yearFraction(earliestDate_, maturityDate_);
          pillarDate_ = latestDate_ = latestRelevantDate_ = maturityDate_;
-         convAdj_.registerWith(update);
       }
 
       public FuturesRateHelper(double price,
@@ -311,28 +306,25 @@ namespace QLCore
       protected RelativeDateRateHelper(Handle<Quote> quote)
          : base(quote)
       {
-         Settings.Instance.registerWith(update);
          evaluationDate_ = Settings.Instance.evaluationDate();
       }
 
       protected RelativeDateRateHelper(double quote)
          : base(quote)
       {
-         Settings.Instance.registerWith(update);
          evaluationDate_ = Settings.Instance.evaluationDate();
       }
 
 
       //////////////////////////////////////
       //! Observer interface
-      public override void update()
+      public void update()
       {
          if (evaluationDate_ != Settings.Instance.evaluationDate())
          {
             evaluationDate_ = Settings.Instance.evaluationDate();
             initializeDates();
          }
-         base.update();
       }
 
       ///////////////////////////////////////////
@@ -397,7 +389,7 @@ namespace QLCore
       public override void setTermStructure(YieldTermStructure t)
       {
          // no need to register---the index is not lazy
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
       }
 
@@ -484,7 +476,6 @@ namespace QLCore
          // We want to be notified of changes of fixings, but we don't
          // want notifications from termStructureHandle_ (they would
          // interfere with bootstrapping.)
-         iborIndex_.registerWith(update);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -500,7 +491,6 @@ namespace QLCore
          pillarChoice_ = pillarChoice;
 
          iborIndex_ = i.clone(termStructureHandle_);
-         iborIndex_.registerWith(update);
          pillarDate_ = customPillarDate;
 
          initializeDates();
@@ -568,7 +558,6 @@ namespace QLCore
          // no way to take fixing into account,
          // even if we would like to for FRA over today
          iborIndex_ = iborIndex.clone(termStructureHandle_);
-         iborIndex_.registerWith(update);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -585,7 +574,6 @@ namespace QLCore
          // no way to take fixing into account,
          // even if we would like to for FRA over today
          iborIndex_ = iborIndex.clone(termStructureHandle_);
-         iborIndex_.registerWith(update);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -593,7 +581,7 @@ namespace QLCore
       public override void setTermStructure(YieldTermStructure t)
       {
          // no need to register---the index is not lazy
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
       }
 
@@ -686,12 +674,6 @@ namespace QLCore
 
          // take fixing into account
          iborIndex_ = swapIndex.iborIndex().clone(termStructureHandle_);
-         // We want to be notified of changes of fixings, but we don't
-         // want notifications from termStructureHandle_ (they would
-         // interfere with bootstrapping.)
-         iborIndex_.registerWith(update) ;
-         spread_.registerWith(update);
-         discountHandle_.registerWith(update);
          pillarDate_ = customPillarDate;
 
          initializeDates();
@@ -730,12 +712,6 @@ namespace QLCore
 
          // take fixing into account
          iborIndex_ = iborIndex.clone(termStructureHandle_);
-         // We want to be notified of changes of fixings, but we don't
-         // want notifications from termStructureHandle_ (they would
-         // interfere with bootstrapping.)
-         iborIndex_.registerWith(update) ;
-         spread_.registerWith(update);
-         discountHandle_.registerWith(update);
 
          pillarDate_ = customPillarDate;
          initializeDates();
@@ -764,13 +740,6 @@ namespace QLCore
 
          // take fixing into account
          iborIndex_ = swapIndex.iborIndex().clone(termStructureHandle_);
-         // We want to be notified of changes of fixings, but we don't
-         // want notifications from termStructureHandle_ (they would
-         // interfere with bootstrapping.)
-         iborIndex_.registerWith(update);
-         spread_.registerWith(update);
-         discountHandle_.registerWith(update);
-
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -808,13 +777,6 @@ namespace QLCore
 
          // take fixing into account
          iborIndex_ = iborIndex.clone(termStructureHandle_);
-         // We want to be notified of changes of fixings, but we don't
-         // want notifications from termStructureHandle_ (they would
-         // interfere with bootstrapping.)
-         iborIndex_.registerWith(update);
-         spread_.registerWith(update);
-         discountHandle_.registerWith(update);
-
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -882,9 +844,9 @@ namespace QLCore
       {
          // do not set the relinkable handle as an observer -
          // force recalculation when needed
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
-         discountRelinkableHandle_.linkTo(discountHandle_.empty() ? t : discountHandle_, false);
+         discountRelinkableHandle_.linkTo(discountHandle_.empty() ? t : discountHandle_);
       }
 
       public override double impliedQuote()
@@ -947,9 +909,6 @@ namespace QLCore
          bmaIndex_ = bmaIndex;
          iborIndex_ = iborIndex;
 
-         iborIndex_.registerWith(update);
-         bmaIndex_.registerWith(update);
-
          initializeDates();
       }
 
@@ -966,7 +925,7 @@ namespace QLCore
       {
          // do not set the relinkable handle as an observer -
          // force recalculation when needed
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
       }
 
@@ -1052,8 +1011,6 @@ namespace QLCore
          isFxBaseCurrencyCollateralCurrency_ = isFxBaseCurrencyCollateralCurrency;
          collHandle_ = coll;
 
-         spot_.registerWith(update);
-         collHandle_.registerWith(update);
          initializeDates();
       }
 
@@ -1082,8 +1039,8 @@ namespace QLCore
          // do not set the relinkable handle as an observer -
          // force recalculation when needed
 
-         termStructureHandle_.linkTo(t, false);
-         collRelinkableHandle_.linkTo(collHandle_, false);
+         termStructureHandle_.linkTo(t);
+         collRelinkableHandle_.linkTo(collHandle_);
          base.setTermStructure(t);
 
       }

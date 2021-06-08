@@ -42,9 +42,6 @@ namespace QLCore
          calibrationErrorType_ = calibrationErrorType;
          volatilityType_ = type;
          shift_ = shift;
-
-         volatility_.registerWith(update);
-         termStructure_.registerWith(update);
       }
 
       protected override void performCalculations()

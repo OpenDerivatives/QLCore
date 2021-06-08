@@ -62,8 +62,6 @@ namespace QLCore
             maturityDate_ = coupons.Last().date();
             addRedemptionsToCashflows();
          }
-
-         Settings.Instance.registerWith(update);
       }
 
       //! old constructor for non amortizing bonds.
@@ -108,8 +106,6 @@ namespace QLCore
 
 
          }
-
-         Settings.Instance.registerWith(update);
       }
       #endregion
 

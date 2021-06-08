@@ -24,7 +24,7 @@ namespace QLCore
 {
    //! base class for interest rate indexes
    /*! \todo add methods returning InterestRate */
-   public abstract class InterestRateIndex : Index, IObserver
+   public abstract class InterestRateIndex : Index
    {
       protected InterestRateIndex(string familyName,
                                   Period tenor,
@@ -39,7 +39,6 @@ namespace QLCore
          currency_ = currency;
          dayCounter_ = dayCounter;
          fixingCalendar_ = fixingCalendar;
-
 
          tenor_.normalize();
 
@@ -59,10 +58,6 @@ namespace QLCore
             res += tenor_.ToShortString();
          res = res + " " + dayCounter_.name();
          name_ =  res;
-
-         Settings.Instance.registerWith(update);
-         // recheck
-         IndexManager.Instance.notifier(name()).registerWith(update);
       }
 
       // Index interface
@@ -105,9 +100,6 @@ namespace QLCore
          }
          return forecastFixing(fixingDate);
       }
-
-      // Observer interface
-      public void update() { notifyObservers(); }
 
       // Inspectors
       public string familyName() { return familyName_; }

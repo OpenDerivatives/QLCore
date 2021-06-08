@@ -286,8 +286,6 @@ namespace QLCore
                              + ") later than maturity ("
                              + maturityDate_.ToShortDateString() + ")");
          }
-
-         creditSpread.registerWith(update);
       }
 
       protected override void performCalculations()

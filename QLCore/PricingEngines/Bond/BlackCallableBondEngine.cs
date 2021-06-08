@@ -43,9 +43,6 @@ namespace QLCore
                                                                    fwdYieldVol,
                                                                    new Actual365Fixed()));
          discountCurve_ = discountCurve;
-
-         volatility_.registerWith(update);
-         discountCurve_.registerWith(update);
       }
       //! volatility is the quoted fwd yield volatility, not price vol
       public BlackCallableFixedRateBondEngine(Handle<CallableBondVolatilityStructure> yieldVolStructure,
@@ -53,8 +50,6 @@ namespace QLCore
       {
          volatility_ = yieldVolStructure;
          discountCurve_ = discountCurve;
-         volatility_.registerWith(update);
-         discountCurve_.registerWith(update);
       }
 
       public override void calculate()

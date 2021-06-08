@@ -46,7 +46,6 @@ namespace QLCore
       public AnalyticDiscreteGeometricAveragePriceAsianEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -173,6 +172,12 @@ namespace QLCore
                                                   results_.value.GetValueOrDefault(),
                                                   results_.delta.GetValueOrDefault(),
                                                   results_.gamma.GetValueOrDefault());
+      }
+
+      public override void update()
+      {
+         process_.update();
+         base.update();
       }
    }
 }

@@ -59,7 +59,6 @@ namespace QLCore
       {
          for (int j = 1; j <= samples; j++)
          {
-
             Sample<IPath> path = pathGenerator_.next();
             double price = pathPricer_.value(path.value);
 

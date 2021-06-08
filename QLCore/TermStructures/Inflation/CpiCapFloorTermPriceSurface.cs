@@ -238,9 +238,6 @@ namespace QLCore
          performCalculations();
       }
 
-      // LazyObject interface
-      public override void update() { notifyObservers(); }
-
       //! set up the interpolations for capPrice_ and floorPrice_
       //! since we know ATM, and we have single flows,
       //! we can use put/call parity to extend the surfaces

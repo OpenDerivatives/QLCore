@@ -38,14 +38,12 @@ namespace QLCore
          r_ = r;
          t_ = dayCounter.yearFraction(modelReferenceDate, referenceDate);
          model_ = model;
-         model_.registerWith(update);
       }
 
       public override Date maxDate() { return Date.maxDate(); }
       public void setVariable(Vector r)
       {
          r_ = r;
-         notifyObservers();
       }
 
       protected internal override double discountImpl(double d)

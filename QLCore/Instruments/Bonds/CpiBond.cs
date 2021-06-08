@@ -72,14 +72,8 @@ namespace QLCore
                              exCouponEndOfMonth)
          .withNotionals(faceAmount)
          .withPaymentAdjustment(paymentConvention);
-
-
+         
          calculateNotionalsFromCashflows();
-
-         cpiIndex_.registerWith(update);
-
-         foreach (CashFlow i in cashflows_)
-            i.registerWith(update);
       }
 
       public Frequency frequency() { return frequency_; }

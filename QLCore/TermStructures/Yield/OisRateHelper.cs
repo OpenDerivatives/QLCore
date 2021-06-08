@@ -33,7 +33,6 @@ namespace QLCore
          settlementDays_ = settlementDays;
          tenor_ = tenor;
          overnightIndex_ = overnightIndex;
-         overnightIndex_.registerWith(update);
          initializeDates();
       }
 
@@ -58,7 +57,7 @@ namespace QLCore
       public override void setTermStructure(YieldTermStructure t)
       {
          // no need to register---the index is not lazy
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
       }
 
@@ -91,9 +90,6 @@ namespace QLCore
 
          : base(fixedRate)
       {
-
-         overnightIndex.registerWith(update);
-
          // dummy OvernightIndex with curve/swap arguments
          // review here
          IborIndex clonedIborIndex = overnightIndex.clone(termStructureHandle_);
@@ -113,7 +109,7 @@ namespace QLCore
       public override void setTermStructure(YieldTermStructure t)
       {
          // no need to register---the index is not lazy
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
 
       }

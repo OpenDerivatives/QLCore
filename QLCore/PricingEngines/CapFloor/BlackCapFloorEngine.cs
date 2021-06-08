@@ -39,7 +39,6 @@ namespace QLCore
          discountCurve_ = discountCurve;
          vol_ = new Handle<OptionletVolatilityStructure>(new ConstantOptionletVolatility(0, new NullCalendar(), BusinessDayConvention.Following, vol, dc ?? new Actual365Fixed()));
          displacement_ = displacement;
-         discountCurve_.registerWith(update);
       }
       public BlackCapFloorEngine(Handle<YieldTermStructure> discountCurve, Handle<Quote> vol,
                                  DayCounter dc = null, double displacement = 0.0)
@@ -48,8 +47,6 @@ namespace QLCore
          vol_ = new Handle<OptionletVolatilityStructure>(new ConstantOptionletVolatility(
                                                             0, new NullCalendar(), BusinessDayConvention.Following, vol, dc ?? new Actual365Fixed()));
          displacement_ = displacement;
-         discountCurve_.registerWith(update);
-         vol_.registerWith(update);
 
       }
       public BlackCapFloorEngine(Handle<YieldTermStructure> discountCurve, Handle<OptionletVolatilityStructure> vol,
@@ -58,8 +55,6 @@ namespace QLCore
          discountCurve_ = discountCurve;
          vol_ = vol;
          displacement_ = displacement;
-         discountCurve_.registerWith(update);
-         vol_.registerWith(update);
       }
 
       public override void calculate()

@@ -32,7 +32,6 @@ namespace QLCore
       public AnalyticContinuousPartialFloatingLookbackEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
       public override void calculate()
       {

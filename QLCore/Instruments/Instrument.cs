@@ -37,15 +37,18 @@ namespace QLCore
           was overridden in a derived class. */
       public void setPricingEngine(IPricingEngine e)
       {
-         if (engine_ != null)
-            engine_.unregisterWith(update);
          engine_ = e;
-         if (engine_ != null)
-            engine_.registerWith(update);
-
-         update();       // trigger (lazy) recalculation and notify observers
+         update();
       }
 
+      //! re-allow calculation
+      public override void update()
+      {
+         if (engine_ != null)
+            engine_.update();
+         
+         base.update();
+      }
 
       /*! When a derived argument structure is defined for an instrument,
        * this method should be overridden to fill it.

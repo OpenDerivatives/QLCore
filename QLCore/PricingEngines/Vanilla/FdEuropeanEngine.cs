@@ -36,8 +36,6 @@ namespace QLCore
          : base(process, timeSteps, gridPoints, timeDependent)
       {
          prices_ = new SampledCurve(gridPoints);
-
-         process.registerWith(update);
       }
 
       public void calculate()
@@ -75,31 +73,11 @@ namespace QLCore
       public IPricingEngineArguments getArguments() { return arguments_; }
       public IPricingEngineResults getResults() { return results_; }
       public void reset() { results_.reset(); }
-
-      #region Observer & Observable
-      // observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
+      public override void update()
       {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
+         process_.update();
+         base.update();
       }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public void update() { notifyObservers(); }
-      #endregion
       #endregion
    }
 }

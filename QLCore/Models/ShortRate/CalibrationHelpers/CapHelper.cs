@@ -40,8 +40,6 @@ namespace QLCore
          fixedLegFrequency_ = fixedLegFrequency;
          fixedLegDayCounter_ = fixedLegDayCounter;
          includeFirstSwaplet_ = includeFirstSwaplet;
-
-         index_.registerWith(update);
       }
 
       public override void addTimesTo(List<double> times)

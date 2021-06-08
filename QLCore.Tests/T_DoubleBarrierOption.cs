@@ -50,6 +50,7 @@ namespace TestSuite
                       + "    error:            " + error + "\n"
                       + "    tolerance:        " + tolerance);
       }
+
       public void REPORT_FAILURE_VANNAVOLGA(string greekName, DoubleBarrier.Type barrierType,
                                             double barrier1, double barrier2, double rebate,
                                             StrikedTypePayoff payoff, Exercise exercise, double s, double q,
@@ -401,6 +402,9 @@ namespace TestSuite
                vol25Put.setValue(values[i].vol25Put);
                volAtm.setValue(values[i].volAtm);
                vol25Call.setValue(values[i].vol25Call);
+
+               qTS.update();
+               rTS.update();
 
                StrikedTypePayoff payoff = new PlainVanillaPayoff(values[i].type, values[i].strike);
 

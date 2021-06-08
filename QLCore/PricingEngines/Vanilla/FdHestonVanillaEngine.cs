@@ -45,8 +45,6 @@ namespace QLCore
             strikes_ = new List<double>();
             cachedArgs2results_ = new List<Pair<DividendVanillaOption.Arguments, OneAssetOption.Results>>();
             quantoHelper_ = null;
-
-            model_.registerWith(update);
         }
 
         public FdHestonVanillaEngine(
@@ -208,7 +206,7 @@ namespace QLCore
         public override void update()
         {
             cachedArgs2results_.Clear();
-            base.update();
+            model_.link.update();
         }
 
         public void enableMultipleStrikesCaching(List<double> strikes)

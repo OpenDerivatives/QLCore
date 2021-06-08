@@ -97,8 +97,6 @@ namespace QLCore
          incomeDiscountCurve_ = discountCurve_;
          // income is irrelevant to FRA - set it to zero
          underlyingIncome_ = 0.0;
-
-         index_.registerWith(update);
       }
 
       // Calculations

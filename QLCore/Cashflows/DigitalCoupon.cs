@@ -242,8 +242,6 @@ namespace QLCore
                Utils.QL_FAIL("unsupported position type");
                break;
          }
-
-         underlying.registerWith(update);
       }
 
       // Coupon interface
@@ -384,12 +382,7 @@ namespace QLCore
 
       public override void setPricer(FloatingRateCouponPricer pricer)
       {
-         if (pricer_ != null)
-            pricer_.unregisterWith(update);
          pricer_ = pricer;
-         if (pricer_ != null)
-            pricer_.registerWith(update);
-         update();
          underlying_.setPricer(pricer);
       }
 

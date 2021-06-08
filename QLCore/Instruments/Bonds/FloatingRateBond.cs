@@ -58,8 +58,6 @@ namespace QLCore
 
          Utils.QL_REQUIRE(cashflows().Count != 0, () => "bond with no cashflows!");
          Utils.QL_REQUIRE(redemptions_.Count == 1, () => "multiple redemptions created");
-
-         index.registerWith(update);
       }
 
       //public FloatingRateBond(int settlementDays, double faceAmount, Date startDate, Date maturityDate, Frequency couponFrequency,
@@ -128,8 +126,6 @@ namespace QLCore
 
          Utils.QL_REQUIRE(cashflows().Count != 0, () => "bond with no cashflows!");
          Utils.QL_REQUIRE(redemptions_.Count == 1, () => "multiple redemptions created");
-
-         index.registerWith(update);
       }
 
    }

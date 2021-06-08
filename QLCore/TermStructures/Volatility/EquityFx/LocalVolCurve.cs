@@ -29,7 +29,6 @@ namespace QLCore
          : base(curve.link.businessDayConvention(), curve.link.dayCounter())
       {
          blackVarianceCurve_ = curve;
-         blackVarianceCurve_.registerWith(update);
       }
 
       // TermStructure interface

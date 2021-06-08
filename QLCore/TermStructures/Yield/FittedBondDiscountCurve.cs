@@ -96,7 +96,6 @@ namespace QLCore
          fittingMethod_ = fittingMethod;
 
          fittingMethod_.curve_ = this;
-         setup();
       }
 
       //! curve reference date fixed for life of curve
@@ -120,7 +119,6 @@ namespace QLCore
          fittingMethod_ = fittingMethod;
 
          fittingMethod_.curve_ = this;
-         setup();
       }
 
       // Inspectors
@@ -137,12 +135,6 @@ namespace QLCore
       {
          calculate();
          return fittingMethod_.clone();
-      }
-
-      private void setup()
-      {
-         for (int i = 0; i < bondHelpers_.Count; ++i)
-            bondHelpers_[i].registerWith(update);
       }
 
       protected override void performCalculations()

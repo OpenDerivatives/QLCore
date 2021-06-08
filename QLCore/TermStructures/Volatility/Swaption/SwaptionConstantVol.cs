@@ -44,7 +44,6 @@ namespace QLCore
          maxSwapTenor_ = new Period(100, TimeUnit.Years);
          volatilityType_ = type;
          shift_ = shift;
-         volatility_.registerWith(update);
       }
 
       //! fixed reference date, floating market data
@@ -62,7 +61,6 @@ namespace QLCore
          maxSwapTenor_ = new Period(100, TimeUnit.Years);
          volatilityType_ = type;
          shift_ = shift;
-         volatility_.registerWith(update);
       }
 
       //! floating reference date, fixed market data

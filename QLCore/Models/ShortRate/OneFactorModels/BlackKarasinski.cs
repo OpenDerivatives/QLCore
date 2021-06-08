@@ -42,7 +42,6 @@ namespace QLCore
          sigma_ = arguments_[1] = new ConstantParameter(sigma, new PositiveConstraint());
          termStructure_ = new Handle<YieldTermStructure>();
          termStructure_ = termStructure;
-         termStructure.registerWith(update);
       }
 
       public BlackKarasinski(Handle<YieldTermStructure> termStructure)

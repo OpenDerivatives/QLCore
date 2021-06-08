@@ -20,7 +20,7 @@
 
 using System;
 using System.Collections.Generic;
-using history_map = System.Collections.Generic.Dictionary < string, QLCore.ObservableValue < QLCore.TimeSeries < double? >>>;
+using history_map = System.Collections.Generic.Dictionary<string, QLCore.TimeSeries<double?>>;
 
 namespace QLCore
 {
@@ -44,7 +44,7 @@ namespace QLCore
       /// <returns></returns>
       public bool hasHistory(string name)
       {
-         return data_.ContainsKey(name.ToUpper()) && data_[name.ToUpper()].value().Count > 0;
+         return data_.ContainsKey(name.ToUpper()) && data_[name.ToUpper()].Count > 0;
       }
 
       /// <summary>
@@ -55,7 +55,7 @@ namespace QLCore
       public TimeSeries<double?> getHistory(string name)
       {
          checkExists(name);
-         return data_[name.ToUpper()].value();
+         return data_[name.ToUpper()];
       }
 
       /// <summary>
@@ -87,7 +87,7 @@ namespace QLCore
       public void setHistory(string name, TimeSeries<double?> history)
       {
          checkExists(name);
-         data_[name.ToUpper()].Assign(history);
+         data_[name.ToUpper()] = history;
       }
 
       /// <summary>
@@ -95,7 +95,7 @@ namespace QLCore
       /// </summary>
       /// <param name="name"></param>
       /// <returns></returns>
-      public ObservableValue<TimeSeries<double?>> notifier(string name)
+      public TimeSeries<double?> notifier(string name)
       {
          checkExists(name);
          return data_[name.ToUpper()];
@@ -137,10 +137,10 @@ namespace QLCore
       private void checkExists(string name)
       {
          if (!data_.ContainsKey(name.ToUpper()))
-            data_.Add(name.ToUpper(), new ObservableValue<TimeSeries<double?>>());
+            data_.Add(name.ToUpper(), new TimeSeries<double?>());
       }
 
-      private history_map data_ = new Dictionary<string, ObservableValue<TimeSeries<double?>>>();
+      private history_map data_ = new Dictionary<string, TimeSeries<double?>>();
    }
 
 }

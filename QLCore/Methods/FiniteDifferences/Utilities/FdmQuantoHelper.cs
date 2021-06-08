@@ -20,7 +20,7 @@
 
 namespace QLCore
 {
-   public class FdmQuantoHelper : IObservable
+   public class FdmQuantoHelper
    {
       public FdmQuantoHelper(
          YieldTermStructure rTS,
@@ -68,44 +68,5 @@ namespace QLCore
       protected YieldTermStructure rTS_, fTS_;
       protected BlackVolTermStructure fxVolTS_;
       protected double equityFxCorrelation_, exchRateATMlevel_;
-
-      #region Observer & Observable
-
-      // observable interface
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler)
-      {
-         notifyObserversEvent += handler;
-      }
-
-      public void unregisterWith(Callback handler)
-      {
-         notifyObserversEvent -= handler;
-      }
-
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      public virtual void update()
-      {
-         notifyObservers();
-      }
-
-      #endregion
    }
 }

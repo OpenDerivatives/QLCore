@@ -28,37 +28,17 @@ namespace QLCore
 
        \ingroup shortrate
    */
-   public abstract class AffineModel : IObservable
+   public abstract class AffineModel
    {
       //! Implied discount curve
       public abstract double discount(double t);
       public abstract double discountBond(double now, double maturity, Vector factors);
       public abstract double discountBondOption(Option.Type type, double strike, double maturity, double bondMaturity);
-
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
    }
 
    //Affince Model Interface used for multihritage in
    //liborforwardmodel.cs & analyticcapfloorengine.cs
-   public interface IAffineModel : IObservable
+   public interface IAffineModel
    {
       double discount(double t);
       double discountBond(double now, double maturity, Vector factors);
@@ -66,7 +46,7 @@ namespace QLCore
    }
 
    //TermStructureConsistentModel used in analyticcapfloorengine.cs
-   public class TermStructureConsistentModel : IObservable
+   public class TermStructureConsistentModel
    {
       public TermStructureConsistentModel(Handle<YieldTermStructure> termStructure)
       {
@@ -78,26 +58,6 @@ namespace QLCore
          return termStructure_;
       }
       private Handle<YieldTermStructure> termStructure_;
-
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
    }
 
    //ITermStructureConsistentModel used ins shortratemodel blackkarasinski.cs/hullwhite.cs
@@ -105,15 +65,11 @@ namespace QLCore
    {
       Handle<YieldTermStructure> termStructure();
       Handle<YieldTermStructure> termStructure_ { get; set; }
-      void notifyObservers();
-      event Callback notifyObserversEvent;
-      void registerWith(Callback handler);
-      void unregisterWith(Callback handler);
       void update();
    }
 
    //! Calibrated model class
-   public class CalibratedModel : IObserver, IObservable
+   public class CalibratedModel
    {
       protected List<Parameter> arguments_;
 
@@ -168,8 +124,6 @@ namespace QLCore
          Vector result = new Vector(prob.currentValue());
          setParams(proj.include(result));
          Vector shortRateProblemValues_ = prob.values(result);
-
-         notifyObservers();
       }
 
       public double value(Vector parameters, List<CalibrationHelper> instruments)
@@ -343,34 +297,10 @@ namespace QLCore
 
       }
 
-
-      #region Observer & Observable
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      public void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
       public void update()
       {
          generateArguments();
-         notifyObservers();
       }
-      #endregion
    }
 
    //! Abstract short-rate model class

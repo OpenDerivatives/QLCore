@@ -57,8 +57,6 @@ namespace QLCore
       public IntegralEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -82,6 +80,12 @@ namespace QLCore
          results_.value = process_.riskFreeRate().link.discount(arguments_.exercise.lastDate()) /
                           Math.Sqrt(2.0 * Math.PI * variance) *
                           integrator.value(f.value, drift - infinity, drift + infinity);
+      }
+
+      public override void update()
+      {
+         process_.update();
+         base.update();
       }
    }
 

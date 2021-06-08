@@ -36,8 +36,6 @@ namespace QLCore
       {
          hestonModel_ = hestonModel;
          integration_ = AnalyticHestonEngine.Integration.gaussLaguerre(164);
-
-         hestonModel_.registerWith(update);
       }
 
       public override Date maxDate()

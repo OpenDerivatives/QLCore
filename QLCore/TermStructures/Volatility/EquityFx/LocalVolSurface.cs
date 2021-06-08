@@ -46,11 +46,6 @@ namespace QLCore
          riskFreeTS_ = riskFreeTS;
          dividendTS_ = dividendTS;
          underlying_ = underlying;
-
-         blackTS_.registerWith(update);
-         riskFreeTS_.registerWith(update);
-         dividendTS_.registerWith(update);
-         underlying_.registerWith(update);
       }
 
       public LocalVolSurface(Handle<BlackVolTermStructure> blackTS, Handle<YieldTermStructure> riskFreeTS,
@@ -61,11 +56,6 @@ namespace QLCore
          riskFreeTS_ = riskFreeTS;
          dividendTS_ = dividendTS;
          underlying_ = new Handle<Quote>(new SimpleQuote(underlying));
-
-         blackTS_.registerWith(update);
-         riskFreeTS_.registerWith(update);
-         dividendTS_.registerWith(update);
-         underlying_.registerWith(update);
       }
 
       // TermStructure interface

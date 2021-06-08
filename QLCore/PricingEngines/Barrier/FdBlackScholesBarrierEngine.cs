@@ -43,8 +43,6 @@ namespace QLCore
          schemeDesc_ = schemeDesc == null ? new FdmSchemeDesc().Douglas() : schemeDesc;
          localVol_ = localVol;
          illegalLocalVolOverwrite_ = illegalLocalVolOverwrite;
-
-         process_.registerWith(update);
       }
 
       public override void calculate()

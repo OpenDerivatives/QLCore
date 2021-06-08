@@ -64,7 +64,6 @@ namespace QLCore
          optionInterpolator_.update();
          optionInterpolator_.enableExtrapolation();
          evaluationDate_ = Settings.Instance.evaluationDate();
-         Settings.Instance.registerWith(update);
       }
 
       protected SwaptionVolatilityDiscrete(List<Period> optionTenors,

@@ -39,10 +39,7 @@ namespace QLCore
 
       double accuracy_ { get; }
       bool moving_ { get; }
-
-      void registerWith(BootstrapHelper<T> helper);
       Date initialDate();
-
       double timeFromReference(Date d);
       double initialValue();
    }

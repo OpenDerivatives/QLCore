@@ -129,9 +129,6 @@ namespace QLCore
          volDayCounter_ = swaptionVol.link.dayCounter();
          integrator_ = integrator;
 
-         if (!couponDiscountCurve_.empty())
-            couponDiscountCurve_.registerWith(update);
-
          if (integrator_ == null)
             integrator_ = new  GaussKronrodNonAdaptive(1E-10, 5000, 1E-10);
       }
@@ -219,10 +216,7 @@ namespace QLCore
       public double meanReversion() { return meanReversion_.link.value(); }
       public void setMeanReversion(Handle<Quote> meanReversion)
       {
-         meanReversion_.unregisterWith(update);
          meanReversion_ = meanReversion;
-         meanReversion_.registerWith(update);
-         update();
       }
 
 

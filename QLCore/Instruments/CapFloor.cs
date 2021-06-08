@@ -77,12 +77,6 @@ namespace QLCore
             while (floorRates_.Count < floatingLeg_.Count)
                floorRates_.Add(floorRates_.Last());
          }
-
-         for (int i = 0; i < floatingLeg_.Count; i++)
-            floatingLeg_[i].registerWith(update);
-
-         Settings.Instance.registerWith(update);
-
       }
       public CapFloor(CapFloorType type, List<CashFlow> floatingLeg, List<double> strikes)
       {
@@ -110,12 +104,6 @@ namespace QLCore
          }
          else
             throw new ArgumentException("only Cap/Floor types allowed in this constructor");
-
-
-         for (int i = 0; i < floatingLeg_.Count; i++)
-            floatingLeg_[i].registerWith(update);
-
-         Settings.Instance.registerWith(update);
       }
 
       #endregion

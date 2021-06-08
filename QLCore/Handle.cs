@@ -25,17 +25,15 @@ namespace QLCore
        pointer is relinked to another observable, the change will be propagated to all the copies.
        <tt>registerAsObserver</tt> is not needed since C# does automatic garbage collection */
 
-   public class Handle<T> where T : IObservable
+   public class Handle<T>
    {
-      protected Link link_;
+      protected T link_;
 
       public Handle() : this(default(T)) { }
 
-      public Handle(T h) : this(h, true) { }
-
-      public Handle(T h, bool registerAsObserver)
+      public Handle(T h)
       {
-         link_ = new Link(h, registerAsObserver);
+         link_ = h;
       }
 
       //! dereferencing
@@ -49,17 +47,12 @@ namespace QLCore
          get
          {
             Utils.QL_REQUIRE(!empty(), () => "empty Handle cannot be dereferenced");
-            return link_.currentLink();
+            return link_;
          }
       }
 
-      // dereferencing of the observable to the Link
-      public void registerWith(Callback handler) { link_.registerWith(handler); }
-
-      public void unregisterWith(Callback handler) { link_.unregisterWith(handler); }
-
       //! checks if the contained shared pointer points to anything
-      public bool empty() { return link_.empty(); }
+      public bool empty() { return link_ == null; }
 
       #region operator overload
 
@@ -79,94 +72,27 @@ namespace QLCore
 
       public override bool Equals(object o)
       {
-         return link_ == ((Handle<T>)o).link_;
+         return this == (Handle<T>)o;
       }
 
       public override int GetHashCode() { return ToString().GetHashCode(); }
 
       #endregion operator overload
-
-      protected class Link : IObservable, IObserver
-      {
-         private T h_;
-         private bool isObserver_;
-
-         public Link(T h, bool registerAsObserver)
-         {
-            linkTo(h, registerAsObserver);
-         }
-
-         public void linkTo(T h, bool registerAsObserver)
-         {
-            if (h != null && (!h.Equals(h_) || (isObserver_ != registerAsObserver)))
-            {
-               if (h_ != null && isObserver_)
-               {
-                  h_.unregisterWith(update);
-               }
-
-               h_ = h;
-               isObserver_ = registerAsObserver;
-
-               if (isObserver_)
-               {
-                  h_.registerWith(update);
-               }
-
-               // finally, notify observers of this of the change in the underlying object
-               notifyObservers();
-            }
-         }
-
-         public bool empty() { return h_ == null; }
-
-         public T currentLink() { return h_; }
-
-         public void update() { notifyObservers(); }
-
-         // Observable
-         private readonly WeakEventSource eventSource = new WeakEventSource();
-
-         public event Callback notifyObserversEvent
-         {
-            add
-            {
-               eventSource.Subscribe(value);
-            }
-            remove
-            {
-               eventSource.Unsubscribe(value);
-            }
-         }
-
-         public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-
-         public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-
-         protected void notifyObservers()
-         {
-            eventSource.Raise();
-         }
-      }
    }
 
    //! Relinkable handle to an observable
    /*! An instance of this class can be relinked so that it points to another observable. The change will be propagated to all
        handles that were created as copies of such instance. */
 
-   public class RelinkableHandle<T> : Handle<T> where T : IObservable
+   public class RelinkableHandle<T> : Handle<T>
    {
-      public RelinkableHandle() : base(default(T), true) { }
+      public RelinkableHandle() : base(default(T)) { }
 
-      public RelinkableHandle(T h) : base(h, true) { }
+      public RelinkableHandle(T h) : base(h) { }
 
-      public RelinkableHandle(T h, bool registerAsObserver) : base(h, registerAsObserver) { }
-
-      public void linkTo(T h) { linkTo(h, true); }
-
-      public void linkTo(T h, bool registerAsObserver)
+      public void linkTo(T h)
       {
-         link_.linkTo(h, registerAsObserver);
+         link_ = h;
       }
    }
 }

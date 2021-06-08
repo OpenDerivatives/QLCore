@@ -41,8 +41,6 @@ namespace QLCore
          s0_ = new Handle<Quote>(new SimpleQuote(s0));
          strikePrice_ = strikePrice;
          dividendYield_ = dividendYield;
-
-         dividendYield.registerWith(update);
       }
 
       public HestonModelHelper(Period maturity,
@@ -60,9 +58,6 @@ namespace QLCore
          s0_ = s0;
          strikePrice_ = strikePrice;
          dividendYield_ = dividendYield;
-
-         s0.registerWith(update);
-         dividendYield.registerWith(update);
       }
 
       public override void addTimesTo(List<double> t) {}

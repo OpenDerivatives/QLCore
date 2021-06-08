@@ -77,6 +77,7 @@ namespace QLCore
       public override double value(double x)
       {
          vol_.setValue(x);
+         engine_.update();
          engine_.calculate();
          return results_.value.GetValueOrDefault() - targetValue_;
       }

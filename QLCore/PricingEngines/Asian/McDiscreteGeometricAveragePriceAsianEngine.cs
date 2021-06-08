@@ -44,9 +44,9 @@ namespace QLCore
          bool brownianBridge,
          bool antitheticVariate,
          bool controlVariate,
-         int requiredSamples,
-         double requiredTolerance,
-         int maxSamples,
+         int? requiredSamples,
+         double? requiredTolerance,
+         int? maxSamples,
          ulong seed)
          : base(process, maxTimeStepPerYear, brownianBridge, antitheticVariate,
                 controlVariate, requiredSamples, requiredTolerance, maxSamples, seed)
@@ -61,17 +61,19 @@ namespace QLCore
          EuropeanExercise exercise = (EuropeanExercise) this.arguments_.exercise;
          Utils.QL_REQUIRE(exercise != null, () => "wrong exercise given");
 
-         return (PathPricer<IPath>) new GeometricAPOPathPricer(
-                   payoff.optionType(),
-                   payoff.strike(),
-                   this.process_.riskFreeRate().link.discount(
-                      this.timeGrid().Last()),
-                   this.arguments_.runningAccumulator.GetValueOrDefault(),
-                   this.arguments_.pastFixings.GetValueOrDefault());
+         var pathPricer = new GeometricAPOPathPricer(
+                              payoff.optionType(),
+                              payoff.strike(),
+                              this.process_.riskFreeRate().link.discount(
+                                 this.timeGrid().Last()),
+                              this.arguments_.runningAccumulator.GetValueOrDefault(),
+                              this.arguments_.pastFixings.GetValueOrDefault()) as PathPricer<IPath>;
+
+         return pathPricer;
       }
    }
 
-   public class GeometricAPOPathPricer : PathPricer<Path>
+   public class GeometricAPOPathPricer : PathPricer<IPath>
    {
       private PlainVanillaPayoff payoff_;
       private double discount_;
@@ -104,7 +106,7 @@ namespace QLCore
          : this(type, strike, discount, 1.0, 0)
       { }
 
-      public double value(Path path)
+      public double value(IPath path)
       {
          int n = path.length() - 1;
          Utils.QL_REQUIRE(n > 0, () => "the path cannot be empty");
@@ -112,17 +114,17 @@ namespace QLCore
          double averagePrice;
          double product = runningProduct_;
          int fixings = n + pastFixings_;
-         if (path.timeGrid().mandatoryTimes()[0].IsEqual(0.0))
+         if ((path as Path).timeGrid().mandatoryTimes()[0].IsEqual(0.0))
          {
             fixings += 1;
-            product *= path.front();
+            product *= (path as Path).front();
          }
          // care must be taken not to overflow product
          double maxValue = double.MaxValue;
          averagePrice = 1.0;
          for (int i = 1; i < n + 1; i++)
          {
-            double price = path[i];
+            double price = (path as Path)[i];
             if (product < maxValue / price)
             {
                product *= price;
@@ -232,8 +234,8 @@ namespace QLCore
                                                                          steps_.Value,
                                                                          brownianBridge_,
                                                                          antithetic_, controlVariate_,
-                                                                         samples_.Value, tolerance_.Value,
-                                                                         maxSamples_.Value,
+                                                                         samples_, tolerance_,
+                                                                         maxSamples_,
                                                                          seed_);
       }
 

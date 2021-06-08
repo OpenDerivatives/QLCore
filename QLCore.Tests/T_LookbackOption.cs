@@ -173,6 +173,10 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+            
             FloatingTypePayoff payoff = new FloatingTypePayoff(values[i].type);
 
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(

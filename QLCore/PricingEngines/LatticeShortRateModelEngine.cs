@@ -28,9 +28,9 @@ namespace QLCore
        method
    */
    public class LatticeShortRateModelEngine<ArgumentsType, ResultsType>
-      : GenericModelEngine<ShortRateModel, ArgumentsType, ResultsType>
-        where ArgumentsType : IPricingEngineArguments, new ()
-        where ResultsType :  IPricingEngineResults, new ()
+                     : GenericModelEngine<ShortRateModel, ArgumentsType, ResultsType>
+        where ArgumentsType : IPricingEngineArguments, new()
+        where ResultsType :  IPricingEngineResults, new()
 
    {
       protected TimeGrid timeGrid_;
@@ -56,14 +56,6 @@ namespace QLCore
       }
 
       #region PricingEngine
-      #region Observer & Observable
-      public override void update()
-      {
-         if (!timeGrid_.empty())
-            lattice_ = this.model_.link.tree(timeGrid_);
-         notifyObservers();
-      }
-      #endregion
       #endregion
    }
 

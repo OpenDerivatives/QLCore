@@ -68,12 +68,6 @@ namespace QLCore
          .withNotionals(nominal)
          .withPaymentAdjustment(bmaSchedule.businessDayConvention());
 
-         for (int j = 0; j < 2; ++j)
-         {
-            for (int i = 0; i < legs_[j].Count; i++)
-               legs_[j][i].registerWith(update);
-         }
-
          switch (type_)
          {
             case Type.Payer:

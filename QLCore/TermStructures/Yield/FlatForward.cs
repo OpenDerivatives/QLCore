@@ -39,8 +39,6 @@ namespace QLCore
          forward_ = forward;
          compounding_ = compounding;
          frequency_ = frequency;
-
-         forward_.registerWith(update);
       }
 
       public FlatForward(Date referenceDate, double forward, DayCounter dayCounter) :
@@ -65,8 +63,6 @@ namespace QLCore
          forward_ = forward;
          compounding_ = compounding;
          frequency_ = frequency;
-
-         forward_.registerWith(update);
       }
 
       public FlatForward(int settlementDays, Calendar calendar, double forward, DayCounter dayCounter) :

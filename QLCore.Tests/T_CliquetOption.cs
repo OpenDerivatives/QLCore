@@ -195,6 +195,7 @@ namespace TestSuite
                                  qRate.setValue(q);
                                  rRate.setValue(r);
                                  vol.setValue(v);
+                                 option.update();
 
                                  double value = option.NPV();
                                  calculated["delta"]  = option.delta();
@@ -209,48 +210,63 @@ namespace TestSuite
                                     // perturb spot and get delta and gamma
                                     double du = u * 1.0e-4;
                                     spot.setValue(u + du);
+                                    option.update();
                                     double value_p = option.NPV(),
                                            delta_p = option.delta();
                                     spot.setValue(u - du);
+                                    option.update();
                                     double value_m = option.NPV(),
                                            delta_m = option.delta();
                                     spot.setValue(u);
+                                    option.update();
                                     expected["delta"] = (value_p - value_m) / (2 * du);
                                     expected["gamma"] = (delta_p - delta_m) / (2 * du);
 
                                     // perturb rates and get rho and dividend rho
                                     double dr = r * 1.0e-4;
                                     rRate.setValue(r + dr);
+                                    option.update();
                                     value_p = option.NPV();
                                     rRate.setValue(r - dr);
+                                    option.update();
                                     value_m = option.NPV();
                                     rRate.setValue(r);
+                                    option.update();
                                     expected["rho"] = (value_p - value_m) / (2 * dr);
 
                                     double dq = q * 1.0e-4;
                                     qRate.setValue(q + dq);
+                                    option.update();
                                     value_p = option.NPV();
                                     qRate.setValue(q - dq);
+                                    option.update();
                                     value_m = option.NPV();
                                     qRate.setValue(q);
+                                    option.update();
                                     expected["divRho"] = (value_p - value_m) / (2 * dq);
 
                                     // perturb volatility and get vega
                                     double dv = v * 1.0e-4;
                                     vol.setValue(v + dv);
+                                    option.update();
                                     value_p = option.NPV();
                                     vol.setValue(v - dv);
+                                    option.update();
                                     value_m = option.NPV();
                                     vol.setValue(v);
+                                    option.update();
                                     expected["vega"] = (value_p - value_m) / (2 * dv);
 
                                     // perturb date and get theta
                                     double dT = dc.yearFraction(today - 1, today + 1);
                                     Settings.Instance.setEvaluationDate(today - 1);
+                                    option.update();
                                     value_m = option.NPV();
                                     Settings.Instance.setEvaluationDate(today + 1);
+                                    option.update();
                                     value_p = option.NPV();
                                     Settings.Instance.setEvaluationDate(today);
+                                    option.update();
                                     expected["theta"] = (value_p - value_m) / dT;
 
                                     // compare

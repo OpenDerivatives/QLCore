@@ -32,7 +32,6 @@ namespace QLCore
                                    Date settlementDate = null, Date npvDate = null)
       {
          discountCurve_ = discountCurve;
-         discountCurve_.registerWith(update);
          includeSettlementDateFlows_ = includeSettlementDateFlows;
          settlementDate_ = settlementDate;
          npvDate_ = npvDate;

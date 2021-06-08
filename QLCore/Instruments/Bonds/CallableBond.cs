@@ -71,7 +71,7 @@ namespace QLCore
          calculate();
          Utils.QL_REQUIRE(!isExpired(), () => "instrument expired");
          double guess = 0.5 * (minVol + maxVol);
-         blackDiscountCurve_.linkTo(discountCurve, false);
+         blackDiscountCurve_.linkTo(discountCurve);
          ImpliedVolHelper f = new ImpliedVolHelper(this, targetValue);
          Brent solver = new Brent();
          solver.setMaxEvaluations(maxEvaluations);

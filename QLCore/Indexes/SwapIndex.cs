@@ -44,8 +44,6 @@ namespace QLCore
          fixedLegConvention_ = fixedLegConvention;
          exogenousDiscount_ = false;
          discount_ = new Handle<YieldTermStructure>();
-
-         iborIndex_.registerWith(update);
       }
 
       public SwapIndex(string familyName,
@@ -66,9 +64,6 @@ namespace QLCore
          fixedLegConvention_ = fixedLegConvention;
          exogenousDiscount_ = true;
          discount_ = discountingTermStructure;
-
-         iborIndex_.registerWith(update);
-         discount_.registerWith(update);
       }
 
       // InterestRateIndex interface
