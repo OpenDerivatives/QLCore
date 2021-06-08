@@ -58,7 +58,6 @@ namespace QLCore
                                                                                        BusinessDayConvention.Following, vol, dc, new Spec().type(), displacement));
          model_ = model;
          displacement_ = displacement;
-         discountCurve_.registerWith(update);
       }
 
       public BlackStyleSwaptionEngine(Handle<YieldTermStructure> discountCurve,
@@ -73,8 +72,6 @@ namespace QLCore
                                                                                        BusinessDayConvention.Following, vol, dc, new Spec().type(), displacement));
          model_ = model;
          displacement_ = displacement;
-         discountCurve_.registerWith(update);
-         vol_.registerWith(update);
       }
 
       public BlackStyleSwaptionEngine(Handle<YieldTermStructure> discountCurve,
@@ -86,8 +83,6 @@ namespace QLCore
          vol_ = volatility;
          model_ = model;
          displacement_ = displacement;
-         discountCurve_.registerWith(update);
-         vol_.registerWith(update);
       }
 
       public override void calculate()

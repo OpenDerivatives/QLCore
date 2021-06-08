@@ -30,8 +30,6 @@ namespace QLCore
       public InterpolatingCPICapFloorEngine(Handle<CPICapFloorTermPriceSurface> priceSurf)
       {
          priceSurf_ = priceSurf;
-
-         priceSurf_.registerWith(update);
       }
 
       public override void calculate()

@@ -105,11 +105,6 @@ namespace QLCore
                              "non-null displacement is not allowed with Normal model");
          }
 
-         termVolSurface.registerWith(update);
-         iborIndex_.registerWith(update);
-         discount_.registerWith(update);
-         Settings.Instance.registerWith(update);
-
          Period indexTenor = iborIndex_.tenor();
          Period maxCapFloorTenor = termVolSurface.optionTenors().Last();
 

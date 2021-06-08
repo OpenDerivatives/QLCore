@@ -41,7 +41,6 @@ namespace QLCore
          (Instrument instrument, double multiplier = 1.0)
       {
          components_.Add(new KeyValuePair<Instrument, double>(instrument, multiplier));
-         instrument.registerWith(update);
          update();
       }
 

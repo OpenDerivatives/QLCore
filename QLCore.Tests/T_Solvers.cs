@@ -88,15 +88,5 @@ namespace TestSuite
       {
          test(new Secant(), "Secant");
       }
-
-      public void suite()
-      {
-         testBrent();
-         testNewton();
-         testFalsePosition();
-         testBisection();
-         testRidder();
-         testSecant();
-      }
    }
 }

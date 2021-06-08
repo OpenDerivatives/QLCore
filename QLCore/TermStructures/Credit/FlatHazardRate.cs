@@ -32,7 +32,6 @@ namespace QLCore
          : base(referenceDate, new Calendar(), dc)
       {
          hazardRate_ = hazardRate;
-         hazardRate_.registerWith(update);
       }
 
       public FlatHazardRate(Date referenceDate, double hazardRate, DayCounter dc)
@@ -45,7 +44,6 @@ namespace QLCore
          : base(settlementDays, calendar, dc)
       {
          hazardRate_ = hazardRate;
-         hazardRate_.registerWith(update);
       }
 
       public FlatHazardRate(int settlementDays, Calendar calendar, double hazardRate, DayCounter dc)

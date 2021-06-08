@@ -30,9 +30,6 @@ namespace QLCore
          recoveryRate_ = recoveryRate;
          discountCurve_ = discountCurve;
          includeSettlementDateFlows_ = includeSettlementDateFlows;
-
-         probability_.registerWith(update);
-         discountCurve_.registerWith(update);
       }
 
       public override void calculate()

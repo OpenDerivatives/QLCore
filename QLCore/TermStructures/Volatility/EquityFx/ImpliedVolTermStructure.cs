@@ -39,7 +39,6 @@ namespace QLCore
          : base(referenceDate)
       {
          originalTS_ = originalTS;
-         originalTS_.registerWith(update);
       }
       // TermStructure interface
       public override DayCounter dayCounter() { return originalTS_.link.dayCounter(); }

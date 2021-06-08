@@ -135,6 +135,7 @@ namespace QLCore
          moreArgs.pastFixings = pastFixings_;
          moreArgs.fixingDates = fixingDates_;
       }
+
       protected Average.Type averageType_;
       protected double? runningAccumulator_;
       protected int? pastFixings_;

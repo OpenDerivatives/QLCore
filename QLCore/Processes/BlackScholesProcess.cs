@@ -46,11 +46,6 @@ namespace QLCore
          dividendYield_ = dividendTS;
          blackVolatility_ = blackVolTS;
          updated_ = false;
-
-         x0_.registerWith(update);
-         riskFreeRate_.registerWith(update);
-         dividendYield_.registerWith(update);
-         blackVolatility_.registerWith(update);
       }
 
       public GeneralizedBlackScholesProcess(Handle<Quote> x0, Handle<YieldTermStructure> dividendTS,
@@ -65,12 +60,6 @@ namespace QLCore
          localVolatility_ = localVolTS != null ? (localVolTS.empty() ? new RelinkableHandle<LocalVolTermStructure>() : localVolTS)
                             : new RelinkableHandle<LocalVolTermStructure>();
          updated_ = !localVolatility_.empty();
-
-         x0_.registerWith(update);
-         riskFreeRate_.registerWith(update);
-         dividendYield_.registerWith(update);
-         blackVolatility_.registerWith(update);
-         localVolatility_.registerWith(update);
       }
 
       public override double x0()
@@ -170,11 +159,6 @@ namespace QLCore
       {
          return riskFreeRate_.link.dayCounter().yearFraction(riskFreeRate_.link.referenceDate(), d);
       }
-      public override void update()
-      {
-         updated_ = false;
-         base.update();
-      }
       public Handle<Quote> stateVariable()
       {
          return x0_;
@@ -230,6 +214,16 @@ namespace QLCore
          {
             return localVolatility_;
          }
+      }
+
+      public override void update()
+      {
+         riskFreeRate_.link.update();
+         dividendYield_.link.update();
+         blackVolatility_.link.update();
+         updated_ = false;
+         localVolatility();
+         base.update();
       }
 
       private Handle<Quote> x0_;

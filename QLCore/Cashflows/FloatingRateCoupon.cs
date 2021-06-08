@@ -22,7 +22,7 @@ using System;
 
 namespace QLCore
 {
-   public class FloatingRateCoupon : Coupon, IObserver
+   public class FloatingRateCoupon : Coupon
    {
       protected InterestRateIndex index_;
       protected DayCounter dayCounter_;
@@ -59,10 +59,6 @@ namespace QLCore
 
          if (dayCounter_.empty())
             dayCounter_ = index_.dayCounter();
-
-         // add as observer
-         index_.registerWith(update);
-         Settings.Instance.registerWith(update);
       }
 
       // need by CashFlowVectors
@@ -70,15 +66,7 @@ namespace QLCore
 
       public virtual void setPricer(FloatingRateCouponPricer pricer)
       {
-         if (pricer_ != null)   // remove from the old observable
-            pricer_.unregisterWith(update);
-
          pricer_ = pricer;
-
-         if (pricer_ != null)
-            pricer_.registerWith(update);      // add to observers of new pricer
-
-         update();                                   // fire the change event to notify observers of this
       }
 
       public FloatingRateCouponPricer pricer() { return pricer_; }
@@ -137,11 +125,6 @@ namespace QLCore
       public double adjustedFixing { get { return (rate() - spread()) / gearing(); } }
       //! whether or not the coupon fixes in arrears
       public bool isInArrears() { return isInArrears_; }
-
-
-      // Observer interface
-      public void update() { notifyObservers(); }
-
 
       //////////////////////////////////////////////////////////////////////////////////////
       // methods

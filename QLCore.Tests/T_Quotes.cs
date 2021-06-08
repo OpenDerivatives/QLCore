@@ -38,48 +38,6 @@ namespace TestSuite
       double sub(double x, double y) { return x - y; }
 
       [Fact]
-      public void testObservable()
-      {
-         // Testing observability of quotes
-
-         SimpleQuote me = new SimpleQuote(0.0);
-         Flag f = new Flag();
-
-         me.registerWith(f.update);
-         me.setValue(3.14);
-
-         if (!f.isUp())
-            QAssert.Fail("Observer was not notified of quote change");
-
-      }
-      [Fact]
-      public void testObservableHandle()
-      {
-
-         // Testing observability of quote handles
-
-         SimpleQuote me1 = new SimpleQuote(0.0);
-         RelinkableHandle<Quote> h = new RelinkableHandle<Quote>(me1);
-
-         Flag f = new Flag();
-
-         h.registerWith(f.update);
-
-         me1.setValue(3.14);
-
-         if (!f.isUp())
-            QAssert.Fail("Observer was not notified of quote change");
-
-         f.lower();
-         SimpleQuote me2 = new SimpleQuote(0.0);
-         h.linkTo(me2);
-
-         if (!f.isUp())
-            QAssert.Fail("Observer was not notified of quote change");
-
-      }
-
-      [Fact]
       public void testDerived()
       {
 

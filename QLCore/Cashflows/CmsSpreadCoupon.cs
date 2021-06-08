@@ -52,8 +52,6 @@ namespace QLCore
            : base(paymentDate, nominal, startDate, endDate, fixingDays, index, gearing, spread, refPeriodStart, refPeriodEnd, dayCounter, isInArrears)
         {
             index_ = index;
-
-            index_.registerWith(update);
         }
 
         // Inspectors
@@ -126,17 +124,13 @@ namespace QLCore
         public CmsSpreadCouponPricer(Handle<Quote> correlation = null)
         {
             correlation_ = correlation;
-            correlation_.registerWith(update);
         }
 
         public Handle<Quote> correlation() { return correlation_; }
 
         public void setCorrelation(Handle<Quote> correlation = null)
         {
-            correlation_.unregisterWith(update);
             correlation_ = correlation;
-            correlation_.registerWith(update);
-            update();
         }
 
         public override double swapletPrice()
@@ -195,17 +189,9 @@ namespace QLCore
             double? shift2 = null)
             : base(correlation)
         {
-            correlation_.registerWith(update);
             cmsPricer1_ = cmsPricer1;
             cmsPricer2_ = cmsPricer2;
-
             couponDiscountCurve_ = couponDiscountCurve;
-
-            if (couponDiscountCurve_ != null && !couponDiscountCurve_.empty())
-                couponDiscountCurve_.registerWith(update);
-
-            cmsPricer1_.registerWith(update);
-            cmsPricer2_.registerWith(update);
 
             Utils.QL_REQUIRE(integrationPoints >= 4,
                        () => "at least 4 integration points should be used ("

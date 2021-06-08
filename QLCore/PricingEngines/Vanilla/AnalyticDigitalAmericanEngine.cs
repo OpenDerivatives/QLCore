@@ -47,7 +47,6 @@ namespace QLCore
       public AnalyticDigitalAmericanEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -89,6 +88,13 @@ namespace QLCore
 
       }
       public virtual bool knock_in() {return true;}
+
+      public override void update()
+      {
+        process_.update();
+        base.update();
+      }
+
 
       private GeneralizedBlackScholesProcess process_;
    }

@@ -537,12 +537,6 @@ namespace QLCore
             nominal2_.Add(nominal2_.Last());
          }
 
-         foreach (var c in legs_[0])
-            c.registerWith(update);
-
-         foreach (var c in legs_[1])
-            c.registerWith(update);
-
          switch (type_)
          {
             case VanillaSwap.Type.Payer:

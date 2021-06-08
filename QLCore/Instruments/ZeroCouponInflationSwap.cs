@@ -141,11 +141,6 @@ namespace QLCore
          bool growthOnly = true;
          legs_[1].Add(new IndexedCashFlow(nominal, infIndex, baseDate_, obsDate_, infPayDate, growthOnly));
 
-         for (int j = 0; j<2; ++j)
-         {
-            legs_[j].ForEach((i, x) => x.registerWith(update));
-         }
-
          switch (type_)
          {
             case Type.Payer:

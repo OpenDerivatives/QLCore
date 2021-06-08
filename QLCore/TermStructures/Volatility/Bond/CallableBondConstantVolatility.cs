@@ -37,7 +37,6 @@ namespace QLCore
          volatility_ = volatility;
          dayCounter_ = dayCounter;
          maxBondTenor_ = new Period(100, TimeUnit.Years);
-         volatility_.registerWith(update);
       }
 
       public CallableBondConstantVolatility(int settlementDays, Calendar calendar, double volatility, DayCounter dayCounter)
@@ -54,7 +53,6 @@ namespace QLCore
          volatility_ = volatility;
          dayCounter_ = dayCounter;
          maxBondTenor_ = new Period(100, TimeUnit.Years);
-         volatility_.registerWith(update);
       }
 
       // TermStructure interface

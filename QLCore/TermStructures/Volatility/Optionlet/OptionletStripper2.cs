@@ -48,9 +48,6 @@ namespace QLCore
          maxEvaluations_ = 10000;
          accuracy_ = 1E-6;
 
-         stripper1_.registerWith(update);
-         atmCapFloorTermVolCurve_.registerWith(update);
-
          Utils.QL_REQUIRE(dc_ == atmCapFloorTermVolCurve.link.dayCounter(), () => "different day counters provided");
       }
 
@@ -165,7 +162,10 @@ namespace QLCore
          public override double value(double s)
          {
             if (s.IsNotEqual(spreadQuote_.value()))
+            {
                spreadQuote_.setValue(s);
+               cap_.update();
+            }
             return cap_.NPV() - targetValue_;
          }
 

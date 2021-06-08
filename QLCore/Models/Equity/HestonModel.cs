@@ -45,11 +45,6 @@ namespace QLCore
          arguments_[3] = new ConstantParameter(process.rho(), new BoundaryConstraint(-1.0, 1.0));
          arguments_[4] = new ConstantParameter(process.v0(), new PositiveConstraint());
          generateArguments();
-
-         process_.riskFreeRate().registerWith(update) ;
-         process_.dividendYield().registerWith(update) ;
-         process_.s0().registerWith(update) ;
-
       }
 
       // variance mean version level

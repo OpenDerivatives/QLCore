@@ -35,8 +35,6 @@ namespace QLCore
       public BaroneAdesiWhaleyApproximationEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-
-         process_.registerWith(update);
       }
 
       // critical commodity price
@@ -238,6 +236,12 @@ namespace QLCore
                   break;
             }
          } // end of "early exercise can be optimal"
+      }
+
+      public override void update()
+      {
+         process_.update();
+         base.update();
       }
    }
 }

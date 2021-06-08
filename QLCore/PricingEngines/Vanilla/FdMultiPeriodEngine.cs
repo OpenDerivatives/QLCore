@@ -43,7 +43,6 @@ namespace QLCore
 
       protected virtual void executeIntermediateStep(int step) { throw new NotSupportedException(); }
 
-
       protected virtual void initializeModel()
       {
          model_ = new FiniteDifferenceModel<CrankNicolson<TridiagonalOperator>>(finiteDifferenceOperator_, BCs_);

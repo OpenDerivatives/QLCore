@@ -45,9 +45,6 @@ namespace QLCore
 
          if (!curve1_.empty() && !curve2_.empty())
             enableExtrapolation(curve1_.link.allowsExtrapolation() && curve2_.link.allowsExtrapolation());
-
-         curve1_.registerWith(update);
-         curve2_.registerWith(update);
       }
 
       public override DayCounter dayCounter()

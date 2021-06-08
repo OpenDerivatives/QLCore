@@ -587,12 +587,7 @@ namespace QLCore
       }
       public void setMeanReversion(Handle<Quote> meanReversion)
       {
-         if (meanReversion_ != null)
-            meanReversion_.unregisterWith(update);
          meanReversion_ = meanReversion;
-         if (meanReversion_ != null)
-            meanReversion_.registerWith(update);
-         update();
       }
 
       protected HaganPricer(Handle<SwaptionVolatilityStructure> swaptionVol, GFunctionFactory.YieldCurveModel modelOfYieldCurve, Handle<Quote> meanReversion)
@@ -602,9 +597,6 @@ namespace QLCore
          cutoffForCaplet_ = 2;
          cutoffForFloorlet_ = 0;
          meanReversion_ = meanReversion;
-
-         if (meanReversion_.link != null)
-            meanReversion_.registerWith(update);
       }
 
       public override double optionletPrice(Option.Type optionType, double effectiveStrike)

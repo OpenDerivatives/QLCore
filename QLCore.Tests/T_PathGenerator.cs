@@ -178,7 +178,7 @@ namespace TestSuite
          }
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testPathGenerator()
       {
          // Testing 1-D path generation against cached values
@@ -208,7 +208,7 @@ namespace TestSuite
                     "square-root", false, 1.70608664108, 6.024200546031);
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testMultiPathGenerator()
       {
          // Testing n-D path generation against cached values

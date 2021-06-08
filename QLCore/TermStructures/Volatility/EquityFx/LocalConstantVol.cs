@@ -44,8 +44,6 @@ namespace QLCore
       {
          volatility_ = volatility;
          dayCounter_ = dc;
-
-         volatility_.registerWith(update);
       }
 
       public LocalConstantVol(int settlementDays, Calendar calendar, double volatility, DayCounter dayCounter)
@@ -60,8 +58,6 @@ namespace QLCore
       {
          volatility_ = volatility;
          dayCounter_ = dayCounter;
-
-         volatility_.registerWith(update);
       }
 
       // TermStructure interface

@@ -37,8 +37,6 @@ namespace QLCore
          : base(referenceDate, cal, BusinessDayConvention.Following, dc)
       {
          volatility_ = volatility;
-
-         volatility_.registerWith(update);
       }
 
       public BlackConstantVol(int settlementDays, Calendar cal, double volatility, DayCounter dc)
@@ -51,8 +49,6 @@ namespace QLCore
          : base(settlementDays, cal, BusinessDayConvention.Following, dc)
       {
          volatility_ = volatility;
-
-         volatility_.registerWith(update);
       }
 
 

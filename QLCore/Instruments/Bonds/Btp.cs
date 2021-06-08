@@ -113,7 +113,7 @@ namespace QLCore
       }
    }
 
-   public class RendistatoBasket :  IObserver, IObservable
+   public class RendistatoBasket
    {
 
       public RendistatoBasket(List<BTP> btps, List<double> outstandings, List<Handle<Quote>> cleanPriceQuotes)
@@ -156,7 +156,6 @@ namespace QLCore
          for (int i = 0; i < n_; ++i)
          {
             weights_.Add(outstandings[i] / outstanding_);
-            quotes_[i].registerWith(update);
          }
 
       }
@@ -170,32 +169,6 @@ namespace QLCore
       public double outstanding()  { return outstanding_;}
 
       #endregion
-
-      #region Observer & observable
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
-
-      // observer interface
-      public void update() { notifyObservers(); }
-      #endregion
-
 
       private   List<BTP> btps_;
       private   List<double> outstandings_;
@@ -220,10 +193,6 @@ namespace QLCore
          swapBondDurations_ = new InitializedList < double? >(nSwaps_, null);
          swapBondYields_ = new InitializedList < double? >(nSwaps_, 0.05);
          swapRates_ = new InitializedList < double? >(nSwaps_, null);
-
-         basket_.registerWith(update);
-         euriborIndex_.registerWith(update);
-         discountCurve_.registerWith(update);
 
          double dummyRate = 0.05;
          for (int i = 0; i < nSwaps_; ++i)

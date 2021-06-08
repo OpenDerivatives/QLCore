@@ -38,8 +38,6 @@ namespace QLCore
          process_ = process;
          series_ = series;
          f_ = new CumulativeNormalDistribution();
-
-         process_.registerWith(update);
       }
       public override void calculate()
       {

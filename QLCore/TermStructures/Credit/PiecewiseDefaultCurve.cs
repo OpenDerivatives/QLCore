@@ -29,10 +29,7 @@ namespace QLCore
 
         public double initialValue() { return _traits_.initialValue(this); }
         public Date initialDate() { return _traits_.initialDate(this); }
-        public void registerWith(BootstrapHelper<DefaultProbabilityTermStructure> helper)
-        {
-            helper.registerWith(this.update);
-        }
+
         public new bool moving_
         {
             get { return base.moving_; }

@@ -40,7 +40,6 @@ namespace QLCore
          : base(referenceDate)
       {
          originalCurve_ = h;
-         originalCurve_.registerWith(update);
       }
 
       // YieldTermStructure interface

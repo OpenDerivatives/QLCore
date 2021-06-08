@@ -19,6 +19,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 
 namespace QLCore
 {
@@ -40,10 +41,6 @@ namespace QLCore
          convention_ = convention;
          termStructure_ = h ?? new Handle<YieldTermStructure>();
          endOfMonth_ = endOfMonth;
-
-         // observer interface
-         if (!termStructure_.empty())
-            termStructure_.registerWith(update);
       }
 
       // InterestRateIndex interface
@@ -92,6 +89,23 @@ namespace QLCore
 
       // need by CashFlowVectors
       public IborIndex() { }
+
+      //override some function to update term structure
+      public override void addFixings(List<Date> d, List<double> v, bool forceOverwrite = false)
+      {
+         base.addFixings(d, v, forceOverwrite);
+         
+         if (!termStructure_.empty())
+            termStructure_.link.update();
+      }
+
+      public override void addFixing(Date d, double v, bool forceOverwrite = false)
+      {
+         base.addFixing(d, v, forceOverwrite);
+
+         if (!termStructure_.empty())
+            termStructure_.link.update();
+      }
 
    }
 

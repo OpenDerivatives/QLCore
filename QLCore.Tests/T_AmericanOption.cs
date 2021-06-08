@@ -213,6 +213,10 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
                                                                                    new Handle<YieldTermStructure>(rTS),
@@ -284,6 +288,10 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
                                                                                    new Handle<YieldTermStructure>(rTS),
@@ -335,6 +343,10 @@ namespace TestSuite
             qRate.setValue(juValues[i].q);
             rRate.setValue(juValues[i].r);
             vol  .setValue(juValues[i].v);
+
+            qTS.update();
+            rTS.update();
+            volTS.update();
 
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
@@ -388,6 +400,10 @@ namespace TestSuite
             rRate.setValue(juValues[i].r);
             vol  .setValue(juValues[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                    new Handle<YieldTermStructure>(qTS),
                                                                                    new Handle<YieldTermStructure>(rTS),
@@ -408,7 +424,7 @@ namespace TestSuite
             }
          }
       }
-
+   
       public void testFdGreeks<Engine>() where Engine : IFDEngine, new ()
       {
          using (SavedSettings backup = new SavedSettings())
@@ -478,6 +494,7 @@ namespace TestSuite
                                  qRate.setValue(q);
                                  rRate.setValue(r);
                                  vol.setValue(v);
+                                 option.update();
 
                                  double value = option.NPV();
                                  calculated.Add("delta", option.delta());
@@ -489,12 +506,15 @@ namespace TestSuite
                                     // perturb spot and get delta and gamma
                                     double du = u * 1.0e-4;
                                     spot.setValue(u + du);
+                                    option.update();
                                     double value_p = option.NPV(),
                                            delta_p = option.delta();
                                     spot.setValue(u - du);
+                                    option.update();
                                     double value_m = option.NPV(),
                                            delta_m = option.delta();
                                     spot.setValue(u);
+                                    option.update();
                                     expected.Add("delta", (value_p - value_m) / (2 * du));
                                     expected.Add("gamma", (delta_p - delta_m) / (2 * du));
 

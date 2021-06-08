@@ -49,8 +49,6 @@ namespace QLCore
       IAffineModel,
       ITermStructureConsistentModel
    {
-
-
       #region ITermStructureConsistentModel
       public Handle<YieldTermStructure> termStructure()
       {
@@ -83,7 +81,6 @@ namespace QLCore
          rho_ = arguments_[4] = new ConstantParameter(rho, new BoundaryConstraint(-1.0, 1.0));
 
          generateArguments();
-         termStructure.registerWith(update);
       }
 
       public G2(Handle<YieldTermStructure> termStructure,

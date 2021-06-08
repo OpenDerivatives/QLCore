@@ -68,12 +68,6 @@ namespace QLCore
          .withNotionals(nominal)
          .withSpreads(spread_);
 
-         for (int j = 0; j < 2; ++j)
-         {
-            for (int i = 0; i < legs_[j].Count; i++)
-               legs_[j][i].registerWith(update);
-         }
-
          switch (type_)
          {
             case Type.Payer:
@@ -122,12 +116,6 @@ namespace QLCore
          legs_[1] = new OvernightLeg(overnightSchedule, overnightIndex_)
          .withNotionals(overnightNominal_)
          .withSpreads(spread_);
-
-         for (int j = 0; j < 2; ++j)
-         {
-            for (int i = 0; i < legs_[j].Count; i++)
-               legs_[j][i].registerWith(update);
-         }
 
          switch (type_)
          {

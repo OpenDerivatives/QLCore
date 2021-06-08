@@ -33,7 +33,6 @@ namespace QLCore
       public Date initialDate() { return _traits_.initialDate(this); }
       public void registerWith(BootstrapHelper<YieldTermStructure> helper)
       {
-         helper.registerWith(this.update);
       }
       public new bool moving_
       {

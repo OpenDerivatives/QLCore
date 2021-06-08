@@ -140,6 +140,7 @@ namespace TestSuite
             expected[i] = vars.termStructure.discount(today + days[i]);
 
          Settings.Instance.setEvaluationDate(today + 30);
+         vars.termStructure.update();
          List<double> calculated = new InitializedList<double>(days.Length);
          for (int i = 0; i < days.Length; i++)
             calculated[i] = vars.termStructure.discount(today + 30 + days[i]);
@@ -175,24 +176,6 @@ namespace TestSuite
       }
 
       [Fact]
-      public void testImpliedObs()
-      {
-         // Testing observability of implied term structure
-         CommonVars vars = new CommonVars();
-
-         Date today = Settings.Instance.evaluationDate();
-         Date newToday = today + new Period(3, TimeUnit.Years);
-         Date newSettlement = vars.calendar.advance(newToday, vars.settlementDays, TimeUnit.Days);
-         RelinkableHandle<YieldTermStructure> h = new RelinkableHandle<YieldTermStructure>();
-         YieldTermStructure implied = new ImpliedTermStructure(h, newSettlement);
-         Flag flag = new Flag();
-         implied.registerWith(flag.update);
-         h.linkTo(vars.termStructure);
-         if (!flag.isUp())
-            QAssert.Fail("Observer was not notified of term structure change");
-      }
-
-      [Fact]
       public void testFSpreaded()
       {
          // Testing consistency of forward-spreaded term structure
@@ -217,27 +200,6 @@ namespace TestSuite
       }
 
       [Fact]
-      public void testFSpreadedObs()
-      {
-         // Testing observability of forward-spreaded term structure
-         CommonVars vars = new CommonVars();
-
-         SimpleQuote me = new SimpleQuote(0.01);
-         Handle<Quote> mh = new Handle<Quote>(me);
-         RelinkableHandle<YieldTermStructure> h = new RelinkableHandle<YieldTermStructure>(); //(vars.dummyTermStructure);
-         YieldTermStructure spreaded = new ForwardSpreadedTermStructure(h, mh);
-         Flag flag = new Flag();
-         spreaded.registerWith(flag.update);
-         h.linkTo(vars.termStructure);
-         if (!flag.isUp())
-            QAssert.Fail("Observer was not notified of term structure change");
-         flag.lower();
-         me.setValue(0.005);
-         if (!flag.isUp())
-            QAssert.Fail("Observer was not notified of spread change");
-      }
-
-      [Fact]
       public void testZSpreaded()
       {
          // Testing consistency of zero-spreaded term structure
@@ -255,28 +217,6 @@ namespace TestSuite
             QAssert.Fail("unable to reproduce zero yield from spreaded curve\n"
                          + "    calculated: " + (spreadedZero - me.value()) + "\n"
                          + "    expected:   " + zero);
-      }
-
-      [Fact]
-      public void testZSpreadedObs()
-      {
-         // Testing observability of zero-spreaded term structure
-         CommonVars vars = new CommonVars();
-
-         SimpleQuote me = new SimpleQuote(0.01);
-         Handle<Quote> mh = new Handle<Quote>(me);
-         RelinkableHandle<YieldTermStructure> h = new RelinkableHandle<YieldTermStructure>(vars.dummyTermStructure);
-
-         YieldTermStructure spreaded = new ZeroSpreadedTermStructure(h, mh);
-         Flag flag = new Flag();
-         spreaded.registerWith(flag.update);
-         h.linkTo(vars.termStructure);
-         if (!flag.isUp())
-            QAssert.Fail("Observer was not notified of term structure change");
-         flag.lower();
-         me.setValue(0.005);
-         if (!flag.isUp())
-            QAssert.Fail("Observer was not notified of spread change");
       }
 
       [Fact]

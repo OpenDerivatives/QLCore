@@ -35,8 +35,6 @@ namespace QLCore
       public BjerksundStenslandApproximationEngine(GeneralizedBlackScholesProcess process)
       {
          process_ = process;
-
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -150,6 +148,12 @@ namespace QLCore
                    -    X *  phi(S,  0.0, I, I, rT, bT, variance)
                    +    X *  phi(S,  0.0, X, I, rT, bT, variance);
          }
+      }
+
+      public override void update()
+      {
+         process_.update();
+         base.update();
       }
 
    }

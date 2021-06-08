@@ -187,7 +187,6 @@ namespace TestSuite
          int[] length = { 2, 5, 10 };
          double[] rates = { 0.02, 0.04, 0.06 };
          IborIndex euribor = new Euribor6M(termStructure);
-
          IPricingEngine engine = new TreeVanillaSwapEngine(model, 120, termStructure);
 
 #if QL_USE_INDEXED_COUPON
@@ -198,7 +197,6 @@ namespace TestSuite
 
          for (int i = 0; i < start.Length; i++)
          {
-
             Date startDate = calendar.advance(settlement, start[i], TimeUnit.Months);
             if (startDate < today)
             {

@@ -61,10 +61,6 @@ namespace QLCore
          startDiscounts_ = new InitializedList < double? >(2);
          endDiscounts_ = new InitializedList < double? >(2);
          npvDateDiscount_ = 0.0;
-
-         for (int i = 0; i < legs_.Count; i++)
-            for (int j = 0; j < legs_[i].Count; j++)
-               legs_[i][j].registerWith(update);
       }
 
       // Multi leg constructor.
@@ -84,8 +80,6 @@ namespace QLCore
          {
             if (payer[i])
                payer_[i] = -1;
-            for (int j = 0; j < legs_[i].Count; j++)
-               legs_[i][j].registerWith(update);
          }
       }
 

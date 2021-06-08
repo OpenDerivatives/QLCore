@@ -102,7 +102,6 @@ namespace QLCore
       {
          varianceCurve_ = i.interpolate(times_, times_.Count, variances_);
          varianceCurve_.update();
-         notifyObservers();
       }
 
       public override Date maxDate() { return maxDate_; }

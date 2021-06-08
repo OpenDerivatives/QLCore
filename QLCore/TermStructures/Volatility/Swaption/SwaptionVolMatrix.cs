@@ -57,7 +57,6 @@ namespace QLCore
          shifts_ = new Matrix(vols.Count, vols.First().Count, 0.0);
          volatilityType_ = type;
          checkInputs(volatilities_.rows(), volatilities_.columns(), shifts_.rows(), shifts_.columns());
-         registerWithMarketData();
 
          // fill dummy handles to allow generic handle-based
          if (shiftValues_ == null)
@@ -117,7 +116,6 @@ namespace QLCore
          shifts_ = new Matrix(vols.Count, vols.First().Count, 0.0);
          volatilityType_ = type;
          checkInputs(volatilities_.rows(), volatilities_.columns(), shifts_.rows(), shifts_.columns());
-         registerWithMarketData();
 
          // fill dummy handles to allow generic handle-based
          if (shiftValues_ == null)
@@ -445,12 +443,7 @@ namespace QLCore
                           "mismatch between number of swap tenors (" + nSwapTenors_ + ") and number of rows (" +
                           shiftsColumns + ") in the shift matrix");
       }
-      private void registerWithMarketData()
-      {
-         for (int i = 0; i < volHandles_.Count; ++i)
-            for (int j = 0; j < volHandles_.First().Count; ++j)
-               volHandles_[i][j].registerWith(update);
-      }
+
       private List<List<Handle<Quote>>> volHandles_;
       private List<List<double>> shiftValues_;
       private Matrix volatilities_, shifts_;

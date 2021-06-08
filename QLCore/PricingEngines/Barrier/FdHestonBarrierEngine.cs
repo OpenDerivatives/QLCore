@@ -46,8 +46,6 @@ namespace QLCore
             dampingSteps_ = dampingSteps;
             schemeDesc_ = schemeDesc == null ? new FdmSchemeDesc().Hundsdorfer() : schemeDesc;
             leverageFct_ = leverageFct;
-
-            model_.registerWith(update);
         }
 
         public override void calculate()

@@ -35,8 +35,6 @@ namespace QLCore
       {
          element_ = element;
          f_ = f;
-
-         element_.registerWith(this.update);
       }
 
       //! Quote interface
@@ -51,11 +49,5 @@ namespace QLCore
       {
          return element_.link.isValid();
       }
-
-      public void update()
-      {
-         notifyObservers();
-      }
-
    }
 }

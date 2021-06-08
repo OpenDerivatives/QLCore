@@ -29,8 +29,6 @@ namespace QLCore
          spread_ = spread;
 
          enableExtrapolation(baseVol.link.allowsExtrapolation());
-         baseVol_.registerWith(update);
-         spread_.registerWith(update);
       }
       // All virtual methods of base classes must be forwarded
       // TermStructure interface

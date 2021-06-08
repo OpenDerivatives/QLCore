@@ -65,12 +65,6 @@ namespace QLCore
             while (floorRates_.Count < yoyLeg_.Count)
                floorRates_.Add(floorRates_.Last());
          }
-
-         foreach (var cf in yoyLeg_)
-            cf.registerWith(update);
-
-         Settings.Instance.registerWith(update);
-
       }
 
       public YoYInflationCapFloor(CapFloorType type, List<CashFlow> yoyLeg,  List<double> strikes)
@@ -93,11 +87,6 @@ namespace QLCore
          }
          else
             Utils.QL_FAIL("only Cap/Floor types allowed in this constructor");
-
-         foreach (var cf in yoyLeg_)
-            cf.registerWith(update);
-
-         Settings.Instance.registerWith(update);
       }
 
       // Instrument interface

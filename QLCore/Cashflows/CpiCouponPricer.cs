@@ -34,9 +34,6 @@ namespace QLCore
             capletVol = new Handle<CPIVolatilitySurface>();
 
          capletVol_ = capletVol;
-
-         if (!capletVol_.empty())
-            capletVol_.registerWith(update);
       }
 
       public virtual Handle<CPIVolatilitySurface> capletVolatility()
@@ -48,7 +45,6 @@ namespace QLCore
       {
          Utils.QL_REQUIRE(!capletVol.empty(), () => "empty capletVol handle");
          capletVol_ = capletVol;
-         capletVol_.registerWith(update);
       }
 
 

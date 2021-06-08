@@ -77,7 +77,6 @@ namespace QLCore
                              " need (obsLag-index period) > availLag");
 
          }
-         Settings.Instance.registerWith(update);
       }
 
 
@@ -85,15 +84,11 @@ namespace QLCore
       {
 
          base.setTermStructure(z);
-
-         // set up a new ZCIIS
-         // but this one does NOT own its inflation term structure
-         bool own = false;
          double K = quote().link.value();
 
          // The effect of the new inflation term structure is
          // felt via the effect on the inflation index
-         Handle<ZeroInflationTermStructure> zits = new Handle<ZeroInflationTermStructure>(z, own);
+         Handle<ZeroInflationTermStructure> zits = new Handle<ZeroInflationTermStructure>(z);
 
          ZeroInflationIndex new_zii = zii_.clone(zits);
 
@@ -180,21 +175,15 @@ namespace QLCore
                              " and index availability " + yii_.availabilityLag() +
                              " need (obsLag-index period) > availLag");
          }
-
-         Settings.Instance.registerWith(update);
       }
 
       public override void setTermStructure(YoYInflationTermStructure y)
       {
          base.setTermStructure(y);
 
-         // set up a new YYIIS
-         // but this one does NOT own its inflation term structure
-         const bool own = false;
-
          // The effect of the new inflation term structure is
          // felt via the effect on the inflation index
-         Handle<YoYInflationTermStructure> yyts = new Handle<YoYInflationTermStructure>(y, own);
+         Handle<YoYInflationTermStructure> yyts = new Handle<YoYInflationTermStructure>(y);
 
          YoYInflationIndex new_yii = yii_.clone(yyts);
 

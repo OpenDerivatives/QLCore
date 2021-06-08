@@ -100,9 +100,6 @@ namespace QLCore
          .withNotionals(nominal)
          .withPaymentAdjustment(paymentConvention_);
 
-         foreach (var cf in legs_[1])
-            cf.registerWith(update);
-
          switch (type_)
          {
             case Type.Payer:

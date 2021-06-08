@@ -40,9 +40,6 @@ namespace QLCore
          gearing1_ = gearing1;
          gearing2_ = gearing2;
 
-         swapIndex1_.registerWith(update);
-         swapIndex2_.registerWith(update);
-
          name_ =  swapIndex1_.name() + "(" + gearing1 + ") + "
                   + swapIndex2_.name() + "(" + gearing1 + ")";
 

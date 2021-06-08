@@ -102,9 +102,6 @@ namespace QLCore
             .withNotionals(notional)
             .withPaymentAdjustment(paymentAdjustment);
 
-         foreach (CashFlow c in legs_[1])
-            c.registerWith(update);
-
          List<CashFlow> bondLeg = bond_.cashflows();
          foreach (CashFlow c in bondLeg)
          {
@@ -138,9 +135,6 @@ namespace QLCore
          }
 
          Utils.QL_REQUIRE(!legs_[0].empty(), () => "empty bond leg");
-
-         foreach (CashFlow c in legs_[0])
-            c.registerWith(update);
 
          if (payBondCoupon)
          {
@@ -226,10 +220,6 @@ namespace QLCore
             .withNotionals(notional)
             .withPaymentAdjustment(paymentAdjustment);
 
-         foreach (CashFlow c in legs_[1])
-            c.registerWith(update);
-
-
          List<CashFlow> bondLeg = bond_.cashflows();
          // skip bond redemption
          int i;
@@ -279,9 +269,6 @@ namespace QLCore
          }
 
          Utils.QL_REQUIRE(!legs_[0].empty(), () => "empty bond leg");
-
-         foreach (CashFlow c in legs_[0])
-            c.registerWith(update);
 
          if (payBondCoupon)
          {

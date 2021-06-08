@@ -136,11 +136,6 @@ protected ZeroInflationTermStructure base_curve;
       public double initialValue() { return _traits_.initialValue(this); }
       public Date initialDate() { return _traits_.initialDate(this); }
 
-      public void registerWith(BootstrapHelper<ZeroInflationTermStructure> helper)
-      {
-         helper.registerWith(this.update);
-      }
-
       //public new bool moving_
       public new bool moving_
       {

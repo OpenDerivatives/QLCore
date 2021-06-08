@@ -148,7 +148,6 @@ namespace QLCore
                                      strikes_[j], strikes_[j].Count,
                                      localVolMatrix_.column(j)));
          }
-         notifyObservers();
       }
 
       protected override double localVolImpl(double t, double strike)

@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace QLCore
 {
    //! Base class for inflation-rate indexes,
-   public class InflationIndex : Index, IObserver
+   public class InflationIndex : Index
    {
       /*! An inflation index may return interpolated
           values.  These are linearly interpolated
@@ -52,8 +52,6 @@ namespace QLCore
          availabilityLag_ = availabilitiyLag;
          currency_ = currency;
          name_ = region_.name() + " " + familyName_;
-         Settings.Instance.registerWith(update);
-         IndexManager.Instance.notifier(name()).registerWith(update);
       }
 
 
@@ -102,9 +100,6 @@ namespace QLCore
          base.addFixings(dates, rates, forceOverwrite);
 
       }
-
-      // Observer interface
-      public void update() { notifyObservers(); }
 
       // Inspectors
       public string familyName() { return familyName_; }
@@ -157,7 +152,6 @@ namespace QLCore
                 frequency, availabilityLag, currency)
       {
          zeroInflation_ = ts ?? new Handle<ZeroInflationTermStructure>();
-         zeroInflation_.registerWith(update);
       }
 
       /*! \warning the forecastTodaysFixing parameter (required by
@@ -310,7 +304,6 @@ namespace QLCore
       {
          ratio_ = ratio;
          yoyInflation_ = yoyInflation ?? new Handle<YoYInflationTermStructure>();
-         yoyInflation_.registerWith(update);
       }
 
       // Index interface

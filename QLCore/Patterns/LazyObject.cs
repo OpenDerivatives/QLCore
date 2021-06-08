@@ -24,44 +24,16 @@ namespace QLCore
 {
    // Framework for calculation on demand and result caching.
    // Introduces Observer pattern
-   public abstract class LazyObject : IObservable, IObserver
-   {
+   public abstract class LazyObject   {
       protected bool calculated_;
       protected bool frozen_;
-
-      #region Observer interface
-      // Here we define this object as observable
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
 
       // This method is the observer interface
       // It must be implemented in derived classes and linked to the event of the required Observer
       public virtual void update()
       {
-         // observers don't expect notifications from frozen objects
-         // LazyObject forwards notifications only once until it has been recalculated
-         if (!frozen_ && calculated_)
-            notifyObservers();
          calculated_ = false;
       }
-      #endregion
 
       #region Calculation methods
       /*! This method forces recalculation of any results which would otherwise be cached.
@@ -80,11 +52,9 @@ namespace QLCore
          catch
          {
             frozen_ = wasFrozen;
-            notifyObservers();
             throw;
          }
          frozen_ = wasFrozen;
-         notifyObservers();
       }
 
       /*! This method constrains the object to return the presently cached results on successive invocations,
@@ -95,7 +65,6 @@ namespace QLCore
       public void unfreeze()
       {
          frozen_ = false;
-         notifyObservers();              // send notification, just in case we lost any
       }
 
       /*! This method performs all needed calculations by calling the <i><b>performCalculations</b></i> method.

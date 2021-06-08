@@ -45,8 +45,6 @@ namespace QLCore
          timeSteps_ = timeSteps;
 
          Utils.QL_REQUIRE(timeSteps > 0, () => "timeSteps must be positive, " + timeSteps + " not allowed");
-
-         process_.registerWith(update);
       }
 
       public override void calculate()
@@ -123,6 +121,12 @@ namespace QLCore
                                                   results_.value.GetValueOrDefault(),
                                                   results_.delta.GetValueOrDefault(),
                                                   results_.gamma.GetValueOrDefault());
+      }
+      
+      public override void update()
+      {
+         process_.update();
+         base.update();
       }
    }
 }

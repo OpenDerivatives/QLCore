@@ -41,9 +41,6 @@ namespace QLCore
          illegalLocalVolOverwrite_ = illegalLocalVolOverwrite;
          quantoHelper_ = quantoHelper;
          quantoHelper_ = quantoHelper ?? new Handle<FdmQuantoHelper>();
-
-         process_.registerWith(update);
-         quantoHelper_.registerWith(update);
       }
 
       public double valueAt(double s)

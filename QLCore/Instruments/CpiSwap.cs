@@ -174,24 +174,9 @@ namespace QLCore
          .withNotionals(inflationNominal_)
          .withPaymentAdjustment(fixedPaymentRoll_);
 
-         foreach (CashFlow cashFlow in cpiLeg)
-         {
-            cashFlow.registerWith(update);
-         }
-
-         if (floatingLeg.Count > 0)
-         {
-            foreach (CashFlow cashFlow in floatingLeg)
-            {
-               cashFlow.registerWith(update);
-            }
-
-         }
-
          legs_[0] = cpiLeg;
          legs_[1] = floatingLeg;
-
-
+         
          if (type_ == Type.Payer)
          {
             payer_[0] = 1.0;

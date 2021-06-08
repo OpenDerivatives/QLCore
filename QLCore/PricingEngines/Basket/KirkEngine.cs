@@ -42,9 +42,6 @@ namespace QLCore
          process1_ = process1;
          process2_ = process2;
          rho_ = correlation;
-
-         process1_.registerWith(update);
-         process2_.registerWith(update);
       }
 
       public override void calculate()

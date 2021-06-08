@@ -49,8 +49,6 @@ namespace QLCore
          floatingLegDayCounter_ = floatingLegDayCounter;
          strike_ = strike;
          nominal_ = nominal;
-
-         index_ .registerWith(update);
       }
 
       public SwaptionHelper(Date exerciseDate,
@@ -78,8 +76,6 @@ namespace QLCore
          floatingLegDayCounter_ = floatingLegDayCounter;
          strike_ = strike;
          nominal_ = nominal;
-
-         index_.registerWith(update);
       }
 
       public SwaptionHelper(Date exerciseDate,
@@ -107,8 +103,6 @@ namespace QLCore
          floatingLegDayCounter_ = floatingLegDayCounter;
          strike_ = strike;
          nominal_ = nominal;
-
-         index_.registerWith(update);
       }
 
 

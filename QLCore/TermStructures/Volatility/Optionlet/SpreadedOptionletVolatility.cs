@@ -31,9 +31,7 @@ namespace QLCore
       {
          baseVol_ = baseVol;
          spread_ = spread;
-         enableExtrapolation(baseVol.link.allowsExtrapolation()) ;
-         baseVol_.registerWith(update);
-         spread_.registerWith(update);
+         enableExtrapolation(baseVol.link.allowsExtrapolation());
       }
       // All virtual methods of base classes must be forwarded
       // VolatilityTermStructure interface

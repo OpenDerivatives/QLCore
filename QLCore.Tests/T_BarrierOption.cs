@@ -951,6 +951,9 @@ namespace TestSuite
             volAtm.setValue(values[i].volAtm);
             vol25Call.setValue(values[i].vol25Call);
 
+            qTS.update();
+            rTS.update();
+
             StrikedTypePayoff payoff = new PlainVanillaPayoff(values[i].type, values[i].strike);
             Date exDate = today + (int)(values[i].t * 365 + 0.5);
             Exercise exercise = new EuropeanExercise(exDate);

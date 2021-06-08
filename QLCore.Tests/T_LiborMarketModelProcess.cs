@@ -120,7 +120,7 @@ namespace TestSuite
          return process;
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testInitialisation()
       {
          // Testing caplet LMM process initialisation
@@ -165,7 +165,7 @@ namespace TestSuite
          }
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testLambdaBootstrapping()
       {
          // Testing caplet LMM lambda bootstrapping
@@ -215,7 +215,7 @@ namespace TestSuite
          }
       }
 
-      [Fact(Skip = "LongRun")]
+      [Fact]
       public void testMonteCarloCapletPricing()
       {
          // Testing caplet LMM Monte-Carlo caplet pricing

@@ -259,18 +259,6 @@ namespace TestSuite
                }
             }
          }
-
-         //testing observability
-         Flag f = new Flag();
-         spreadedVolCube.registerWith(f.update);
-         volCube.link.update();
-         if (!f.isUp())
-            QAssert.Fail("SpreadedSwaptionVolatilityStructure does not propagate notifications");
-
-         f.lower();
-         spread.setValue(.001);
-         if (!f.isUp())
-            QAssert.Fail("SpreadedSwaptionVolatilityStructure does not propagate notifications");
       }
 
       [Fact]

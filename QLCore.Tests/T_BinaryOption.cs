@@ -169,6 +169,10 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
+            qTS.update();
+            rTS.update();
+            volTS.update();
+
             BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(
                new Handle<Quote>(spot),
                new Handle<YieldTermStructure>(qTS),

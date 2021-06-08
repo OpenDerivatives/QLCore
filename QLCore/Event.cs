@@ -22,7 +22,7 @@ namespace QLCore
 {
    //! Base class for event
    //! This class acts as a base class for the actual event implementations.
-   public abstract class Event : IObservable
+   public abstract class Event
    {
       #region Event interface
 
@@ -44,29 +44,6 @@ namespace QLCore
             return date() <= refDate;
       }
 
-      #endregion
-
-      #region  Observable interface
-
-      private readonly WeakEventSource eventSource = new WeakEventSource();
-      public event Callback notifyObserversEvent
-      {
-         add
-         {
-            eventSource.Subscribe(value);
-         }
-         remove
-         {
-            eventSource.Unsubscribe(value);
-         }
-      }
-
-      public void registerWith(Callback handler) { notifyObserversEvent += handler; }
-      public void unregisterWith(Callback handler) { notifyObserversEvent -= handler; }
-      protected void notifyObservers()
-      {
-         eventSource.Raise();
-      }
       #endregion
 
       #region Visitability

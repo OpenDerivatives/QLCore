@@ -36,13 +36,11 @@ namespace QLCore
    */
    public class ForwardVanillaEngine : GenericEngine<ForwardVanillaOption.Arguments, OneAssetOption.Results>
    {
-
       public delegate IPricingEngine GetOriginalEngine(GeneralizedBlackScholesProcess process);
 
       public ForwardVanillaEngine(GeneralizedBlackScholesProcess process, GetOriginalEngine getEngine)
       {
          process_ = process;
-         process_.registerWith(update);
          getOriginalEngine_ = getEngine;
       }
       public override void calculate()
@@ -50,6 +48,14 @@ namespace QLCore
          setup();
          originalEngine_.calculate();
          getOriginalResults();
+      }
+
+      public override void update()
+      {
+         process_.update();
+         
+         if (originalEngine_ != null)
+            originalEngine_.update();
       }
 
       protected void setup()

@@ -107,7 +107,6 @@ namespace QLCore
          frequency_ = frequency;
          indexIsInterpolated_ = indexIsInterpolated;
          baseRate_ = baseRate;
-         nominalTermStructure_.registerWith(update);
          setSeasonality(seasonality);
       }
 
@@ -127,7 +126,6 @@ namespace QLCore
          frequency_ = frequency;
          indexIsInterpolated_ = indexIsInterpolated;
          baseRate_ = baseRate;
-         nominalTermStructure_.registerWith(update);
          setSeasonality(seasonality);
       }
 
@@ -147,7 +145,6 @@ namespace QLCore
          frequency_ = frequency;
          indexIsInterpolated_ = indexIsInterpolated;
          baseRate_ = baseRate;
-         nominalTermStructure_.registerWith(update);
          setSeasonality(seasonality);
       }
 
@@ -206,7 +203,6 @@ namespace QLCore
             Utils.QL_REQUIRE(seasonality_.isConsistent(this),
                              () => "Seasonality inconsistent with " + "inflation term structure");
          }
-         notifyObservers();
       }
 
       public Seasonality seasonality()

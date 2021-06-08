@@ -30,7 +30,6 @@ namespace QLCore
       public DiscountingBondEngine(Handle<YieldTermStructure> discountCurve, bool? includeSettlementDateFlows = null)
       {
          discountCurve_ = discountCurve;
-         discountCurve_.registerWith(update);
          includeSettlementDateFlows_ = includeSettlementDateFlows;
       }
 
@@ -69,6 +68,14 @@ namespace QLCore
                              arguments_.settlementDate,
                              arguments_.settlementDate);
          }
+      }
+
+      public override void update()
+      {
+         if (!discountCurve_.empty())
+            discountCurve_.link.update();
+
+         base.update();
       }
    }
 }

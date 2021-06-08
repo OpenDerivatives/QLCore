@@ -103,7 +103,6 @@ namespace QLCore
          //! Initialize the one-factor Monte Carlo
          if (this.controlVariate_)
          {
-
             double? controlVariateValue = this.controlVariateValue();
             Utils.QL_REQUIRE(controlVariateValue != null, () => "engine does not provide control-variation price");
 

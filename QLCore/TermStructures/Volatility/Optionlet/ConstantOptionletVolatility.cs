@@ -31,8 +31,6 @@ namespace QLCore
          : base(settlementDays, cal, bdc, dc)
       {
          volatility_ = vol;
-
-         volatility_.registerWith(update);
       }
 
       //! fixed reference date, floating market data
@@ -41,8 +39,6 @@ namespace QLCore
          : base(referenceDate, cal, bdc, dc)
       {
          volatility_ = vol;
-
-         volatility_.registerWith(update);
       }
 
       //! floating reference date, fixed market data

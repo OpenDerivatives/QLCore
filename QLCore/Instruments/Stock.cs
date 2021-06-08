@@ -30,7 +30,6 @@ namespace QLCore
       public Stock(Handle<Quote> quote)
       {
          quote_ = quote;
-         quote_.registerWith(update);
       }
 
       public override bool isExpired() { return false; }

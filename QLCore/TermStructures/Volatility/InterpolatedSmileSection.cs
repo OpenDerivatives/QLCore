@@ -43,10 +43,6 @@ namespace QLCore
          atmLevel_ = atmLevel;
          vols_ = new InitializedList<double>(stdDevHandles.Count);
 
-         for (int i = 0; i < stdDevHandles_.Count; ++i)
-            stdDevHandles_[i].registerWith(update);
-
-         atmLevel_.registerWith(update);
          // check strikes!!!!!!!!!!!!!!!!!!!!
          if (interpolator == null)
             interpolator = FastActivator<Interpolator>.Create();
@@ -97,9 +93,6 @@ namespace QLCore
          atmLevel_ = atmLevel;
          vols_ = new InitializedList<double>(stdDevHandles.Count);
 
-         for (int i = 0; i < stdDevHandles_.Count; ++i)
-            stdDevHandles_[i].registerWith(update);
-         atmLevel_.registerWith(update);
          // check strikes!!!!!!!!!!!!!!!!!!!!
          if (interpolator == null)
             interpolator = FastActivator<Interpolator>.Create();

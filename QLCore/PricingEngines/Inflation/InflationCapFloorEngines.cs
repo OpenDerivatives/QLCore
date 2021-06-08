@@ -38,9 +38,6 @@ namespace QLCore
       {
          index_ = index;
          volatility_ = vol;
-
-         index_.registerWith(update);
-         volatility_.registerWith(update);
       }
 
       public YoYInflationIndex index() { return index_;}
@@ -48,11 +45,7 @@ namespace QLCore
 
       public void setVolatility(Handle<YoYOptionletVolatilitySurface> vol)
       {
-         if (!volatility_.empty())
-            volatility_ .unregisterWith(update);
          volatility_ = vol;
-         volatility_.registerWith(update);
-         update();
       }
 
       public override void calculate()

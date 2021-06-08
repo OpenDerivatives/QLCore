@@ -81,7 +81,6 @@ namespace QLCore
          isFloored_ = false;
          isCapped_ = false;
          setCommon(cap, floor);
-         underlying.registerWith(update);
       }
 
 

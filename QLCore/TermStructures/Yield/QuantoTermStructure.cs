@@ -52,11 +52,6 @@ namespace QLCore
          underlyingExchRateCorrelation_ = underlyingExchRateCorrelation;
          strike_ = strike;
          exchRateATMlevel_ = exchRateATMlevel;
-         underlyingDividendTS_.registerWith(update);
-         riskFreeTS_.registerWith(update);
-         foreignRiskFreeTS_.registerWith(update);
-         underlyingBlackVolTS_.registerWith(update);
-         exchRateBlackVolTS_.registerWith(update);
       }
 
       public override DayCounter dayCounter()

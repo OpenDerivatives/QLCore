@@ -48,7 +48,6 @@ namespace QLCore
 
          checkInputs();
          initializeOptionDatesAndTimes();
-         registerWithMarketData();
          interpolate();
       }
 
@@ -70,7 +69,6 @@ namespace QLCore
 
          checkInputs();
          initializeOptionDatesAndTimes();
-         registerWithMarketData();
          interpolate();
       }
       //! fixed reference date, fixed market data
@@ -200,11 +198,6 @@ namespace QLCore
          }
       }
 
-      private void registerWithMarketData()
-      {
-         for (int i = 0; i < volHandles_.Count; ++i)
-            volHandles_[i].registerWith(update);
-      }
       private void interpolate()
       {
          interpolation_ = new CubicInterpolation(optionTimes_, optionTimes_.Count, vols_,

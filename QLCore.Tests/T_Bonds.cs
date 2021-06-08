@@ -192,6 +192,7 @@ namespace TestSuite
                   {
 
                      rate.setValue(yields[m]);
+                     bond.update();
 
                      double price = bond.cleanPrice(yields[m], bondDayCount, Compounding.Continuous, frequencies[l]);
                      double calculatedPrice = bond.cleanPrice();

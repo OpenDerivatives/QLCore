@@ -42,7 +42,6 @@ namespace QLCore
          : base(model, timeSteps)
       {
          termStructure_ = termStructure;
-         termStructure_.registerWith(update);
       }
 
       public TreeVanillaSwapEngine(ShortRateModel model,
@@ -51,7 +50,6 @@ namespace QLCore
          : base(model, timeGrid)
       {
          termStructure_ = termStructure;
-         termStructure_.registerWith(update);
       }
 
       public override void calculate()

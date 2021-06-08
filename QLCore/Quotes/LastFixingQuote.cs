@@ -24,14 +24,13 @@ using System.Linq;
 namespace QLCore
 {
    //! Quote adapter for the last fixing available of a given Index
-   class LastFixingQuote : Quote, IObserver
+   class LastFixingQuote : Quote
    {
       protected Index index_;
 
       public LastFixingQuote(Index index)
       {
          index_ = index;
-         index_.registerWith(update);
       }
 
       //! Quote interface
@@ -51,11 +50,5 @@ namespace QLCore
       {
          return index_.timeSeries().Keys.Last(); // must be tested
       }
-
-      public void update()
-      {
-         notifyObservers();
-      }
-
    }
 }

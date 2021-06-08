@@ -360,7 +360,7 @@ namespace TestSuite
             //Testing FDM with barrier option for Heston model vs Black-Scholes model...
             using (SavedSettings backup = new SavedSettings())
             {
-
+                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
                 Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, new Actual365Fixed()));
@@ -369,7 +369,6 @@ namespace TestSuite
                 HestonProcess hestonProcess =
                         new HestonProcess(rTS, qTS, s0, 0.04, 2.5, 0.04, 0.66, -0.8);
 
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Date exerciseDate = new Date(28, 3, 2005);
 
                 Exercise exercise = new EuropeanExercise(exerciseDate);
@@ -410,20 +409,17 @@ namespace TestSuite
         [Fact]
         public void testFdmHestonAmerican()
         {
-
             //Testing FDM with American option in Heston model...
 
             using (SavedSettings backup = new SavedSettings())
             {
-
+                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
                 Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, new Actual365Fixed()));
                 Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual365Fixed()));
 
                 HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.04, 2.5, 0.04, 0.66, -0.8);
-
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Date exerciseDate = new Date(28, 3, 2005);
 
                 Exercise exercise = new AmericanExercise(exerciseDate);
@@ -475,10 +471,10 @@ namespace TestSuite
             */
             using (SavedSettings backup = new SavedSettings())
             {
+                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.10, new Actual360()));
                 Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual360()));
 
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Date exerciseDate = new Date(26, 6, 2004);
                 Exercise exercise = new AmericanExercise(exerciseDate);
                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 10);
@@ -576,6 +572,7 @@ namespace TestSuite
             //Testing FDM with European option with dividends in Heston model...
             using (SavedSettings backup = new SavedSettings())
             {
+                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
                 Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, new Actual365Fixed()));
@@ -583,7 +580,6 @@ namespace TestSuite
 
                 HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.04, 2.5, 0.04, 0.66, -0.8);
 
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
                 Date exerciseDate = new Date(28, 3, 2005);
                 Exercise exercise = new AmericanExercise(exerciseDate);
                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 100);

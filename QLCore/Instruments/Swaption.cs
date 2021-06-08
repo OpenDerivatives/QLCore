@@ -93,7 +93,6 @@ namespace QLCore
          settlementType_ = delivery;
          settlementMethod_ = settlementMethod;
          swap_ = swap;
-         swap_.registerWith(update);
       }
 
       // Instrument interface

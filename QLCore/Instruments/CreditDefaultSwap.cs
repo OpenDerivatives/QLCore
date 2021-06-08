@@ -118,7 +118,6 @@ namespace QLCore
          if (claim_ == null)
             claim_ = new FaceValueClaim();
 
-         claim_.registerWith(update);
          maturity_ = schedule.dates().Last();
       }
 
@@ -197,7 +196,6 @@ namespace QLCore
 
          if (claim_ == null)
             claim_ = new FaceValueClaim();
-         claim_.registerWith(update);
 
          maturity_ = schedule.dates().Last();
       }

@@ -57,7 +57,7 @@ namespace QLCore
       public override void setTermStructure(YieldTermStructure t)
       {
          // do not set the relinkable handle as an observer - force recalculation when needed
-         termStructureHandle_.linkTo(t, false);
+         termStructureHandle_.linkTo(t);
          base.setTermStructure(t);
       }
 

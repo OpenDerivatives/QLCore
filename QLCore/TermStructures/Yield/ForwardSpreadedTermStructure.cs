@@ -39,9 +39,6 @@ namespace QLCore
       {
          originalCurve_ = h;
          spread_ = spread;
-
-         originalCurve_.registerWith(update);
-         spread_.registerWith(update);
       }
 
       public override DayCounter dayCounter() { return originalCurve_.link.dayCounter(); }

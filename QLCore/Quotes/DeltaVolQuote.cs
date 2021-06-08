@@ -24,7 +24,7 @@ namespace QLCore
    /*! It includes the various delta quotation types
        in FX markets as well as ATM types.
    */
-   public class DeltaVolQuote : Quote, IObserver
+   public class DeltaVolQuote : Quote
    {
       public enum DeltaType
       {
@@ -53,8 +53,6 @@ namespace QLCore
          deltaType_ = deltaType;
          maturity_ = maturity;
          atmType_ = DeltaVolQuote.AtmType.AtmNull;
-
-         vol_.registerWith(update);
       }
 
       // Additional constructor, if special atm quote is used
@@ -64,11 +62,7 @@ namespace QLCore
          deltaType_ = deltaType;
          maturity_ = maturity;
          atmType_ = atmType;
-
-         vol_.registerWith(update);
       }
-
-      public void update()  { notifyObservers(); }
 
       public override double value() { return vol_.link.value(); }
       public double delta() { return delta_; }

@@ -356,8 +356,6 @@ namespace QLCore
             errorAccept_ = maxErrorTolerance_ / 5.0;
          }
 
-         privateObserver_ = new PrivateObserver(this);
-         registerWithParametersGuess();
          setParameterGuess();
       }
       // LazyObject interface
@@ -554,7 +552,6 @@ namespace QLCore
             fillVolatilityCube();
             sabrCalibrationSection(volCubeAtmCalibrated_, denseParameters_, swapTenor);
          }
-         notifyObservers();
       }
       public void recalibration(List<Period> swapLengths, List<double> beta, Period swapTenor)
       {
@@ -592,16 +589,8 @@ namespace QLCore
             denseParameters_ = sabrCalibration(volCubeAtmCalibrated_);
             denseParameters_.updateInterpolators();
          }
-         notifyObservers();
       }
 
-      protected void registerWithParametersGuess()
-      {
-         for (int i = 0; i < 4; i++)
-            for (int j = 0; j < nOptionTenors_; j++)
-               for (int k = 0; k < nSwapTenors_; k++)
-                  parametersGuessQuotes_[j + k * nOptionTenors_][i].registerWith(privateObserver_.update);
-      }
       protected void setParameterGuess()
       {
          //! set parametersGuess_ by parametersGuessQuotes_
@@ -944,21 +933,5 @@ namespace QLCore
       private int maxGuesses_;
       private bool backwardFlat_;
       private double cutoffStrike_;
-
-      class PrivateObserver : IObserver
-      {
-         public PrivateObserver(SwaptionVolCube1x v)
-         {
-            v_ = v;
-         }
-         public void update()
-         {
-            v_.setParameterGuess();
-            v_.update();
-         }
-         private SwaptionVolCube1x v_;
-      }
-
-      PrivateObserver privateObserver_;
    }
 }

@@ -139,49 +139,6 @@ namespace TestSuite
                                                   0.05, new Actual365Fixed())));
          }
 
-         // utilities
-         public void makeObservabilityTest(string description,
-                                           SwaptionVolatilityStructure vol,
-                                           bool mktDataFloating,
-                                           bool referenceDateFloating)
-         {
-            double dummyStrike = .02;
-            Date referenceDate = Settings.Instance.evaluationDate();
-            double initialVol = vol.volatility(
-                                   referenceDate + atm.tenors.options[0],
-                                   atm.tenors.swaps[0], dummyStrike, false);
-            // testing evaluation date change ...
-            Settings.Instance.setEvaluationDate(referenceDate - new Period(1, TimeUnit.Years));
-            double newVol =  vol.volatility(
-                                referenceDate + atm.tenors.options[0],
-                                atm.tenors.swaps[0], dummyStrike, false);
-
-            Settings.Instance.setEvaluationDate(referenceDate);
-            if (referenceDateFloating && (initialVol == newVol))
-               QAssert.Fail(description +
-                            " the volatility should change when the reference date is changed !");
-            if (!referenceDateFloating && (initialVol != newVol))
-               QAssert.Fail(description +
-                            " the volatility should not change when the reference date is changed !");
-
-            // test market data change...
-            if (mktDataFloating)
-            {
-               double initialVolatility = atm.volsHandle[0][0].link.value();
-
-               SimpleQuote sq = (SimpleQuote)(atm.volsHandle[0][0].currentLink());
-               sq.setValue(10);
-
-               newVol = vol.volatility(referenceDate + atm.tenors.options[0],
-                                       atm.tenors.swaps[0], dummyStrike, false);
-               sq.setValue(initialVolatility);
-
-               if (initialVol == newVol)
-                  QAssert.Fail(description + " the volatility should change when" +
-                               " the market data is changed !");
-            }
-         }
-
          public void makeCoherenceTest(string description,
                                        SwaptionVolatilityDiscrete vol)
          {
@@ -384,69 +341,6 @@ namespace TestSuite
                                             vars.conventions.dayCounter);
 
          vars.makeCoherenceTest(description, vol);
-      }
-
-      [Fact]
-      public void testSwaptionVolMatrixObservability()
-      {
-         // Set evaluation date
-         Settings.Instance.setEvaluationDate(Date.Today);
-
-         // Testing swaption volatility matrix observability
-         CommonVars vars = new CommonVars();
-
-         SwaptionVolatilityMatrix vol;
-         string description;
-
-         //floating reference date, floating market data
-         description = "floating reference date, floating market data";
-         vol = new SwaptionVolatilityMatrix(vars.conventions.calendar,
-                                            vars.conventions.optionBdc,
-                                            vars.atm.tenors.options,
-                                            vars.atm.tenors.swaps,
-                                            vars.atm.volsHandle,
-                                            vars.conventions.dayCounter);
-
-         vars.makeObservabilityTest(description, vol, true, true);
-
-         //fixed reference date, floating market data
-         description = "fixed reference date, floating market data";
-         vol = new SwaptionVolatilityMatrix(Settings.Instance.evaluationDate(),
-                                            vars.conventions.calendar,
-                                            vars.conventions.optionBdc,
-                                            vars.atm.tenors.options,
-                                            vars.atm.tenors.swaps,
-                                            vars.atm.volsHandle,
-                                            vars.conventions.dayCounter);
-         vars.makeObservabilityTest(description, vol, true, false);
-
-         // floating reference date, fixed market data
-         description = "floating reference date, fixed market data";
-         vol = new SwaptionVolatilityMatrix(vars.conventions.calendar,
-                                            vars.conventions.optionBdc,
-                                            vars.atm.tenors.options,
-                                            vars.atm.tenors.swaps,
-                                            vars.atm.volsHandle,
-                                            vars.conventions.dayCounter);
-         vars.makeObservabilityTest(description, vol, false, true);
-
-         // fixed reference date, fixed market data
-         description = "fixed reference date, fixed market data";
-         vol = new SwaptionVolatilityMatrix(Settings.Instance.evaluationDate(),
-                                            vars.conventions.calendar,
-                                            vars.conventions.optionBdc,
-                                            vars.atm.tenors.options,
-                                            vars.atm.tenors.swaps,
-                                            vars.atm.volsHandle,
-                                            vars.conventions.dayCounter);
-         vars.makeObservabilityTest(description, vol, false, false);
-
-         // fixed reference date and fixed market data, option dates
-         //SwaptionVolatilityMatrix(const Date& referenceDate,
-         //                         const std::vector<Date>& exerciseDates,
-         //                         const std::vector<Period>& swapTenors,
-         //                         const Matrix& volatilities,
-         //                         const DayCounter& dayCounter);
       }
    }
 
