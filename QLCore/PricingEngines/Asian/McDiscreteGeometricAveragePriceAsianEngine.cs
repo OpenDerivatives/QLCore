@@ -40,16 +40,14 @@ namespace QLCore
    {
       public MCDiscreteGeometricAPEngine(
          GeneralizedBlackScholesProcess process,
-         int maxTimeStepPerYear,
          bool brownianBridge,
          bool antitheticVariate,
-         bool controlVariate,
          int? requiredSamples,
          double? requiredTolerance,
          int? maxSamples,
          ulong seed)
-         : base(process, maxTimeStepPerYear, brownianBridge, antitheticVariate,
-                controlVariate, requiredSamples, requiredTolerance, maxSamples, seed)
+         : base(process, brownianBridge, antitheticVariate,
+                false, requiredSamples, requiredTolerance, maxSamples, seed)
       { }
 
       // conversion to pricing engine
@@ -149,20 +147,11 @@ namespace QLCore
       {
          process_ = process;
          antithetic_ = false;
-         controlVariate_ = false;
-         steps_ = null;
          samples_ = null;
          maxSamples_ = null;
          tolerance_ = null;
          brownianBridge_ = true;
          seed_ = 0;
-      }
-
-      // named parameters
-      public MakeMCDiscreteGeometricAPEngine<RNG, S> withStepsPerYear(int maxSteps)
-      {
-         steps_ = maxSteps;
-         return this;
       }
 
       public MakeMCDiscreteGeometricAPEngine<RNG, S> withBrownianBridge(bool b)
@@ -215,33 +204,20 @@ namespace QLCore
          return this.withAntitheticVariate(true);
       }
 
-      public MakeMCDiscreteGeometricAPEngine<RNG, S> withControlVariate(bool b)
-      {
-         controlVariate_ = b;
-         return this;
-      }
-
-      public MakeMCDiscreteGeometricAPEngine<RNG, S> withControlVariate()
-      {
-         return this.withControlVariate(true);
-      }
-
       // conversion to pricing engine
       public IPricingEngine value()
       {
-         Utils.QL_REQUIRE(steps_ != null, () => "max number of steps per year not given");
          return (IPricingEngine) new MCDiscreteGeometricAPEngine<RNG, S>(process_,
-                                                                         steps_.Value,
                                                                          brownianBridge_,
-                                                                         antithetic_, controlVariate_,
+                                                                         antithetic_,
                                                                          samples_, tolerance_,
                                                                          maxSamples_,
                                                                          seed_);
       }
 
       private GeneralizedBlackScholesProcess process_;
-      private bool antithetic_, controlVariate_;
-      private int? steps_, samples_, maxSamples_;
+      private bool antithetic_;
+      private int? samples_, maxSamples_;
       private double? tolerance_;
       private bool brownianBridge_;
       private ulong seed_;

@@ -35,11 +35,11 @@ namespace QLCore
          GeneralizedBlackScholesProcess process,
          bool brownianBridge,
          bool antitheticVariate,
-         int requiredSamples,
-         double requiredTolerance,
-         int maxSamples,
+         int? requiredSamples,
+         double? requiredTolerance,
+         int? maxSamples,
          ulong seed)
-         : base(process, 1, brownianBridge, antitheticVariate, false,
+         : base(process, brownianBridge, antitheticVariate, false,
                 requiredSamples, requiredTolerance, maxSamples, seed)
       { }
 
@@ -59,7 +59,7 @@ namespace QLCore
       }
    }
 
-   public class ArithmeticASOPathPricer : PathPricer<Path>
+   public class ArithmeticASOPathPricer : PathPricer<IPath>
    {
       private Option.Type type_;
       private double discount_;
@@ -88,27 +88,27 @@ namespace QLCore
          : this(type, discount, 0.0, 0)
       { }
 
-      public double value(Path path)
+      public double value(IPath path)
       {
-         int n = path.length();
+         int n = (path as Path).length();
          Utils.QL_REQUIRE(n > 1, () => "the path cannot be empty");
          double averageStrike = runningSum_;
-         if (path.timeGrid().mandatoryTimes()[0].IsEqual(0.0))
+         if ((path as Path).timeGrid().mandatoryTimes()[0].IsEqual(0.0))
          {
             //averageStrike =
             //std::accumulate(path.begin(),path.end(),runningSum_)/(pastFixings_ + n)
             for (int i = 0; i < path.length(); i++)
-               averageStrike += path[i];
+               averageStrike += (path as Path)[i];
             averageStrike /= (pastFixings_ + n);
          }
          else
          {
             for (int i = 1; i < path.length(); i++)
-               averageStrike += path[i];
+               averageStrike += (path as Path)[i];
             averageStrike /= (pastFixings_ + n - 1);
          }
          return discount_
-                * new PlainVanillaPayoff(type_, averageStrike).value(path.back());
+                * new PlainVanillaPayoff(type_, averageStrike).value((path as Path).back());
       }
    }
 
@@ -184,8 +184,8 @@ namespace QLCore
          return new MCDiscreteArithmeticASEngine<RNG, S>(process_,
                                                          brownianBridge_,
                                                          antithetic_,
-                                                         samples_.Value, tolerance_.Value,
-                                                         maxSamples_.Value,
+                                                         samples_, tolerance_,
+                                                         maxSamples_,
                                                          seed_);
       }
 

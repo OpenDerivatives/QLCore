@@ -76,7 +76,6 @@ namespace QLCore
       //! simulate a fixed number of samples
       public double valueWithSamples(int samples)
       {
-
          int sampleNumber = mcModel_.sampleAccumulator().samples();
 
          Utils.QL_REQUIRE(samples >= sampleNumber, () =>
@@ -119,7 +118,7 @@ namespace QLCore
             this.mcModel_ = new MonteCarloModel<MC, RNG, S>(pathGenerator(), pathPricer(), FastActivator<S>.Create(), antitheticVariate_);
          }
 
-         if (requiredTolerance != null)
+         if (requiredTolerance != null && requiredTolerance != Double.MaxValue)
          {
             if (maxSamples != null)
                value(requiredTolerance.Value, maxSamples.Value);

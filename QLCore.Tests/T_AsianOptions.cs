@@ -474,7 +474,6 @@ namespace TestSuite
          IPricingEngine engine =
             new MakeMCDiscreteGeometricAPEngine
          <LowDiscrepancy, Statistics>(stochProcess)
-         .withStepsPerYear(1)
          .withSamples(8191)
          .value();
 
@@ -759,7 +758,6 @@ namespace TestSuite
 
          var pricingengine = new MCDiscreteArithmeticAPEngine<PseudoRandom, GeneralStatistics>(
             bsmProcess,
-            252,
             false,
             false,
             false,
@@ -773,541 +771,429 @@ namespace TestSuite
          double price = asianoption.NPV();
       }
 
-      //    public struct DiscreteAverageData
-      //    {
-      //        public Option.Type type;
-      //        public double underlying;
-      //        public double strike;
-      //        public double dividendYield;
-      //        public double riskFreeRate;
-      //        public double first;
-      //        public double length;
-      //        public int fixings;
-      //        public double volatility;
-      //        public bool controlVariate;
-      //        public double result;
-
-      //        public DiscreteAverageData(Option.Type Type,
-      //                                    double Underlying,
-      //                                    double Strike,
-      //                                    double DividendYield,
-      //                                    double RiskFreeRate,
-      //                                    double First,
-      //                                    double Length,
-      //                                    int Fixings,
-      //                                    double Volatility,
-      //                                    bool ControlVariate,
-      //                                    double Result)
-      //        {
-      //            type = Type;
-      //            underlying = Underlying;
-      //            strike = Strike;
-      //            dividendYield = DividendYield;
-      //            riskFreeRate = RiskFreeRate;
-      //            first = First;
-      //            length = Length;
-      //            fixings = Fixings;
-      //            volatility = Volatility;
-      //            controlVariate = ControlVariate;
-      //            result = Result;
-      //        }
-      //    }
-
-
-
-      //    [TestMethod()]
-      //    public void testAnalyticContinuousGeometricAveragePrice()
-      //    {
-
-      //        //("Testing analytic continuous geometric average-price Asians...");
-      //        // data from "Option Pricing Formulas", Haug, pag.96-97
-
-      //        DayCounter dc = new Actual360();
-      //        Date today = Date.Today;
-
-      //        SimpleQuote spot = new SimpleQuote(80.0);
-      //        SimpleQuote qRate = new SimpleQuote(-0.03);
-      //        YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
-      //        SimpleQuote rRate = new SimpleQuote(0.05);
-      //        YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
-      //        SimpleQuote vol = new SimpleQuote(0.20);
-      //        BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
-
-      //        BlackScholesMertonProcess stochProcess = new
-      //            BlackScholesMertonProcess(new Handle<Quote>(spot),
-      //                                      new Handle<YieldTermStructure>(qTS),
-      //                                      new Handle<YieldTermStructure>(rTS),
-      //                                      new Handle<BlackVolTermStructure>(volTS));
-
-      //        IPricingEngine engine = new
-      //            AnalyticContinuousGeometricAveragePriceAsianEngine(stochProcess);
-
-      //        Average.Type averageType = Average.Type.Geometric;
-      //        Option.Type type = Option.Type.Put;
-      //        double strike = 85.0;
-      //        Date exerciseDate = today + 90;
-
-      //        int pastFixings = 0; //Null<int>();
-      //        double runningAccumulator = 0.0; //Null<Real>();
-
-      //        StrikedTypePayoff payoff = new PlainVanillaPayoff(type, strike);
-
-      //        Exercise exercise = new EuropeanExercise(exerciseDate);
-
-      //        ContinuousAveragingAsianOption option =
-      //            new ContinuousAveragingAsianOption(averageType, payoff, exercise);
-      //        option.setPricingEngine(engine);
-
-      //        double calculated = option.NPV();
-      //        double expected = 4.6922;
-      //        double tolerance = 1.0e-4;
-      //        if (Math.Abs(calculated - expected) > tolerance)
-      //        {
-      //            REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
-      //                           new List<Date>(), payoff, exercise, spot.value(),
-      //                           qRate.value(), rRate.value(), today,
-      //                           vol.value(), expected, calculated, tolerance);
-      //        }
-
-      //        // trying to approximate the continuous version with the discrete version
-      //        runningAccumulator = 1.0;
-      //        pastFixings = 0;
-      //        List<Date> fixingDates = new InitializedList<Date>(exerciseDate - today + 1);
-      //        for (int i = 0; i < fixingDates.Count; i++)
-      //        {
-      //            fixingDates[i] = today + i;
-      //        }
-      //        IPricingEngine engine2 = new
-      //            AnalyticDiscreteGeometricAveragePriceAsianEngine(stochProcess);
-
-      //        DiscreteAveragingAsianOption option2 =
-      //            new DiscreteAveragingAsianOption(averageType,
-      //                                             runningAccumulator, pastFixings,
-      //                                             fixingDates,
-      //                                             payoff,
-      //                                             exercise);
-      //        option2.setPricingEngine(engine2);
-
-      //        calculated = option2.NPV();
-      //        tolerance = 3.0e-3;
-      //        /*if (Math.Abs(calculated - expected) > tolerance)
-      //        {
-      //            REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
-      //                           fixingDates, payoff, exercise, spot.value(),
-      //                           qRate.value(), rRate.value(), today,
-      //                           vol.value(), expected, calculated, tolerance);
-      //        }*/
-
-      //    }
-
-
-
-      //    [TestMethod()]
-      //    public void testMCDiscreteArithmeticAveragePrice() {
-
-      //        //BOOST_MESSAGE("Testing Monte Carlo discrete arithmetic average-price Asians...");
-
-      //        //QL_TEST_START_TIMING
-
-      //        // data from "Asian Option", Levy, 1997
-      //        // in "Exotic Options: The State of the Art",
-      //        // edited by Clewlow, Strickland
-
-      //        DiscreteAverageData[] cases4 = {
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 2,0.13, true, 1.3942835683),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 4,0.13, true, 1.5852442983),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 8,0.13, true, 1.66970673),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 12,0.13, true, 1.6980019214),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 26,0.13, true, 1.7255070456),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 52,0.13, true, 1.7401553533),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 100,0.13, true, 1.7478303712),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 250,0.13, true, 1.7490291943),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 500,0.13, true, 1.7515113291),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 1000,0.13, true, 1.7537344885),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 2,0.13, true, 1.8496053697),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 4,0.13, true, 2.0111495205),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 8,0.13, true, 2.0852138818),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 12,0.13, true, 2.1105094397),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 26,0.13, true, 2.1346526695),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 52,0.13, true, 2.147489651),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 100,0.13, true, 2.154728109),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 250,0.13, true, 2.1564276565),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 500,0.13, true, 2.1594238588),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 1000,0.13, true, 2.1595367326),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 2,0.13, true, 2.63315092584),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 4,0.13, true, 2.76723962361),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 8,0.13, true, 2.83124836881),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 12,0.13, true, 2.84290301412),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 26,0.13, true, 2.88179560417),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 52,0.13, true, 2.88447044543),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 100,0.13, true, 2.89985329603),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 250,0.13, true, 2.90047296063),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 500,0.13, true, 2.89813412160),
-      //        new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 1000,0.13, true, 2.89703362437)
-      //        };
-
-      //        DayCounter dc = new Actual360();
-      //        Date today = Date.Today ;
-
-      //        SimpleQuote spot = new SimpleQuote(100.0);
-      //        SimpleQuote qRate = new SimpleQuote(0.03);
-      //        YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
-      //        SimpleQuote rRate = new SimpleQuote(0.06);
-      //        YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
-      //        SimpleQuote vol = new SimpleQuote(0.20);
-      //        BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
-
-
-
-      //        Average.Type averageType = Average.Type.Arithmetic;
-      //        double runningSum = 0.0;
-      //        int pastFixings = 0;
-      //        for (int l=0; l<cases4.Length ; l++) {
-
-      //            StrikedTypePayoff payoff = new
-      //                PlainVanillaPayoff(cases4[l].type, cases4[l].strike);
-
-      //            double dt = cases4[l].length/(cases4[l].fixings-1);
-      //            List<double> timeIncrements = new QLCore.InitializedList<double>(cases4[l].fixings);
-      //            List<Date> fixingDates = new QLCore.InitializedList<Date>(cases4[l].fixings);
-      //            timeIncrements[0] = cases4[l].first;
-      //            fixingDates[0] = today + (int)(timeIncrements[0]*360+0.5);
-      //            for (int i=1; i<cases4[l].fixings; i++) {
-      //                timeIncrements[i] = i*dt + cases4[l].first;
-      //                fixingDates[i] = today + (int)(timeIncrements[i]*360+0.5);
-      //            }
-      //            Exercise exercise = new EuropeanExercise(fixingDates[cases4[l].fixings-1]);
-
-      //            spot.setValue(cases4[l].underlying);
-      //            qRate.setValue(cases4[l].dividendYield);
-      //            rRate.setValue(cases4[l].riskFreeRate);
-      //            vol.setValue(cases4[l].volatility);
-
-      //            BlackScholesMertonProcess stochProcess =
-      //                new BlackScholesMertonProcess(new Handle<Quote>(spot),
-      //                                            new Handle<YieldTermStructure>(qTS),
-      //                                            new Handle<YieldTermStructure>(rTS),
-      //                                            new Handle<BlackVolTermStructure>(volTS));
-
-      //            ulong seed=42;
-      //            const int nrTrails = 5000;
-      //            LowDiscrepancy.icInstance = new InverseCumulativeNormal();
-      //            IRNG rsg = (IRNG)new LowDiscrepancy().make_sequence_generator(nrTrails,seed);
-
-      //            new PseudoRandom().make_sequence_generator(nrTrails,seed);
-
-      //            IPricingEngine engine =
-      //                new MakeMCDiscreteArithmeticAPEngine<LowDiscrepancy, Statistics>(stochProcess)
-      //                    .withStepsPerYear(1)
-      //                    .withSamples(2047)
-      //                    .withControlVariate()
-      //                    .value();
-      //            DiscreteAveragingAsianOption option=
-      //                new DiscreteAveragingAsianOption(averageType, runningSum,
-      //                                                pastFixings, fixingDates,
-      //                                                payoff, exercise);
-      //            option.setPricingEngine(engine);
-
-      //            double calculated = option.NPV();
-      //            double expected = cases4[l].result;
-      //            double tolerance = 2.0e-2;
-      //            if (Math.Abs(calculated-expected) > tolerance) {
-      //                REPORT_FAILURE("value", averageType, runningSum, pastFixings,
-      //                            fixingDates, payoff, exercise, spot.value(),
-      //                            qRate.value(), rRate.value(), today,
-      //                            vol.value(), expected, calculated, tolerance);
-      //            }
-      //        }
-      //    }
-
-      //    [TestMethod()]
-      //    public void testMCDiscreteArithmeticAverageStrike() {
-
-      //        //BOOST_MESSAGE("Testing Monte Carlo discrete arithmetic average-strike Asians...");
-
-      //        //QL_TEST_START_TIMING
-
-      //        // data from "Asian Option", Levy, 1997
-      //        // in "Exotic Options: The State of the Art",
-      //        // edited by Clewlow, Strickland
-      //        DiscreteAverageData[] cases5 = {
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 2,
-      //              0.13, true, 1.51917595129 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 4,
-      //              0.13, true, 1.67940165674 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 8,
-      //              0.13, true, 1.75371215251 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 12,
-      //              0.13, true, 1.77595318693 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 26,
-      //              0.13, true, 1.81430536630 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 52,
-      //              0.13, true, 1.82269246898 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 100,
-      //              0.13, true, 1.83822402464 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 250,
-      //              0.13, true, 1.83875059026 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 500,
-      //              0.13, true, 1.83750703638 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 1000,
-      //              0.13, true, 1.83887181884 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 2,
-      //              0.13, true, 1.51154400089 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 4,
-      //              0.13, true, 1.67103508506 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 8,
-      //              0.13, true, 1.74529684070 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 12,
-      //              0.13, true, 1.76667074564 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 26,
-      //              0.13, true, 1.80528400613 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 52,
-      //              0.13, true, 1.81400883891 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 100,
-      //              0.13, true, 1.82922901451 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 250,
-      //              0.13, true, 1.82937111773 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 500,
-      //              0.13, true, 1.82826193186 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 1000,
-      //              0.13, true, 1.82967846654 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 2,
-      //              0.13, true, 1.49648170891 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 4,
-      //              0.13, true, 1.65443100462 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 8,
-      //              0.13, true, 1.72817806731 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 12,
-      //              0.13, true, 1.74877367895 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 26,
-      //              0.13, true, 1.78733801988 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 52,
-      //              0.13, true, 1.79624826757 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 100,
-      //              0.13, true, 1.81114186876 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 250,
-      //              0.13, true, 1.81101152587 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 500,
-      //              0.13, true, 1.81002311939 ),
-      //            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 1000,
-      //              0.13, true, 1.81145760308 )
-      //        };
-
-      //        DayCounter dc = new Actual360();
-      //        Date today = Date.Today ;
-
-      //        SimpleQuote spot = new SimpleQuote(100.0);
-      //        SimpleQuote qRate = new SimpleQuote(0.03);
-      //        YieldTermStructure qTS =Utilities.flatRate(today, qRate, dc);
-      //        SimpleQuote rRate = new SimpleQuote(0.06);
-      //        YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
-      //        SimpleQuote vol = new SimpleQuote(0.20);
-      //        BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
-
-      //        Average.Type averageType = QLCore.Average.Type.Arithmetic;
-      //        double runningSum = 0.0;
-      //        int pastFixings = 0;
-      //        for (int l=0; l<cases5.Length; l++) {
-
-      //            StrikedTypePayoff payoff =
-      //                new PlainVanillaPayoff(cases5[l].type, cases5[l].strike);
-
-      //            double dt = cases5[l].length/(cases5[l].fixings-1);
-      //            List<double> timeIncrements = new InitializedList<double>(cases5[l].fixings);
-      //            List<Date> fixingDates = new InitializedList<Date>(cases5[l].fixings);
-      //            timeIncrements[0] = cases5[l].first;
-      //            fixingDates[0] = today + (int)(timeIncrements[0]*360+0.5);
-      //            for (int i=1; i<cases5[l].fixings; i++) {
-      //                timeIncrements[i] = i*dt + cases5[l].first;
-      //                fixingDates[i] = today + (int)(timeIncrements[i]*360+0.5);
-      //            }
-      //            Exercise exercise = new EuropeanExercise(fixingDates[cases5[l].fixings-1]);
-
-      //            spot.setValue(cases5[l].underlying);
-      //            qRate.setValue(cases5[l].dividendYield);
-      //            rRate.setValue(cases5[l].riskFreeRate);
-      //            vol.setValue(cases5[l].volatility);
-
-      //            BlackScholesMertonProcess stochProcess =
-      //                new BlackScholesMertonProcess(new Handle<Quote>(spot),
-      //                                            new Handle<YieldTermStructure>(qTS),
-      //                                            new Handle<YieldTermStructure>(rTS),
-      //                                            new Handle<BlackVolTermStructure>(volTS));
-
-      //            IPricingEngine engine =
-      //                new MakeMCDiscreteArithmeticASEngine<LowDiscrepancy,Statistics>(stochProcess)
-      //                .withSeed(3456789)
-      //                .withSamples(1023)
-      //                .value() ;
-
-      //            DiscreteAveragingAsianOption option =
-      //                new DiscreteAveragingAsianOption(averageType, runningSum,
-      //                                                pastFixings, fixingDates,
-      //                                                payoff, exercise);
-      //            option.setPricingEngine(engine);
-
-      //            double calculated = option.NPV();
-      //            double expected = cases5[l].result;
-      //            double tolerance = 2.0e-2;
-      //            if (Math.Abs(calculated-expected) > tolerance) {
-      //                REPORT_FAILURE("value", averageType, runningSum, pastFixings,
-      //                               fixingDates, payoff, exercise, spot.value(),
-      //                               qRate.value(), rRate.value(), today,
-      //                               vol.value(), expected, calculated, tolerance);
-      //            }
-      //        }
-      //    }
-
-
-      //    [TestMethod()]
-      //    public void testPastFixings() {
-
-      //        //BOOST_MESSAGE("Testing use of past fixings in Asian options...");
-      //        DayCounter dc = new Actual360();
-      //        Date today = Date.Today ;
-
-      //        SimpleQuote spot = new SimpleQuote(100.0);
-      //        SimpleQuote qRate = new SimpleQuote(0.03);
-      //        YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
-      //        SimpleQuote rRate = new SimpleQuote(0.06);
-      //        YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
-      //        SimpleQuote vol = new SimpleQuote(0.20);
-      //        BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
-
-      //        StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 100.0);
-
-
-      //        Exercise exercise = new EuropeanExercise(today + new Period(1,TimeUnit.Years));
-
-      //        BlackScholesMertonProcess stochProcess =
-      //            new BlackScholesMertonProcess(new Handle<Quote>(spot),
-      //                                          new Handle<YieldTermStructure>(qTS),
-      //                                          new Handle<YieldTermStructure>(rTS),
-      //                                          new Handle<BlackVolTermStructure>(volTS));
-
-      //        // MC arithmetic average-price
-      //        double runningSum = 0.0;
-      //        int pastFixings = 0;
-      //        List<Date> fixingDates1 = new InitializedList<Date>();
-      //        for (int i=0; i<=12; ++i)
-      //            fixingDates1.Add(today + new Period(i,TimeUnit.Months));
-
-      //        DiscreteAveragingAsianOption option1 =
-      //            new DiscreteAveragingAsianOption(Average.Type.Arithmetic, runningSum,
-      //                                             pastFixings, fixingDates1,
-      //                                             payoff, exercise);
-
-      //        pastFixings = 2;
-      //        runningSum = pastFixings * spot.value() * 0.8;
-      //        List<Date> fixingDates2 = new InitializedList<Date>();
-      //        for (int i=-2; i<=12; ++i)
-      //            fixingDates2.Add(today + new Period(i,TimeUnit.Months));
-
-      //        DiscreteAveragingAsianOption option2 =
-      //            new DiscreteAveragingAsianOption(Average.Type.Arithmetic, runningSum,
-      //                                             pastFixings, fixingDates2,
-      //                                             payoff, exercise);
-
-      //        IPricingEngine engine =
-      //           new MakeMCDiscreteArithmeticAPEngine<LowDiscrepancy,Statistics>(stochProcess)
-      //            .withStepsPerYear(1)
-      //            .withSamples(2047)
-      //            .value() ;
-
-      //        option1.setPricingEngine(engine);
-      //        option2.setPricingEngine(engine);
-
-      //        double price1 = option1.NPV();
-      //        double price2 = option2.NPV();
-
-      //        if (Utils.close(price1, price2)) {
-      //            QAssert.Fail(
-      //                 "past fixings had no effect on arithmetic average-price option"
-      //                 + "\n  without fixings: " + price1
-      //                 + "\n  with fixings:    " + price2);
-      //        }
-
-      //        // MC arithmetic average-strike
-      //        engine = new MakeMCDiscreteArithmeticASEngine<LowDiscrepancy,Statistics>(stochProcess)
-      //            .withSamples(2047)
-      //            .value();
-
-      //        option1.setPricingEngine(engine);
-      //        option2.setPricingEngine(engine);
-
-      //        price1 = option1.NPV();
-      //        price2 = option2.NPV();
-
-      //        if (Utils.close(price1, price2)) {
-      //            QAssert.Fail(
-      //                 "past fixings had no effect on arithmetic average-strike option"
-      //                 + "\n  without fixings: " + price1
-      //                 + "\n  with fixings:    " + price2);
-      //        }
-
-      //        // analytic geometric average-price
-      //        double runningProduct = 1.0;
-      //        pastFixings = 0;
-
-      //        DiscreteAveragingAsianOption option3 =
-      //            new DiscreteAveragingAsianOption(Average.Type.Geometric, runningProduct,
-      //                                             pastFixings, fixingDates1,
-      //                                             payoff, exercise);
-
-      //        pastFixings = 2;
-      //        runningProduct = spot.value() * spot.value();
-
-      //        DiscreteAveragingAsianOption option4 =
-      //            new DiscreteAveragingAsianOption(Average.Type.Geometric, runningProduct,
-      //                                             pastFixings, fixingDates2,
-      //                                             payoff, exercise);
-
-      //        engine = new AnalyticDiscreteGeometricAveragePriceAsianEngine(stochProcess);
-
-      //        option3.setPricingEngine(engine);
-      //        option4.setPricingEngine(engine);
-
-      //        double price3 = option3.NPV();
-      //        double price4 = option4.NPV();
-
-      //        if (Utils.close(price3, price4)) {
-      //            QAssert.Fail(
-      //                 "past fixings had no effect on geometric average-price option"
-      //                 + "\n  without fixings: " + price3
-      //                 + "\n  with fixings:    " + price4);
-      //        }
-
-      //        // MC geometric average-price
-      //        engine = new MakeMCDiscreteGeometricAPEngine<LowDiscrepancy,Statistics>(stochProcess)
-      //                    .withStepsPerYear(1)
-      //                    .withSamples(2047)
-      //                    .value();
-
-      //        option3.setPricingEngine(engine);
-      //        option4.setPricingEngine(engine);
-
-      //        price3 = option3.NPV();
-      //        price4 = option4.NPV();
-
-      //        if (Utils.close(price3, price4)) {
-      //            QAssert.Fail(
-      //                 "past fixings had no effect on geometric average-price option"
-      //                 + "\n  without fixings: " + price3
-      //                 + "\n  with fixings:    " + price4);
-      //        }
-      //    }
-
-      //    public void suite() {
-      //    //BOOST_TEST_SUITE("Asian option tests");
-      //        testAnalyticContinuousGeometricAveragePrice();
-      //        testAnalyticContinuousGeometricAveragePriceGreeks();
-      //        testAnalyticDiscreteGeometricAveragePrice();
-      //        testMCDiscreteGeometricAveragePrice();
-      //        testMCDiscreteArithmeticAveragePrice();
-      //        testMCDiscreteArithmeticAverageStrike();
-      //        testAnalyticDiscreteGeometricAveragePriceGreeks();
-      //        testPastFixings();
-
-      //    }
+      public struct DiscreteAverageData
+      {
+         public Option.Type type;
+         public double underlying;
+         public double strike;
+         public double dividendYield;
+         public double riskFreeRate;
+         public double first;
+         public double length;
+         public int fixings;
+         public double volatility;
+         public bool controlVariate;
+         public double result;
+
+         public DiscreteAverageData(Option.Type Type,
+                                    double Underlying,
+                                    double Strike,
+                                    double DividendYield,
+                                    double RiskFreeRate,
+                                    double First,
+                                    double Length,
+                                    int Fixings,
+                                    double Volatility,
+                                    bool ControlVariate,
+                                    double Result)
+         {
+            type = Type;
+            underlying = Underlying;
+            strike = Strike;
+            dividendYield = DividendYield;
+            riskFreeRate = RiskFreeRate;
+            first = First;
+            length = Length;
+            fixings = Fixings;
+            volatility = Volatility;
+            controlVariate = ControlVariate;
+            result = Result;
+         }
+      }
+
+      [Fact]
+      public void testMCDiscreteArithmeticAveragePrice() 
+      {
+         //Testing Monte Carlo discrete arithmetic average-price Asians...
+
+         // data from "Asian Option", Levy, 1997
+         // in "Exotic Options: The State of the Art",
+         // edited by Clewlow, Strickland
+
+         DiscreteAverageData[] cases4 = {
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 2,0.13, true, 1.3942835683),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 4,0.13, true, 1.5852442983),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 8,0.13, true, 1.66970673),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 12,0.13, true, 1.6980019214),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 26,0.13, true, 1.7255070456),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 52,0.13, true, 1.7401553533),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 100,0.13, true, 1.7478303712),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 250,0.13, true, 1.7490291943),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 500,0.13, true, 1.7515113291),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 1000,0.13, true, 1.7537344885),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 2,0.13, true, 1.8496053697),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 4,0.13, true, 2.0111495205),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 8,0.13, true, 2.0852138818),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 12,0.13, true, 2.1105094397),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 26,0.13, true, 2.1346526695),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 52,0.13, true, 2.147489651),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 100,0.13, true, 2.154728109),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 250,0.13, true, 2.1564276565),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 500,0.13, true, 2.1594238588),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 1.0/12.0,11.0/12.0, 1000,0.13, true, 2.1595367326),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 2,0.13, true, 2.63315092584),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 4,0.13, true, 2.76723962361),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 8,0.13, true, 2.83124836881),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 12,0.13, true, 2.84290301412),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 26,0.13, true, 2.88179560417),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 52,0.13, true, 2.88447044543),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 100,0.13, true, 2.89985329603),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 250,0.13, true, 2.90047296063),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 500,0.13, true, 2.89813412160),
+         new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 3.0/12.0,11.0/12.0, 1000,0.13, true, 2.89703362437)
+         };
+
+         DayCounter dc = new Actual360();
+         Date today = Date.Today ;
+
+         SimpleQuote spot = new SimpleQuote(100.0);
+         SimpleQuote qRate = new SimpleQuote(0.03);
+         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         SimpleQuote rRate = new SimpleQuote(0.06);
+         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         SimpleQuote vol = new SimpleQuote(0.20);
+         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+
+         Average.Type averageType = Average.Type.Arithmetic;
+         double runningSum = 0.0;
+         int pastFixings = 0;
+         for (int l=0; l<cases4.Length ; l++) {
+
+            StrikedTypePayoff payoff = new
+               PlainVanillaPayoff(cases4[l].type, cases4[l].strike);
+
+            double dt = cases4[l].length/(cases4[l].fixings-1);
+            List<double> timeIncrements = new QLCore.InitializedList<double>(cases4[l].fixings);
+            List<Date> fixingDates = new QLCore.InitializedList<Date>(cases4[l].fixings);
+            timeIncrements[0] = cases4[l].first;
+            fixingDates[0] = today + (int)(timeIncrements[0]*360+0.5);
+            for (int i=1; i<cases4[l].fixings; i++) {
+               timeIncrements[i] = i*dt + cases4[l].first;
+               fixingDates[i] = today + (int)(timeIncrements[i]*360+0.5);
+            }
+            Exercise exercise = new EuropeanExercise(fixingDates[cases4[l].fixings-1]);
+
+            spot.setValue(cases4[l].underlying);
+            qRate.setValue(cases4[l].dividendYield);
+            rRate.setValue(cases4[l].riskFreeRate);
+            vol.setValue(cases4[l].volatility);
+
+            BlackScholesMertonProcess stochProcess =
+               new BlackScholesMertonProcess(new Handle<Quote>(spot),
+                                             new Handle<YieldTermStructure>(qTS),
+                                             new Handle<YieldTermStructure>(rTS),
+                                             new Handle<BlackVolTermStructure>(volTS));
+
+            ulong seed=42;
+            const int nrTrails = 5000;
+            LowDiscrepancy.icInstance = new InverseCumulativeNormal();
+            IRNG rsg = (IRNG)new LowDiscrepancy().make_sequence_generator(nrTrails,seed);
+
+            new PseudoRandom().make_sequence_generator(nrTrails,seed);
+
+            IPricingEngine engine =
+               new MakeMCDiscreteArithmeticAPEngine<LowDiscrepancy, Statistics>(stochProcess)
+                     .withSamples(2047)
+                     .withControlVariate(cases4[l].controlVariate)
+                     .value();
+            DiscreteAveragingAsianOption option=
+               new DiscreteAveragingAsianOption(averageType, runningSum,
+                                                pastFixings, fixingDates,
+                                                payoff, exercise);
+            option.setPricingEngine(engine);
+            option.update();
+
+            double calculated = option.NPV();
+            double expected = cases4[l].result;
+            double tolerance = 2.0e-2;
+            if (Math.Abs(calculated-expected) > tolerance) {
+               REPORT_FAILURE("value", averageType, runningSum, pastFixings,
+                           fixingDates, payoff, exercise, spot.value(),
+                           qRate.value(), rRate.value(), today,
+                           vol.value(), expected, calculated, tolerance);
+            }
+         }
+      }
+
+      [Fact]
+      public void testMCDiscreteArithmeticAverageStrike() 
+      {
+         //Testing Monte Carlo discrete arithmetic average-strike Asians...
+
+         // data from "Asian Option", Levy, 1997
+         // in "Exotic Options: The State of the Art",
+         // edited by Clewlow, Strickland
+         DiscreteAverageData[] cases5 = {
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 2,
+               0.13, true, 1.51917595129 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 4,
+               0.13, true, 1.67940165674 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 8,
+               0.13, true, 1.75371215251 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 12,
+               0.13, true, 1.77595318693 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 26,
+               0.13, true, 1.81430536630 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 52,
+               0.13, true, 1.82269246898 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 100,
+               0.13, true, 1.83822402464 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 250,
+               0.13, true, 1.83875059026 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 500,
+               0.13, true, 1.83750703638 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 0.0, 11.0/12.0, 1000,
+               0.13, true, 1.83887181884 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 2,
+               0.13, true, 1.51154400089 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 4,
+               0.13, true, 1.67103508506 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 8,
+               0.13, true, 1.74529684070 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 12,
+               0.13, true, 1.76667074564 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 26,
+               0.13, true, 1.80528400613 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 52,
+               0.13, true, 1.81400883891 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 100,
+               0.13, true, 1.82922901451 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 250,
+               0.13, true, 1.82937111773 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 500,
+               0.13, true, 1.82826193186 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 1.0/12.0, 11.0/12.0, 1000,
+               0.13, true, 1.82967846654 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 2,
+               0.13, true, 1.49648170891 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 4,
+               0.13, true, 1.65443100462 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 8,
+               0.13, true, 1.72817806731 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 12,
+               0.13, true, 1.74877367895 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 26,
+               0.13, true, 1.78733801988 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 52,
+               0.13, true, 1.79624826757 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 100,
+               0.13, true, 1.81114186876 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 250,
+               0.13, true, 1.81101152587 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 500,
+               0.13, true, 1.81002311939 ),
+            new DiscreteAverageData(Option.Type.Call, 90.0, 87.0, 0.06, 0.025, 3.0/12.0, 11.0/12.0, 1000,
+               0.13, true, 1.81145760308 )
+         };
+
+         DayCounter dc = new Actual360();
+         Date today = Date.Today ;
+
+         SimpleQuote spot = new SimpleQuote(100.0);
+         SimpleQuote qRate = new SimpleQuote(0.03);
+         YieldTermStructure qTS =Utilities.flatRate(today, qRate, dc);
+         SimpleQuote rRate = new SimpleQuote(0.06);
+         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         SimpleQuote vol = new SimpleQuote(0.20);
+         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+
+         Average.Type averageType = QLCore.Average.Type.Arithmetic;
+         double runningSum = 0.0;
+         int pastFixings = 0;
+         for (int l=0; l<cases5.Length; l++) {
+
+            StrikedTypePayoff payoff =
+               new PlainVanillaPayoff(cases5[l].type, cases5[l].strike);
+
+            double dt = cases5[l].length/(cases5[l].fixings-1);
+            List<double> timeIncrements = new InitializedList<double>(cases5[l].fixings);
+            List<Date> fixingDates = new InitializedList<Date>(cases5[l].fixings);
+            timeIncrements[0] = cases5[l].first;
+            fixingDates[0] = today + (int)(timeIncrements[0]*360+0.5);
+            for (int i=1; i<cases5[l].fixings; i++) {
+               timeIncrements[i] = i*dt + cases5[l].first;
+               fixingDates[i] = today + (int)(timeIncrements[i]*360+0.5);
+            }
+            Exercise exercise = new EuropeanExercise(fixingDates[cases5[l].fixings-1]);
+
+            spot.setValue(cases5[l].underlying);
+            qRate.setValue(cases5[l].dividendYield);
+            rRate.setValue(cases5[l].riskFreeRate);
+            vol.setValue(cases5[l].volatility);
+
+            BlackScholesMertonProcess stochProcess =
+               new BlackScholesMertonProcess(new Handle<Quote>(spot),
+                                             new Handle<YieldTermStructure>(qTS),
+                                             new Handle<YieldTermStructure>(rTS),
+                                             new Handle<BlackVolTermStructure>(volTS));
+
+            IPricingEngine engine =
+               new MakeMCDiscreteArithmeticASEngine<LowDiscrepancy,Statistics>(stochProcess)
+               .withSeed(3456789)
+               .withSamples(1023)
+               .value();
+
+            DiscreteAveragingAsianOption option =
+               new DiscreteAveragingAsianOption(averageType, runningSum,
+                                                pastFixings, fixingDates,
+                                                payoff, exercise);
+            option.setPricingEngine(engine);
+
+            double calculated = option.NPV();
+            double expected = cases5[l].result;
+            double tolerance = 2.0e-2;
+            if (Math.Abs(calculated-expected) > tolerance) {
+               REPORT_FAILURE("value", averageType, runningSum, pastFixings,
+                              fixingDates, payoff, exercise, spot.value(),
+                              qRate.value(), rRate.value(), today,
+                              vol.value(), expected, calculated, tolerance);
+            }
+         }
+      }
+
+      [Fact]
+      public void testPastFixings() 
+      {
+         //Testing use of past fixings in Asian options...
+         DayCounter dc = new Actual360();
+         Date today = Date.Today ;
+
+         SimpleQuote spot = new SimpleQuote(100.0);
+         SimpleQuote qRate = new SimpleQuote(0.03);
+         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         SimpleQuote rRate = new SimpleQuote(0.06);
+         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         SimpleQuote vol = new SimpleQuote(0.20);
+         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+
+         StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 100.0);
+
+         Exercise exercise = new EuropeanExercise(today + new Period(1,TimeUnit.Years));
+
+         BlackScholesMertonProcess stochProcess =
+            new BlackScholesMertonProcess(new Handle<Quote>(spot),
+                                          new Handle<YieldTermStructure>(qTS),
+                                          new Handle<YieldTermStructure>(rTS),
+                                          new Handle<BlackVolTermStructure>(volTS));
+
+         // MC arithmetic average-price
+         double runningSum = 0.0;
+         int pastFixings = 0;
+         List<Date> fixingDates1 = new InitializedList<Date>();
+         for (int i=0; i<=12; ++i)
+            fixingDates1.Add(today + new Period(i,TimeUnit.Months));
+
+         DiscreteAveragingAsianOption option1 =
+            new DiscreteAveragingAsianOption(Average.Type.Arithmetic, runningSum,
+                                             pastFixings, fixingDates1,
+                                             payoff, exercise);
+
+         pastFixings = 2;
+         runningSum = pastFixings * spot.value() * 0.8;
+         List<Date> fixingDates2 = new InitializedList<Date>();
+         for (int i=-2; i<=12; ++i)
+            fixingDates2.Add(today + new Period(i,TimeUnit.Months));
+
+         DiscreteAveragingAsianOption option2 =
+            new DiscreteAveragingAsianOption(Average.Type.Arithmetic, runningSum,
+                                             pastFixings, fixingDates2,
+                                             payoff, exercise);
+
+         IPricingEngine engine =
+            new MakeMCDiscreteArithmeticAPEngine<LowDiscrepancy,Statistics>(stochProcess)
+            .withSamples(2047)
+            .value() ;
+
+         option1.setPricingEngine(engine);
+         option2.setPricingEngine(engine);
+
+         double price1 = option1.NPV();
+         double price2 = option2.NPV();
+
+         if (Utils.close(price1, price2)) {
+            QAssert.Fail(
+                  "past fixings had no effect on arithmetic average-price option"
+                  + "\n  without fixings: " + price1
+                  + "\n  with fixings:    " + price2);
+         }
+
+         // MC arithmetic average-strike
+         engine = new MakeMCDiscreteArithmeticASEngine<LowDiscrepancy,Statistics>(stochProcess)
+            .withSamples(2047)
+            .value();
+
+         option1.setPricingEngine(engine);
+         option2.setPricingEngine(engine);
+
+         price1 = option1.NPV();
+         price2 = option2.NPV();
+
+         if (Utils.close(price1, price2)) {
+            QAssert.Fail(
+                  "past fixings had no effect on arithmetic average-strike option"
+                  + "\n  without fixings: " + price1
+                  + "\n  with fixings:    " + price2);
+         }
+
+         // analytic geometric average-price
+         double runningProduct = 1.0;
+         pastFixings = 0;
+
+         DiscreteAveragingAsianOption option3 =
+            new DiscreteAveragingAsianOption(Average.Type.Geometric, runningProduct,
+                                             pastFixings, fixingDates1,
+                                             payoff, exercise);
+
+         pastFixings = 2;
+         runningProduct = spot.value() * spot.value();
+
+         DiscreteAveragingAsianOption option4 =
+            new DiscreteAveragingAsianOption(Average.Type.Geometric, runningProduct,
+                                             pastFixings, fixingDates2,
+                                             payoff, exercise);
+
+         engine = new AnalyticDiscreteGeometricAveragePriceAsianEngine(stochProcess);
+
+         option3.setPricingEngine(engine);
+         option4.setPricingEngine(engine);
+
+         double price3 = option3.NPV();
+         double price4 = option4.NPV();
+
+         if (Utils.close(price3, price4)) {
+            QAssert.Fail(
+                  "past fixings had no effect on geometric average-price option"
+                  + "\n  without fixings: " + price3
+                  + "\n  with fixings:    " + price4);
+         }
+
+         // MC geometric average-price
+         engine = new MakeMCDiscreteGeometricAPEngine<LowDiscrepancy,Statistics>(stochProcess)
+                     .withSamples(2047)
+                     .value();
+
+         option3.setPricingEngine(engine);
+         option4.setPricingEngine(engine);
+
+         price3 = option3.NPV();
+         price4 = option4.NPV();
+
+         if (Utils.close(price3, price4)) {
+            QAssert.Fail(
+                  "past fixings had no effect on geometric average-price option"
+                  + "\n  without fixings: " + price3
+                  + "\n  with fixings:    " + price4);
+         }
+      }
    }
 }

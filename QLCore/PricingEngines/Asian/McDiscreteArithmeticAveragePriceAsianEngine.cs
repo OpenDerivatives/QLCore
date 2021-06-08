@@ -42,16 +42,15 @@ namespace QLCore
       // constructor
       public MCDiscreteArithmeticAPEngine(
          GeneralizedBlackScholesProcess process,
-         int maxTimeStepPerYear,
          bool brownianBridge,
          bool antitheticVariate,
          bool controlVariate,
-         int requiredSamples,
-         double requiredTolerance,
-         int maxSamples,
+         int? requiredSamples,
+         double? requiredTolerance,
+         int? maxSamples,
          ulong seed)
-         : base(process, maxTimeStepPerYear, brownianBridge, antitheticVariate,
-                controlVariate, requiredSamples, requiredTolerance, maxSamples, seed)
+         : base(process, brownianBridge, antitheticVariate, controlVariate, 
+                requiredSamples, requiredTolerance, maxSamples, seed)
       {
       }
 
@@ -96,7 +95,6 @@ namespace QLCore
 
    public class ArithmeticAPOPathPricer : PathPricer<IPath>
    {
-
       private PlainVanillaPayoff payoff_;
       private double discount_;
       private double runningSum_;
@@ -127,35 +125,29 @@ namespace QLCore
          : this(type, strike, discount, 0.0, 0) { }
 
 
-      public double value(Path path)
+      public double value(IPath path)
       {
          int n = path.length();
          Utils.QL_REQUIRE(n > 1, () => "the path cannot be empty");
 
          double sum = runningSum_;
          int fixings;
-         if (path.timeGrid().mandatoryTimes()[0].IsEqual(0.0))
+         if ((path as Path).timeGrid().mandatoryTimes()[0].IsEqual(0.0))
          {
             // include initial fixing
             for (int i = 0; i < path.length(); i++)
-               sum += path[i];
+               sum += (path as Path)[i];
             fixings = pastFixings_ + n;
          }
          else
          {
             for (int i = 1; i < path.length(); i++)
-               sum += path[i];
+               sum += (path as Path)[i];
             fixings = pastFixings_ + n - 1;
          }
          double averagePrice = sum / fixings;
          return discount_ * payoff_.value(averagePrice);
 
-      }
-
-      public double value(IPath path)
-      {
-         Utils.QL_REQUIRE(path.length() > 0, () => "the path cannot be empty");
-         return payoff_.value(((Path) path).back()) * discount_;
       }
    }
    //<class RNG = PseudoRandom, class S = Statistics>
@@ -168,19 +160,11 @@ namespace QLCore
          process_ = process;
          antithetic_ = false;
          controlVariate_ = false;
-         steps_ = null;
          samples_ = null;
          maxSamples_ = null;
          tolerance_ = null;
          brownianBridge_ = true;
          seed_ = 0;
-      }
-
-      // named parameters
-      public MakeMCDiscreteArithmeticAPEngine<RNG, S> withStepsPerYear(int maxSteps)
-      {
-         steps_ = maxSteps;
-         return this;
       }
 
       public MakeMCDiscreteArithmeticAPEngine<RNG, S> withBrownianBridge(bool b)
@@ -248,20 +232,18 @@ namespace QLCore
       // conversion to pricing engine
       public IPricingEngine value()
       {
-         Utils.QL_REQUIRE(steps_ != null, () => "max number of steps per year not given");
          return (IPricingEngine)new MCDiscreteArithmeticAPEngine<RNG, S>(process_,
-                                                                         steps_.Value,
                                                                          brownianBridge_,
                                                                          antithetic_, controlVariate_,
-                                                                         samples_.Value, tolerance_.Value,
-                                                                         maxSamples_.Value,
+                                                                         samples_, tolerance_,
+                                                                         maxSamples_,
                                                                          seed_);
 
       }
 
       private GeneralizedBlackScholesProcess process_;
       private bool antithetic_, controlVariate_;
-      private int? steps_, samples_, maxSamples_;
+      private int? samples_, maxSamples_;
       private double? tolerance_;
       private bool brownianBridge_;
       private ulong seed_;
