@@ -2,7 +2,7 @@ QLNet
 =====
 
 QLCore is a forked of the QLNet C# library.
-QLCore is a financial library written in C# for the Linux and Windows enviroment derived primarily from its C++ counterpart, Quantlib, which has been used as a base reference for modelling various financial instruments.
+QLCore is a financial library written in C# for the Linux and Windows environments derived primarily from its C++ counterpart, Quantlib, which has been used as a base reference for modelling various financial instruments.
 
 QLCore is thread-safe (or at least try to!), cross-platform and contains features not ported from Quantlib to QLNet, such as:
 - Default term structures
