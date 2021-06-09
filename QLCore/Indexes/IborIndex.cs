@@ -69,8 +69,10 @@ namespace QLCore
       // returns a copy of itself linked to a different forwarding curve
       public virtual IborIndex clone(Handle<YieldTermStructure> forwarding)
       {
-         return new IborIndex(familyName(), tenor(), fixingDays(), currency(), fixingCalendar(),
-                              businessDayConvention(), endOfMonth(), dayCounter(), forwarding);
+         IborIndex tmp = new IborIndex(familyName(), tenor(), fixingDays(), currency(), fixingCalendar(),
+                                       businessDayConvention(), endOfMonth(), dayCounter(), forwarding);
+         tmp.data_ = data_;
+         return tmp;
       }
 
       protected BusinessDayConvention convention_;
@@ -125,9 +127,10 @@ namespace QLCore
       //! returns a copy of itself linked to a different forwarding curve
       public new OvernightIndex clone(Handle<YieldTermStructure> h)
       {
-         return new OvernightIndex(familyName(), fixingDays(), currency(), fixingCalendar(),
+         OvernightIndex tmp = new OvernightIndex(familyName(), fixingDays(), currency(), fixingCalendar(),
                                    dayCounter(), h);
-
+         tmp.data_ = data_;
+         return tmp;
       }
    }
 }

@@ -30,12 +30,9 @@ namespace TestSuite
    {
       #region Initialize&Cleanup
       private SavedSettings backup;
-      private IndexHistoryCleaner cleaner;
-
       public T_AssetSwap()
       {
          backup = new SavedSettings();
-         cleaner = new IndexHistoryCleaner();
       }
 
       public void testCleanup()
@@ -46,7 +43,6 @@ namespace TestSuite
       public void Dispose()
       {
          backup.Dispose();
-         cleaner.Dispose();
       }
       #endregion
 

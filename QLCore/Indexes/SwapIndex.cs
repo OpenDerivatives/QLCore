@@ -115,8 +115,9 @@ namespace QLCore
       // returns a copy of itself linked to a different forwarding curve
       public virtual SwapIndex clone(Handle<YieldTermStructure> forwarding)
       {
+         SwapIndex tmp;
          if (exogenousDiscount_)
-            return new SwapIndex(familyName(),
+            tmp = new SwapIndex(familyName(),
                                  tenor(),
                                  fixingDays(),
                                  currency(),
@@ -127,7 +128,7 @@ namespace QLCore
                                  iborIndex_.clone(forwarding),
                                  discount_);
          else
-            return new SwapIndex(familyName(),
+            tmp = new SwapIndex(familyName(),
                                  tenor(),
                                  fixingDays(),
                                  currency(),
@@ -136,26 +137,32 @@ namespace QLCore
                                  fixedLegConvention(),
                                  dayCounter(),
                                  iborIndex_.clone(forwarding));
+         
+         tmp.data_ = data_;
+         return tmp;
       }
       //! returns a copy of itself linked to a different curves
       public virtual SwapIndex clone(Handle<YieldTermStructure> forwarding, Handle<YieldTermStructure> discounting)
       {
-         return new SwapIndex(familyName(),
-                              tenor(),
-                              fixingDays(),
-                              currency(),
-                              fixingCalendar(),
-                              fixedLegTenor(),
-                              fixedLegConvention(),
-                              dayCounter(),
-                              iborIndex_.clone(forwarding),
-                              discounting);
+         SwapIndex tmp = new SwapIndex(familyName(),
+                                       tenor(),
+                                       fixingDays(),
+                                       currency(),
+                                       fixingCalendar(),
+                                       fixedLegTenor(),
+                                       fixedLegConvention(),
+                                       dayCounter(),
+                                       iborIndex_.clone(forwarding),
+                                       discounting);
+         tmp.data_ = data_;
+         return tmp;
       }
       //! returns a copy of itself linked to a different tenor
       public virtual SwapIndex clone(Period tenor)
       {
+         SwapIndex tmp;
          if (exogenousDiscount_)
-            return new SwapIndex(familyName(),
+            tmp = new SwapIndex(familyName(),
                                  tenor,
                                  fixingDays(),
                                  currency(),
@@ -166,7 +173,7 @@ namespace QLCore
                                  iborIndex(),
                                  discountingTermStructure());
          else
-            return new SwapIndex(familyName(),
+            tmp = new SwapIndex(familyName(),
                                  tenor,
                                  fixingDays(),
                                  currency(),
@@ -175,6 +182,9 @@ namespace QLCore
                                  fixedLegConvention(),
                                  dayCounter(),
                                  iborIndex());
+         
+         tmp.data_ = data_;
+         return tmp;
       }
       public override double forecastFixing(Date fixingDate)
       {

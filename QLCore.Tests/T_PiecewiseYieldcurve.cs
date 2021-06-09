@@ -235,22 +235,20 @@ namespace TestSuite
 
       #region Initialize&Cleanup
       private SavedSettings backup;
-      private IndexHistoryCleaner cleaner;
 
       public T_PiecewiseyieldCurve()
       {
          backup = new SavedSettings();
-         cleaner = new IndexHistoryCleaner();
       }
 
       public void testCleanup()
       {
          Dispose();
       }
+
       public void Dispose()
       {
          backup.Dispose();
-         cleaner.Dispose();
       }
       #endregion
 
@@ -426,7 +424,7 @@ namespace TestSuite
 
          Handle<YieldTermStructure> curveHandle = new Handle<YieldTermStructure>(vars.termStructure);
 
-         IborIndex index = new Euribor6M(curveHandle);
+         IborIndex index = euribor6m.clone(curveHandle);
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -454,6 +452,7 @@ namespace TestSuite
          }
 
          index.addFixing(vars.today, 0.0425);
+         curveHandle.link.update();
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -465,7 +464,7 @@ namespace TestSuite
             .withFixedLegConvention(vars.fixedLegConvention)
             .withFixedLegTerminationDateConvention(vars.fixedLegConvention)
             .value();
-
+            
             double expectedRate = vars.swapData[i].rate / 100,
                    estimatedRate = swap.fairRate();
             double tolerance = 1.0e-9;
@@ -738,6 +737,10 @@ namespace TestSuite
             new FlatForward(vars.settlement, 0.04, new Actual360()));
 
          BMAIndex bmaIndex = new BMAIndex();
+         int w = vars.today.weekday();
+         Date lastWednesday = (w >= 4) ? vars.today - (w - 4) : vars.today + (4 - w - 7);
+         Date lastFixing = bmaIndex.fixingCalendar().adjust(lastWednesday);
+         bmaIndex.addFixing(lastFixing, 0.03);
          IborIndex liborIndex = new USDLibor(new Period(3, TimeUnit.Months), riskFreeCurve);
          for (int i = 0; i < vars.bmas; ++i)
          {
@@ -752,11 +755,6 @@ namespace TestSuite
                                                       liborIndex));
          }
 
-         int w = vars.today.weekday();
-         Date lastWednesday = (w >= 4) ? vars.today - (w - 4) : vars.today + (4 - w - 7);
-         Date lastFixing = bmaIndex.fixingCalendar().adjust(lastWednesday);
-         bmaIndex.addFixing(lastFixing, 0.03);
-
          vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settlement, vars.bmaHelpers,
                                                                new Actual360(), new List<Handle<Quote>>(), new List<Date>(), 1.0e-12, interpolator);
 
@@ -765,6 +763,7 @@ namespace TestSuite
 
          // check BMA swaps
          BMAIndex bma = new BMAIndex(curveHandle);
+         bma.addFixing(lastFixing, 0.03);
          IborIndex libor3m = new USDLibor(new Period(3, TimeUnit.Months), riskFreeCurve);
          for (int i = 0; i < vars.bmas; i++)
          {
@@ -801,10 +800,6 @@ namespace TestSuite
                            + "\n error:          " + error
                            + "\n tolerance:      " + tolerance);
          }
-
-         // this is a workaround for grabage collection
-         // garbage collection needs a proper solution
-         IndexManager.Instance.clearHistories();
       }
 
       public void testCurveCopy<T, I>(CommonVars vars)

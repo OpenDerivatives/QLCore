@@ -50,7 +50,7 @@ namespace QLCore
          while (fixingDates[i] < today && i < n)
          {
             // rate must have been fixed
-            double? pastFixing = IndexManager.Instance.getHistory(index.name())[fixingDates[i]];
+            double? pastFixing = index.timeSeries()[fixingDates[i]];
 
             Utils.QL_REQUIRE(pastFixing != null, () => "Missing " + index.name() + " fixing for " + fixingDates[i].ToString());
 
@@ -64,7 +64,7 @@ namespace QLCore
             // might have been fixed
             try
             {
-               double? pastFixing = IndexManager.Instance.getHistory(index.name())[fixingDates[i]];
+               double? pastFixing = index.timeSeries()[fixingDates[i]];
 
                if (pastFixing != null)
                {

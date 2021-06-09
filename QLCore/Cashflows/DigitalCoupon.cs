@@ -262,7 +262,7 @@ namespace QLCore
          if (fixingDate == today)
          {
             // might have been fixed
-            double? pastFixing = IndexManager.Instance.getHistory((underlying_.index()).name())[fixingDate];
+            double? pastFixing = (underlying_.index()).timeSeries()[fixingDate];
             if (pastFixing != null)
             {
                return underlyingRate + callCsi_ * callPayoff() + putCsi_ * putPayoff();

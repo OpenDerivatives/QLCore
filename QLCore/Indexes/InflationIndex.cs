@@ -162,10 +162,10 @@ namespace QLCore
          if (!needsForecast(aFixingDate))
          {
             KeyValuePair<Date, Date> lim = Utils.inflationPeriod(aFixingDate, frequency_);
-            Utils.QL_REQUIRE(IndexManager.Instance.getHistory(name()).ContainsKey(lim.Key), () =>
+            Utils.QL_REQUIRE(timeSeries().ContainsKey(lim.Key), () =>
                              "Missing " + name() + " fixing for " + lim.Key);
 
-            double? pastFixing = IndexManager.Instance.getHistory(name())[lim.Key];
+            double? pastFixing = timeSeries()[lim.Key];
             double? theFixing = pastFixing;
             if (interpolated_)
             {
@@ -177,10 +177,10 @@ namespace QLCore
                }
                else
                {
-                  Utils.QL_REQUIRE(IndexManager.Instance.getHistory(name()).ContainsKey(lim.Value + 1), () =>
+                  Utils.QL_REQUIRE(timeSeries().ContainsKey(lim.Value + 1), () =>
                                    "Missing " + name() + " fixing for " + (lim.Value + 1));
 
-                  double? pastFixing2 = IndexManager.Instance.getHistory(name())[lim.Value + 1];
+                  double? pastFixing2 = timeSeries()[lim.Value + 1];
 
                   // Use lagged period for interpolation
                   KeyValuePair<Date, Date> reference_period_lim = Utils.inflationPeriod(aFixingDate + zeroInflationTermStructure().link.observationLag(), frequency_);
@@ -202,10 +202,12 @@ namespace QLCore
       public Handle<ZeroInflationTermStructure> zeroInflationTermStructure() { return zeroInflation_; }
       public ZeroInflationIndex clone(Handle<ZeroInflationTermStructure> h)
       {
-
-         return new ZeroInflationIndex(familyName_, region_, revised_,
+         
+         ZeroInflationIndex tmp =  new ZeroInflationIndex(familyName_, region_, revised_,
                                        interpolated_, frequency_,
                                        availabilityLag_, currency_, h);
+         tmp.data_ = data_;
+         return tmp;
       }
 
       private bool needsForecast(Date fixingDate)
@@ -346,16 +348,16 @@ namespace QLCore
                // get the four relevant fixings
                // recall that they are stored flat for every day
                double? limFirstFix =
-                  IndexManager.Instance.getHistory(name())[lim.Key];
+                  timeSeries()[lim.Key];
                Utils.QL_REQUIRE(limFirstFix != null, () => "Missing " + name() + " fixing for " + lim.Key);
                double? limSecondFix =
-                  IndexManager.Instance.getHistory(name())[lim.Value + 1];
+                  timeSeries()[lim.Value + 1];
                Utils.QL_REQUIRE(limSecondFix != null, () => "Missing " + name() + " fixing for " + lim.Value + 1);
                double? limBefFirstFix =
-                  IndexManager.Instance.getHistory(name())[limBef.Key];
+                  timeSeries()[limBef.Key];
                Utils.QL_REQUIRE(limBefFirstFix != null, () => "Missing " + name() + " fixing for " + limBef.Key);
                double? limBefSecondFix =
-                  IndexManager.Instance.getHistory(name())[limBef.Value + 1];
+                  timeSeries()[limBef.Value + 1];
                Utils.QL_REQUIRE(limBefSecondFix != null, () => "Missing " + name() + " fixing for " + limBef.Value + 1);
 
                double linearNow = limFirstFix.Value + (limSecondFix.Value - limFirstFix.Value) * dl / dp;
@@ -363,15 +365,14 @@ namespace QLCore
                double wasYES = linearNow / linearBef - 1.0;
 
                return wasYES;
-
             }
             else
             {
                // IS ratio, NOT interpolated
-               double? pastFixing = IndexManager.Instance.getHistory(name())[fixingDate];
+               double? pastFixing = timeSeries()[fixingDate];
                Utils.QL_REQUIRE(pastFixing != null, () => "Missing " + name() + " fixing for " + fixingDate);
                Date previousDate = fixingDate - new Period(1, TimeUnit.Years);
-               double? previousFixing = IndexManager.Instance.getHistory(name())[previousDate];
+               double? previousFixing = timeSeries()[previousDate];
                Utils.QL_REQUIRE(previousFixing != null, () => "Missing " + name() + " fixing for " + previousDate);
                return pastFixing.Value / previousFixing.Value - 1.0;
             }
@@ -385,22 +386,20 @@ namespace QLCore
                KeyValuePair<Date, Date> lim = Utils.inflationPeriod(fixingDate, frequency_);
                double dp = lim.Value + 1 - lim.Key;
                double dl = fixingDate - lim.Key;
-               double? limFirstFix = IndexManager.Instance.getHistory(name())[lim.Key];
+               double? limFirstFix = timeSeries()[lim.Key];
                Utils.QL_REQUIRE(limFirstFix != null, () => "Missing " + name() + " fixing for " + lim.Key);
-               double? limSecondFix = IndexManager.Instance.getHistory(name())[lim.Value + 1];
+               double? limSecondFix = timeSeries()[lim.Value + 1];
                Utils.QL_REQUIRE(limSecondFix != null, () => "Missing " + name() + " fixing for " + lim.Value + 1);
                double linearNow = limFirstFix.Value + (limSecondFix.Value - limFirstFix.Value) * dl / dp;
                return linearNow;
-
             }
             else
             {
                // NOT ratio, NOT interpolated
                // so just flat
-               double? pastFixing = IndexManager.Instance.getHistory(name())[fixingDate];
+               double? pastFixing = timeSeries()[fixingDate];
                Utils.QL_REQUIRE(pastFixing != null, () => "Missing " + name() + " fixing for " + fixingDate);
                return pastFixing.Value;
-
             }
          }
       }
@@ -410,9 +409,11 @@ namespace QLCore
       public Handle<YoYInflationTermStructure> yoyInflationTermStructure() { return yoyInflation_; }
       public YoYInflationIndex clone(Handle<YoYInflationTermStructure> h)
       {
-         return new YoYInflationIndex(familyName_, region_, revised_,
-                                      interpolated_, ratio_, frequency_,
-                                      availabilityLag_, currency_, h);
+         YoYInflationIndex tmp = new YoYInflationIndex(familyName_, region_, revised_,
+                                                         interpolated_, ratio_, frequency_,
+                                                         availabilityLag_, currency_, h);
+         tmp.addFixings(timeSeries());
+         return tmp;
       }
 
 

@@ -90,7 +90,6 @@ namespace TestSuite
       public void testZeroIndex()
       {
          // Testing zero inflation indices...
-         IndexHistoryCleaner cleaner = new IndexHistoryCleaner();
          EUHICP euhicp = new EUHICP(true);
 
          if (euhicp.name() != "EU HICP"
@@ -186,7 +185,6 @@ namespace TestSuite
 
          using (SavedSettings backup = new SavedSettings())
          {
-            IndexManager.Instance.clearHistories();
             // try the Zero UK
             Calendar calendar = new UnitedKingdom();
             BusinessDayConvention bdc = BusinessDayConvention.ModifiedFollowing;
@@ -630,8 +628,6 @@ namespace TestSuite
 
          using (SavedSettings backup = new SavedSettings())
          {
-            IndexHistoryCleaner cleaner = new IndexHistoryCleaner();
-
             YYEUHICP yyeuhicp = new YYEUHICP(true);
             if (yyeuhicp.name() != "EU YY_HICP"
                 || yyeuhicp.frequency() != Frequency.Monthly
@@ -792,8 +788,6 @@ namespace TestSuite
 
          using (SavedSettings backup = new SavedSettings())
          {
-            IndexHistoryCleaner cleaner = new IndexHistoryCleaner();
-
             // try the YY UK
             Calendar calendar = new UnitedKingdom();
             BusinessDayConvention bdc = BusinessDayConvention.ModifiedFollowing;
