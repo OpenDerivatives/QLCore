@@ -70,7 +70,8 @@ namespace TestSuite
             QAssert.IsTrue(cms10y2y.fixing(futureFixingDate) ==
                               cms10y.fixing(futureFixingDate) -
                                   cms2y.fixing(futureFixingDate));
-            IndexManager.Instance.clearHistories();
+            cms10y.clearFixings();
+            cms2y.clearFixings();
 
             Settings.Instance.enforcesTodaysHistoricFixings = true;
             try
@@ -96,7 +97,8 @@ namespace TestSuite
 
             QAssert.IsTrue(cms10y2y.fixing(d.refDate) ==
                               cms10y.fixing(d.refDate) - cms2y.fixing(d.refDate));
-            IndexManager.Instance.clearHistories();
+            cms10y.clearFixings();
+            cms2y.clearFixings();
         }
 
         [Fact]
@@ -128,7 +130,8 @@ namespace TestSuite
             QAssert.IsTrue(cpn1.rate() == cpn1a.rate() - cpn1b.rate());
             cms2y.addFixing(d.refDate, 0.03);
             QAssert.IsTrue(cpn1.rate() == cpn1a.rate() - cpn1b.rate());
-            IndexManager.Instance.clearHistories();
+            cms10y.clearFixings();
+            cms2y.clearFixings();
 
            CmsCoupon cpn2a = new CmsCoupon(10000.0, new Date(23, Month.February, 2029),
                               new Date(23, Month.February, 2028), new Date(23, Month.February, 2029), 2,

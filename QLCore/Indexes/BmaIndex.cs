@@ -85,6 +85,13 @@ namespace QLCore
          return termStructure_.link.forwardRate(start, end, dayCounter_, Compounding.Simple).rate();
       }
 
+      public virtual BMAIndex clone(Handle<YieldTermStructure> forwarding)
+      {
+         BMAIndex tmp = new BMAIndex(forwarding);
+         tmp.data_ = data_;
+         return tmp;
+      }
+
       protected Handle<YieldTermStructure> termStructure_;
    }
 

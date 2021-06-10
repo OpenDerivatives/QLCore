@@ -40,10 +40,11 @@ namespace TestSuite
          backup = new SavedSettings();
       }
 
-      public void testCleanup()
+      protected void testCleanup()
       {
          Dispose();
       }
+
       public void Dispose()
       {
          backup.Dispose();

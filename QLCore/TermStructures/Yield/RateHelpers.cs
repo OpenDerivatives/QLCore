@@ -940,7 +940,7 @@ namespace QLCore
          Date maturity = earliestDate_ + tenor_;
 
          // dummy BMA index with curve/swap arguments
-         BMAIndex clonedIndex = new BMAIndex(termStructureHandle_);
+         BMAIndex clonedIndex = bmaIndex_.clone(termStructureHandle_);
 
          Schedule bmaSchedule = new MakeSchedule().from(earliestDate_).to(maturity)
          .withTenor(bmaPeriod_)

@@ -896,97 +896,94 @@ namespace TestSuite
          }
       }
 
-      // [TestMethod()]
+      [Fact]
       public void testMultipleStrikesEngine()
       {
-         //// Testing multiple-strikes FD Heston engine...");
+         // Testing multiple-strikes FD Heston engine...");
+         using (SavedSettings backup = new SavedSettings())
+         {
+            Date settlementDate = new Date(27,Month.December,2004);
+            Settings.Instance.setEvaluationDate(settlementDate);
 
-         //using (SavedSettings backup = new SavedSettings())
-         //{
+            DayCounter dayCounter = new ActualActual();
+            Date exerciseDate = new Date(28,Month.March,2006);
 
-         //Date settlementDate = new Date(27,Month.December,2004);
-         //Settings.Instance.setEvaluationDate(settlementDate);
+            Exercise exercise  = new EuropeanExercise(exerciseDate);
 
-         //DayCounter dayCounter = new ActualActual();
-         //Date exerciseDate = new Date(28,Month.March,2006);
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.06, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
 
-         //Exercise exercise  = new EuropeanExercise(exerciseDate);
+            Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(1.05));
 
-         //Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.06, dayCounter));
-         //Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
+            HestonProcess process = new HestonProcess(riskFreeTS, dividendTS, s0, 0.16, 2.5, 0.09, 0.8, -0.8);
+            HestonModel model = new HestonModel(process);
 
-         //Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(1.05));
+            List<double> strikes = new List<double>();
+            strikes.Add(1.0);
+            strikes.Add(0.5);
+            strikes.Add(0.75);
+            strikes.Add(1.5);
+            strikes.Add(2.0);
 
-         //HestonProcess process = new HestonProcess(riskFreeTS, dividendTS, s0, 0.16, 2.5, 0.09, 0.8, -0.8);
-         //HestonModel model = new HestonModel(process);
+            FdHestonVanillaEngine singleStrikeEngine = new FdHestonVanillaEngine(model, 20, 400, 50);
+            FdHestonVanillaEngine multiStrikeEngine = new FdHestonVanillaEngine(model, 20, 400, 50);
+            multiStrikeEngine.enableMultipleStrikesCaching(strikes);
 
-         //List<double> strikes = new List<double>();
-         //strikes.Add(1.0);
-         //strikes.Add(0.5);
-         //strikes.Add(0.75);
-         //strikes.Add(1.5);
-         //strikes.Add(2.0);
+            double relTol = 5e-3;
+            for (int i = 0; i < strikes.Count; ++i)
+            {
+            StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, strikes[i]);
 
-         //FdHestonVanillaEngine singleStrikeEngine = new FdHestonVanillaEngine(model, 20, 400, 50);
-         //FdHestonVanillaEngine multiStrikeEngine = new FdHestonVanillaEngine(model, 20, 400, 50);
-         //multiStrikeEngine.enableMultipleStrikesCaching(strikes);
+            VanillaOption aOption = new VanillaOption(payoff, exercise);
+            aOption.setPricingEngine(multiStrikeEngine);
 
-         //double relTol = 5e-3;
-         //for (int i = 0; i < strikes.Count; ++i)
-         //{
-         //   StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, strikes[i]);
+            double npvCalculated = aOption.NPV();
+            double deltaCalculated = aOption.delta();
+            double gammaCalculated = aOption.gamma();
+            double thetaCalculated = aOption.theta();
 
-         //   VanillaOption aOption = new VanillaOption(payoff, exercise);
-         //   aOption.setPricingEngine(multiStrikeEngine);
+            aOption.setPricingEngine(singleStrikeEngine);
+            double npvExpected = aOption.NPV();
+            double deltaExpected = aOption.delta();
+            double gammaExpected = aOption.gamma();
+            double thetaExpected = aOption.theta();
 
-         //   double npvCalculated = aOption.NPV();
-         //   double deltaCalculated = aOption.delta();
-         //   double gammaCalculated = aOption.gamma();
-         //   double thetaCalculated = aOption.theta();
-
-         //   aOption.setPricingEngine(singleStrikeEngine);
-         //   double npvExpected = aOption.NPV();
-         //   double deltaExpected = aOption.delta();
-         //   double gammaExpected = aOption.gamma();
-         //   double thetaExpected = aOption.theta();
-
-         //   if (Math.Abs(npvCalculated - npvExpected)/npvExpected > relTol)
-         //   {
-         //      QAssert.Fail("failed to reproduce price with FD multi strike engine"
-         //                 + "\n    calculated: " + npvCalculated
-         //                 + "\n    expected:   " + npvExpected
-         //                 + "\n    error:      " + relTol);
-         //   }
-         //   if (Math.Abs(deltaCalculated - deltaExpected)/deltaExpected > relTol)
-         //   {
-         //      QAssert.Fail("failed to reproduce delta with FD multi strike engine"
-         //                 + "\n    calculated: " + deltaCalculated
-         //                 + "\n    expected:   " + deltaExpected
-         //                 + "\n    error:      " + relTol);
-         //   }
-         //   if (Math.Abs(gammaCalculated - gammaExpected)/gammaExpected > relTol)
-         //   {
-         //      QAssert.Fail("failed to reproduce gamma with FD multi strike engine"
-         //                 + "\n    calculated: " + gammaCalculated
-         //                 + "\n    expected:   " + gammaExpected
-         //                 + "\n    error:      " + relTol);
-         //   }
-         //   if (Math.Abs(thetaCalculated - thetaExpected)/thetaExpected > relTol)
-         //   {
-         //      QAssert.Fail( "failed to reproduce theta with FD multi strike engine"
-         //                 + "\n    calculated: " + thetaCalculated
-         //                 + "\n    expected:   " + thetaExpected
-         //                 + "\n    error:      " +  relTol);
-         //   }
-         // }
-         //}
+            if (Math.Abs(npvCalculated - npvExpected)/npvExpected > relTol)
+            {
+               QAssert.Fail("failed to reproduce price with FD multi strike engine"
+                           + "\n    calculated: " + npvCalculated
+                           + "\n    expected:   " + npvExpected
+                           + "\n    error:      " + relTol);
+            }
+            if (Math.Abs(deltaCalculated - deltaExpected)/deltaExpected > relTol)
+            {
+               QAssert.Fail("failed to reproduce delta with FD multi strike engine"
+                           + "\n    calculated: " + deltaCalculated
+                           + "\n    expected:   " + deltaExpected
+                           + "\n    error:      " + relTol);
+            }
+            if (Math.Abs(gammaCalculated - gammaExpected)/gammaExpected > relTol)
+            {
+               QAssert.Fail("failed to reproduce gamma with FD multi strike engine"
+                           + "\n    calculated: " + gammaCalculated
+                           + "\n    expected:   " + gammaExpected
+                           + "\n    error:      " + relTol);
+            }
+            if (Math.Abs(thetaCalculated - thetaExpected)/thetaExpected > relTol)
+            {
+               QAssert.Fail( "failed to reproduce theta with FD multi strike engine"
+                           + "\n    calculated: " + thetaCalculated
+                           + "\n    expected:   " + thetaExpected
+                           + "\n    error:      " +  relTol);
+            }
+            }
+         }
       }
 
       [Fact]
       public void testAnalyticPiecewiseTimeDependent()
       {
          // Testing analytic piecewise time dependent Heston prices
-
          using (SavedSettings backup = new SavedSettings())
          {
             Date settlementDate = new Date(27, Month.December, 2004);

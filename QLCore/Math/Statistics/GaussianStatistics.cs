@@ -51,6 +51,7 @@ namespace QLCore
       public double percentile(double percent) { return impl_.percentile(percent); }
       public double weightSum() { return impl_.weightSum(); }
       public double errorEstimate() { return impl_.errorEstimate(); }
+      public List<KeyValuePair<double, double>> data() { return impl_.data(); }
 
       public void reset() { impl_.reset(); }
       public void add
@@ -199,6 +200,7 @@ namespace QLCore
       public double percentile(double percent) { throw new NotSupportedException(); }
       public double weightSum() { throw new NotSupportedException(); }
       public double errorEstimate() { throw new NotSupportedException(); }
+      public List<KeyValuePair<double, double>> data() { throw new NotSupportedException(); }
 
       public void reset() { throw new NotSupportedException(); }
       public void add

@@ -45,6 +45,8 @@ namespace QLCore
       {
          throw new NotSupportedException();
       }
+
+      public List<KeyValuePair<double, double>> data() { throw new NotSupportedException(); }
       public double percentile(double percent) { throw new NotSupportedException(); }
       #endregion
 

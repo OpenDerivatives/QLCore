@@ -76,7 +76,7 @@ namespace QLCore
             for (k = 0; k < dimension_; ++k)
             {
                // running i=1..(N-1)
-               r_ik = 0;
+               r_ik = stats_[k].data()[m].Key;
                // fixed j=N
                r_jk = begin[k];
                temp *= (1.0 - Math.Max(r_ik, r_jk));
@@ -89,7 +89,7 @@ namespace QLCore
                // fixed i=N
                r_ik = begin[k];
                // running j=1..(N-1)
-               r_jk = 0;
+               r_jk = stats_[k].data()[m].Key;
                temp *= (1.0 - Math.Max(r_ik, r_jk));
             }
             adiscr_ += temp;

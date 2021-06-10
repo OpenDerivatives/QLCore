@@ -26,20 +26,21 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_Bermudanswaption : IDisposable
+   public class T_BermudanSwaption : IDisposable
    {
       #region Initialize&Cleanup
       private SavedSettings backup;
 
-      public T_Bermudanswaption()
+      public T_BermudanSwaption()
       {
          backup = new SavedSettings();
       }
 
-      public void testCleanup()
+      protected void testCleanup()
       {
          Dispose();
       }
+
       public void Dispose()
       {
          backup.Dispose();

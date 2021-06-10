@@ -45,7 +45,7 @@ namespace QLCore
       public abstract double fixing(Date fixingDate, bool forecastTodaysFixing = false);
 
       // Returns the fixing TimeSeries
-      public TimeSeries < double? > timeSeries() { return IndexManager.Instance.getHistory(name()); }
+      public TimeSeries < double? > timeSeries() { return data_; }
 
       // Check if index allows for native fixings.
       // If this returns false, calls to addFixing and similar methods will raise an exception.
@@ -64,24 +64,21 @@ namespace QLCore
       public void addFixings(TimeSeries < double? > source, bool forceOverwrite = false)
       {
          checkNativeFixingsAllowed();
-         TimeSeries < double? > target = IndexManager.Instance.getHistory(name());
          foreach (Date d in source.Keys)
          {
             if (isValidFixingDate(d))
-               if (!target.ContainsKey(d))
-                  target.Add(d, source[d]);
+               if (!data_.ContainsKey(d))
+                  data_.Add(d, source[d]);
                else if (forceOverwrite)
-                  target[d] = source[d];
-               else if (Utils.close(target[d].GetValueOrDefault(), source[d].GetValueOrDefault()))
+                  data_[d] = source[d];
+               else if (Utils.close(data_[d].GetValueOrDefault(), source[d].GetValueOrDefault()))
                   continue;
                else
                   throw new ArgumentException("Duplicated fixing provided: " + d + ", " + source[d] +
-                                              " while " + target[d] + " value is already present");
+                                              " while " + data_[d] + " value is already present");
             else
                throw new ArgumentException("Invalid fixing provided: " + d.DayOfWeek + " " + d + ", " + source[d]);
          }
-
-         IndexManager.Instance.setHistory(name(), target);
       }
 
       // Stores historical fixings at the given dates
@@ -101,7 +98,7 @@ namespace QLCore
       public virtual void clearFixings()
       {
          checkNativeFixingsAllowed();
-         IndexManager.Instance.clearHistory(name());
+         data_.Clear();
       }
 
       // Check if index allows for native fixings
@@ -110,5 +107,7 @@ namespace QLCore
          Utils.QL_REQUIRE(allowsNativeFixings(), () =>
                           "native fixings not allowed for " + name() + "; refer to underlying indices instead");
       }
+
+      protected TimeSeries<double?> data_ = new TimeSeries<double?>();
    }
 }

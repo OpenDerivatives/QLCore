@@ -90,13 +90,11 @@ namespace TestSuite
          // cleanup
 
          public SavedSettings backup;
-         public IndexHistoryCleaner cleaner;
 
          // setup
          public CommonVars()
          {
             backup = new SavedSettings();
-            cleaner = new IndexHistoryCleaner();
             nominalUK = new RelinkableHandle<YieldTermStructure>();
             cpiUK = new RelinkableHandle<ZeroInflationTermStructure>();
             hcpi = new RelinkableHandle<ZeroInflationTermStructure>();

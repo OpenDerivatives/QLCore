@@ -137,6 +137,7 @@ namespace QLCore
       public double percentile(double percent) { return impl_.percentile(percent); }
       public double weightSum() { return impl_.weightSum(); }
       public double errorEstimate() { return impl_.errorEstimate(); }
+      public List<KeyValuePair<double, double>> data() { return impl_.data(); }
 
       public KeyValuePair<double, int> expectationValue(Func<KeyValuePair<double, double>, double> f,
                                                         Func<KeyValuePair<double, double>, bool> inRange)

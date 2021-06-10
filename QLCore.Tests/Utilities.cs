@@ -143,13 +143,6 @@ namespace TestSuite
          return String.Empty;
       }
    }
-
-   // this cleans up index-fixing histories when disposed
-   public class IndexHistoryCleaner : IDisposable
-   {
-      public void Dispose() { IndexManager.Instance.clearHistories(); }
-   }
-
    public static partial class QAssert
    {
       public static void CollectionAreEqual(ICollection expected, ICollection actual)

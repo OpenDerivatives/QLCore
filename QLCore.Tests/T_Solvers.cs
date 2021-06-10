@@ -33,7 +33,7 @@ namespace TestSuite
          public override double derivative(double x) { return 2.0 * x; }
       }
 
-      public void test(Solver1D solver, string name)
+      protected void test(Solver1D solver, string name)
       {
          double[] accuracy = new double[] { 1.0e-4, 1.0e-6, 1.0e-8 };
          double expected = 1.0;

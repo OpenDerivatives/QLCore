@@ -26,7 +26,7 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_PiecewiseyieldCurve : IDisposable
+   public class T_PiecewiseYieldCurve : IDisposable
    {
       public class CommonVars
       {
@@ -37,6 +37,7 @@ namespace TestSuite
             public TimeUnit units;
             public double rate;
          }
+
          public struct BondDatum
          {
             public int n;
@@ -133,7 +134,6 @@ namespace TestSuite
          // setup
          public CommonVars()
          {
-
             // data
             calendar = new TARGET();
             settlementDays = 2;
@@ -235,26 +235,26 @@ namespace TestSuite
 
       #region Initialize&Cleanup
       private SavedSettings backup;
-      private IndexHistoryCleaner cleaner;
 
-      public T_PiecewiseyieldCurve()
+      public T_PiecewiseYieldCurve()
       {
          backup = new SavedSettings();
-         cleaner = new IndexHistoryCleaner();
       }
 
-      public void testCleanup()
+      protected void testCleanup()
       {
          Dispose();
       }
+
       public void Dispose()
       {
          backup.Dispose();
-         cleaner.Dispose();
       }
       #endregion
 
-      //[Fact]
+      /*
+      unstable
+      [Fact]
       public void testLogCubicDiscountConsistency()
       {
          // "Testing consistency of piecewise-log-cubic discount curve...");
@@ -270,6 +270,7 @@ namespace TestSuite
                                                                                        CubicInterpolation.BoundaryCondition.SecondDerivative, 0.0,
                                                                                        CubicInterpolation.BoundaryCondition.SecondDerivative, 0.0));
       }
+      */
 
       [Fact]
       public void testLogLinearDiscountConsistency()
@@ -354,7 +355,6 @@ namespace TestSuite
       [Fact]
       public void testFlatForwardConsistency()
       {
-
          //"Testing consistency of piecewise-flat forward-rate curve...");
 
          CommonVars vars = new CommonVars();
@@ -363,7 +363,9 @@ namespace TestSuite
          testBMACurveConsistency<ForwardRate, BackwardFlat, IterativeBootstrapForYield>(vars);
       }
 
-      //[TestMethod()]
+      /*
+      unstable
+      [Fact]
       public void testSplineForwardConsistency()
       {
 
@@ -381,7 +383,7 @@ namespace TestSuite
             new Cubic(CubicInterpolation.DerivativeApprox.Spline, true,
                       CubicInterpolation.BoundaryCondition.SecondDerivative, 0.0,
                       CubicInterpolation.BoundaryCondition.SecondDerivative, 0.0));
-      }
+      }*/
 
       [Fact]
       public void testConvexMonotoneForwardConsistency()
@@ -426,7 +428,7 @@ namespace TestSuite
 
          Handle<YieldTermStructure> curveHandle = new Handle<YieldTermStructure>(vars.termStructure);
 
-         IborIndex index = new Euribor6M(curveHandle);
+         IborIndex index = euribor6m.clone(curveHandle);
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -454,6 +456,7 @@ namespace TestSuite
          }
 
          index.addFixing(vars.today, 0.0425);
+         curveHandle.link.update();
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -465,7 +468,7 @@ namespace TestSuite
             .withFixedLegConvention(vars.fixedLegConvention)
             .withFixedLegTerminationDateConvention(vars.fixedLegConvention)
             .value();
-
+            
             double expectedRate = vars.swapData[i].rate / 100,
                    estimatedRate = swap.fairRate();
             double tolerance = 1.0e-9;
@@ -599,15 +602,15 @@ namespace TestSuite
       }
 
 
-      public void testCurveConsistency<T, I, B>(CommonVars vars)
+      protected void testCurveConsistency<T, I, B>(CommonVars vars)
       where T : ITraits<YieldTermStructure>, new ()
          where I : class, IInterpolationFactory, new ()
          where B : IBootStrap<PiecewiseYieldCurve>, new () { testCurveConsistency<T, I, B>(vars, FastActivator<I>.Create(), 1.0e-9); }
-      public void testCurveConsistency<T, I, B>(CommonVars vars, I interpolator)
+      protected void testCurveConsistency<T, I, B>(CommonVars vars, I interpolator)
       where T : ITraits<YieldTermStructure>, new ()
          where I : class, IInterpolationFactory, new ()
          where B : IBootStrap<PiecewiseYieldCurve>, new () { testCurveConsistency<T, I, B>(vars, FastActivator<I>.Create(), 1.0e-9); }
-      public void testCurveConsistency<T, I, B>(CommonVars vars, I interpolator, double tolerance)
+      protected void testCurveConsistency<T, I, B>(CommonVars vars, I interpolator, double tolerance)
       where T : ITraits<YieldTermStructure>, new ()
          where I : class, IInterpolationFactory, new ()
          where B : IBootStrap<PiecewiseYieldCurve>, new ()
@@ -712,15 +715,15 @@ namespace TestSuite
          }
       }
 
-      public void testBMACurveConsistency<T, I, B>(CommonVars vars)
+      protected void testBMACurveConsistency<T, I, B>(CommonVars vars)
       where T : ITraits<YieldTermStructure>, new ()
          where I : class, IInterpolationFactory, new ()
          where B : IBootStrap<PiecewiseYieldCurve>, new () { testBMACurveConsistency<T, I, B>(vars, FastActivator<I>.Create(), 1.0e-7); }
-      public void testBMACurveConsistency<T, I, B>(CommonVars vars, I interpolator)
+      protected void testBMACurveConsistency<T, I, B>(CommonVars vars, I interpolator)
       where T : ITraits<YieldTermStructure>, new ()
          where I : class, IInterpolationFactory, new ()
          where B : IBootStrap<PiecewiseYieldCurve>, new () { testBMACurveConsistency<T, I, B>(vars, interpolator, 1.0e-7); }
-      public void testBMACurveConsistency<T, I, B>(CommonVars vars, I interpolator, double tolerance)
+      protected void testBMACurveConsistency<T, I, B>(CommonVars vars, I interpolator, double tolerance)
       where T : ITraits<YieldTermStructure>, new ()
          where I : class, IInterpolationFactory, new ()
          where B : IBootStrap<PiecewiseYieldCurve>, new ()
@@ -738,6 +741,10 @@ namespace TestSuite
             new FlatForward(vars.settlement, 0.04, new Actual360()));
 
          BMAIndex bmaIndex = new BMAIndex();
+         int w = vars.today.weekday();
+         Date lastWednesday = (w >= 4) ? vars.today - (w - 4) : vars.today + (4 - w - 7);
+         Date lastFixing = bmaIndex.fixingCalendar().adjust(lastWednesday);
+         bmaIndex.addFixing(lastFixing, 0.03);
          IborIndex liborIndex = new USDLibor(new Period(3, TimeUnit.Months), riskFreeCurve);
          for (int i = 0; i < vars.bmas; ++i)
          {
@@ -752,11 +759,6 @@ namespace TestSuite
                                                       liborIndex));
          }
 
-         int w = vars.today.weekday();
-         Date lastWednesday = (w >= 4) ? vars.today - (w - 4) : vars.today + (4 - w - 7);
-         Date lastFixing = bmaIndex.fixingCalendar().adjust(lastWednesday);
-         bmaIndex.addFixing(lastFixing, 0.03);
-
          vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settlement, vars.bmaHelpers,
                                                                new Actual360(), new List<Handle<Quote>>(), new List<Date>(), 1.0e-12, interpolator);
 
@@ -765,6 +767,7 @@ namespace TestSuite
 
          // check BMA swaps
          BMAIndex bma = new BMAIndex(curveHandle);
+         bma.addFixing(lastFixing, 0.03);
          IborIndex libor3m = new USDLibor(new Period(3, TimeUnit.Months), riskFreeCurve);
          for (int i = 0; i < vars.bmas; i++)
          {
@@ -801,19 +804,15 @@ namespace TestSuite
                            + "\n error:          " + error
                            + "\n tolerance:      " + tolerance);
          }
-
-         // this is a workaround for grabage collection
-         // garbage collection needs a proper solution
-         IndexManager.Instance.clearHistories();
       }
 
-      public void testCurveCopy<T, I>(CommonVars vars)
+      protected void testCurveCopy<T, I>(CommonVars vars)
          where T : ITraits<YieldTermStructure>, new()
          where I : class, IInterpolationFactory, new()
       {
          testCurveCopy<T, I>(vars, FastActivator<I>.Create());
       }
-      public void testCurveCopy<T, I>(CommonVars vars, I interpolator)
+      protected void testCurveCopy<T, I>(CommonVars vars, I interpolator)
          where T : ITraits<YieldTermStructure>, new()
          where I : class, IInterpolationFactory, new()
       {
