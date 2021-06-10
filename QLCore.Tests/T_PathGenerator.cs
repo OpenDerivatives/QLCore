@@ -26,27 +26,28 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_Pathgenerator : IDisposable
+   public class T_PathGenerator : IDisposable
    {
       #region Initialize&Cleanup
       private SavedSettings backup;
 
-      public T_Pathgenerator()
+      public T_PathGenerator()
       {
          backup = new SavedSettings();
       }
 
-      public void testCleanup()
+      protected void testCleanup()
       {
          Dispose();
       }
+
       public void Dispose()
       {
          backup.Dispose();
       }
       #endregion
 
-      public void testSingle(StochasticProcess1D process,
+      protected void testSingle(StochasticProcess1D process,
                              string tag,
                              bool brownianBridge,
                              double expected,
@@ -109,7 +110,7 @@ namespace TestSuite
          }
       }
 
-      public void testMultiple(StochasticProcess process,
+      protected void testMultiple(StochasticProcess process,
                                string tag,
                                double[] expected,
                                double[] antithetic)

@@ -29,7 +29,7 @@ namespace TestSuite
 
    public class T_AsianOptions
    {
-      public void REPORT_FAILURE(string greekName, Average.Type averageType,
+      protected void REPORT_FAILURE(string greekName, Average.Type averageType,
                                  double? runningAccumulator, int? pastFixings,
                                  List<Date> fixingDates, StrikedTypePayoff payoff,
                                  Exercise exercise, double s, double q, double r,
