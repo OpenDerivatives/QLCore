@@ -1,4 +1,4 @@
-QLNet
+QLCore
 =====
 
 QLCore is a forked of the QLNet C# library.
@@ -14,7 +14,7 @@ QLCore is developped using Visual Studio Code, .NET Core 3.1 and xUnit test fram
 
 ## Development workflow 
 
-###### QLNet use git flow workflow.
+###### QLCore use git flow workflow.
 
 Instead of a single master branch, this workflow uses two branches to record the history of the project. 
 The *master* branch stores the official release history, and the *develop* branch serves as an integration branch for features.
