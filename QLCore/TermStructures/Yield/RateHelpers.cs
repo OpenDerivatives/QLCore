@@ -667,6 +667,7 @@ namespace QLCore
          calendar_ = swapIndex.fixingCalendar();
          fixedConvention_ = swapIndex.fixedLegConvention();
          fixedFrequency_ = swapIndex.fixedLegTenor().frequency();
+         floatFrequency_ = swapIndex.tenor().frequency();
          fixedDayCount_ = swapIndex.dayCounter();
          iborIndex_ = swapIndex.iborIndex();
          fwdStart_ = fwdStart;
@@ -679,6 +680,29 @@ namespace QLCore
          initializeDates();
       }
 
+
+      public SwapRateHelper(Handle<Quote> rate,
+                            Period tenor,
+                            Calendar calendar,
+                            Frequency fixedFrequency,
+                            Frequency floatFrequency,
+                            BusinessDayConvention fixedConvention,
+                            DayCounter fixedDayCount,
+                            IborIndex iborIndex,
+                            Handle<Quote> spread = null,
+                            Period fwdStart = null,
+                            // exogenous discounting curve
+                            Handle<YieldTermStructure> discount = null,
+                            int? settlementDays = null,
+                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
+                            Date customPillarDate = null)
+      : this(rate, tenor, calendar, fixedFrequency, fixedConvention, fixedDayCount, iborIndex, 
+             spread, fwdStart, discount, settlementDays, pillarChoice, customPillarDate)
+      {
+         floatFrequency_ = floatFrequency;
+
+         initializeDates();
+      }
 
       public SwapRateHelper(Handle<Quote> rate,
                             Period tenor,
@@ -702,6 +726,7 @@ namespace QLCore
          calendar_ = calendar;
          fixedConvention_ = fixedConvention;
          fixedFrequency_ = fixedFrequency;
+         floatFrequency_ = iborIndex.tenor().frequency();
          fixedDayCount_ = fixedDayCount;
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -733,6 +758,7 @@ namespace QLCore
          calendar_ = swapIndex.fixingCalendar();
          fixedConvention_ = swapIndex.fixedLegConvention();
          fixedFrequency_ = swapIndex.fixedLegTenor().frequency();
+         floatFrequency_ = swapIndex.tenor().frequency();
          fixedDayCount_ = swapIndex.dayCounter();
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -767,6 +793,7 @@ namespace QLCore
          calendar_ = calendar;
          fixedConvention_ = fixedConvention;
          fixedFrequency_ = fixedFrequency;
+         floatFrequency_ = iborIndex.tenor().frequency();
          fixedDayCount_ = fixedDayCount;
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -790,6 +817,7 @@ namespace QLCore
          // use a RelinkableHandle here
          swap_ = new MakeVanillaSwap(tenor_, iborIndex_, 0.0, fwdStart_)
          .withSettlementDays(settlementDays_.Value)
+         .withFloatingLegTenor(new Period(floatFrequency_))
          .withDiscountingTermStructure(discountRelinkableHandle_)
          .withFixedLegDayCount(fixedDayCount_)
          .withFixedLegTenor(new Period(fixedFrequency_))
@@ -873,7 +901,7 @@ namespace QLCore
       protected Pillar.Choice pillarChoice_;
       protected Calendar calendar_;
       protected BusinessDayConvention fixedConvention_;
-      protected Frequency fixedFrequency_;
+      protected Frequency fixedFrequency_, floatFrequency_;
       protected DayCounter fixedDayCount_;
       protected IborIndex iborIndex_;
       protected VanillaSwap swap_;

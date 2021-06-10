@@ -33,6 +33,26 @@ namespace QLCore
          settlementDays_ = settlementDays;
          tenor_ = tenor;
          overnightIndex_ = overnightIndex;
+         fixedFrequency_ = Frequency.Annual;
+         oisFrequency_ = Frequency.Annual;
+
+         initializeDates();
+      }
+
+      public OISRateHelper(int settlementDays,
+                           Period tenor, // swap maturity
+                           Handle<Quote> fixedRate,
+                           OvernightIndex overnightIndex,
+                           Frequency fixedFrequency,
+                           Frequency oisFrequency)
+         : base(fixedRate)
+      {
+         settlementDays_ = settlementDays;
+         tenor_ = tenor;
+         overnightIndex_ = overnightIndex;
+         fixedFrequency_ = fixedFrequency;
+         oisFrequency_ = oisFrequency;
+         
          initializeDates();
       }
 
@@ -47,6 +67,8 @@ namespace QLCore
          OvernightIndex clonedOvernightIndex = clonedIborIndex as OvernightIndex;
 
          swap_ = new MakeOIS(tenor_, clonedOvernightIndex, 0.0)
+         .withPaymentFrequency(fixedFrequency_)
+         .withReceiveFrequency(oisFrequency_)
          .withSettlementDays(settlementDays_)
          .withDiscountingTermStructure(termStructureHandle_);
 
@@ -75,6 +97,7 @@ namespace QLCore
       protected Period tenor_;
       protected OvernightIndex overnightIndex_;
       protected OvernightIndexedSwap swap_;
+      protected Frequency fixedFrequency_, oisFrequency_;
       protected RelinkableHandle<YieldTermStructure> termStructureHandle_ = new RelinkableHandle<YieldTermStructure>();
    }
 

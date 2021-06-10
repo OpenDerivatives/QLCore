@@ -37,7 +37,7 @@ namespace QLCore
       private Date effectiveDate_, terminationDate_;
       private Calendar calendar_;
 
-      private Frequency paymentFrequency_;
+      private Frequency paymentFrequency_, receiveFrequency_;
       DateGeneration.Rule rule_;
       private bool endOfMonth_, isDefaultEOM_;
 
@@ -58,6 +58,7 @@ namespace QLCore
          settlementDays_ = 2;
          calendar_ = overnightIndex.fixingCalendar();
          paymentFrequency_ = Frequency.Annual;
+         receiveFrequency_ = Frequency.Annual;
          rule_ = DateGeneration.Rule.Backward;
          // any value here for endOfMonth_ would not be actually used
          isDefaultEOM_ = true;
@@ -107,11 +108,22 @@ namespace QLCore
          return this;
       }
 
+      public MakeOIS withReceiveFrequency(Frequency f)
+      {
+         receiveFrequency_ = f;
+         if (receiveFrequency_ == Frequency.Once)
+            rule_ = DateGeneration.Rule.Zero;
+         return this;
+      }
+
       public MakeOIS withRule(DateGeneration.Rule r)
       {
          rule_ = r;
          if (r == DateGeneration.Rule.Zero)
+         {
             paymentFrequency_ = Frequency.Once;
+            receiveFrequency_ = Frequency.Once;
+         }
          return this;
       }
 
@@ -193,8 +205,16 @@ namespace QLCore
 
 
 
-         Schedule schedule = new Schedule(startDate, endDate,
+         Schedule paymentSchedule = new Schedule(startDate, endDate,
                                           new Period(paymentFrequency_),
+                                          calendar_,
+                                          BusinessDayConvention.ModifiedFollowing,
+                                          BusinessDayConvention.ModifiedFollowing,
+                                          rule_,
+                                          usedEndOfMonth);
+
+         Schedule receiveSchedule = new Schedule(startDate, endDate,
+                                          new Period(receiveFrequency_),
                                           calendar_,
                                           BusinessDayConvention.ModifiedFollowing,
                                           BusinessDayConvention.ModifiedFollowing,
@@ -205,10 +225,13 @@ namespace QLCore
          if (fixedRate_ == null)
          {
             OvernightIndexedSwap temp = new OvernightIndexedSwap(type_, nominal_,
-                                                                 schedule,
+                                                                 paymentSchedule,
                                                                  0.0, // fixed rate
                                                                  fixedDayCount_,
-                                                                 overnightIndex_, overnightSpread_);
+                                                                 nominal_,
+                                                                 receiveSchedule,
+                                                                 overnightIndex_, 
+                                                                 overnightSpread_);
             if (engine_ == null)
             {
                Handle<YieldTermStructure> disc = overnightIndex_.forwardingTermStructure();
@@ -225,8 +248,9 @@ namespace QLCore
          }
 
          OvernightIndexedSwap ois = new OvernightIndexedSwap(type_, nominal_,
-                                                             schedule,
+                                                             paymentSchedule,
                                                              usedFixedRate.Value, fixedDayCount_,
+                                                             nominal_, receiveSchedule,
                                                              overnightIndex_, overnightSpread_);
 
          if (engine_ == null)
