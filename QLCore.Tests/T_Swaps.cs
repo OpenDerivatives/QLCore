@@ -138,7 +138,6 @@ namespace TestSuite
          {
             for (int j = 0; j < rates.Length; j++)
             {
-
                VanillaSwap swap = vars.makeSwap(lengths[i], rates[j], 0.0);
                swap = vars.makeSwap(lengths[i], rates[j], swap.fairSpread());
                if (Math.Abs(swap.NPV()) > 1.0e-10)

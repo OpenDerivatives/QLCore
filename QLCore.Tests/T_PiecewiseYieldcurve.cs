@@ -26,7 +26,7 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_PiecewiseyieldCurve : IDisposable
+   public class T_PiecewiseYieldCurve : IDisposable
    {
       public class CommonVars
       {
@@ -236,7 +236,7 @@ namespace TestSuite
       #region Initialize&Cleanup
       private SavedSettings backup;
 
-      public T_PiecewiseyieldCurve()
+      public T_PiecewiseYieldCurve()
       {
          backup = new SavedSettings();
       }
