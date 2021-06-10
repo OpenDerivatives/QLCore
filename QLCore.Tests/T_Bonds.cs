@@ -1297,19 +1297,18 @@ namespace TestSuite
       }
 
       [Theory]
-      [InlineData(CouponType.FixedRate, 5.25, "2/13/2018", "12/01/2032", "3/23/2018", "", 119.908, 5.833, 3.504)]
-      [InlineData(CouponType.ZeroCoupon, 0, "3/15/2018", "1/1/2054", "3/26/2018", "", 5.793, 0.00, 8.126)]
-      [InlineData(CouponType.FixedRate, 2.2, "3/1/2018", "3/1/2021", "3/26/2018", "", 100.530, 1.53, 2.013)]
-      [InlineData(CouponType.FixedRate, 2.25, "3/1/2018", "3/1/2021", "3/26/2018", "", 100.393, 1.56, 2.111)]
-      [InlineData(CouponType.FixedRate, 3, "2/15/2018", "2/15/2031", "3/26/2018", "", 98.422, 3.42, 3.150)]
-      [InlineData(CouponType.FixedRate, 4, "2/1/2018", "2/15/2027", "3/26/2018", "08/15/2018", 111.170, 6.11, 2.585)]
-      [InlineData(CouponType.FixedRate, 4, "2/20/2018", "10/1/2036", "3/26/2018", "", 104.676, 4.00, 3.650)]
-      [InlineData(CouponType.FixedRate, 1.85, "2/1/2018", "2/1/2021", "3/26/2018", "", 99.916, 2.83, 1.880)]
-      [InlineData(CouponType.FixedRate, 2.85, "2/15/2018", "2/15/2031", "3/26/2018", "", 99.525, 3.25, 2.984)]
-      [InlineData(CouponType.FixedRate, 5.375, "03/01/2018", "03/01/2023", "7/16/2018", "", 103.674, 20.156, 4.490)]
-      public void testAccruedInterest(CouponType couponType, double Coupon,
-                                      string AccrualDate, string MaturityDate, string SettlementDate, string FirstCouponDate,
-                                      double Price, double expectedAccruedInterest, double expectedYtm)
+      [InlineData(5.25, "2/13/2018", "12/01/2032", "3/23/2018", "", 5.833)]
+      [InlineData(0, "3/15/2018", "1/1/2054", "3/26/2018", "", 0.00)]
+      [InlineData(2.2, "3/1/2018", "3/1/2021", "3/26/2018", "", 1.53)]
+      [InlineData(2.25, "3/1/2018", "3/1/2021", "3/26/2018", "", 1.56)]
+      [InlineData(3, "2/15/2018", "2/15/2031", "3/26/2018", "", 3.42)]
+      [InlineData(4, "2/1/2018", "2/15/2027", "3/26/2018", "08/15/2018", 6.11)]
+      [InlineData(4, "2/20/2018", "10/1/2036", "3/26/2018", "", 4.00)]
+      [InlineData(1.85, "2/1/2018", "2/1/2021", "3/26/2018", "", 2.83)]
+      [InlineData(2.85, "2/15/2018", "2/15/2031", "3/26/2018", "", 3.25)]
+      [InlineData(5.375, "03/01/2018", "03/01/2023", "7/16/2018", "", 20.156)]
+      public void testAccruedInterest(double Coupon, string AccrualDate, string MaturityDate, 
+                                      string SettlementDate, string FirstCouponDate, double expectedAccruedInterest)
       {
          // Convert dates
          Date maturityDate = Convert.ToDateTime(MaturityDate, new CultureInfo("en-US"));
@@ -1687,20 +1686,13 @@ namespace TestSuite
       }
 
       [Theory]
-      [InlineData("64990C4X6", "07/01/2035", 4, "07/10/2018", 106.599, 12.417, 10.24)]
-      [InlineData("64990C5B3", "07/01/2047", 4, "07/10/2018", 103.9, 17.296, 12.87)]
-      [InlineData("546415L40", "05/15/2033", 4, "07/10/2018", 104.239, 11.154, 7.71)]
-      [InlineData("646140CN1", "01/01/2035", 4, "07/10/2018", 105.262, 12.118, 10.59)]
-      [InlineData("70024PCW7", "06/15/2028", 4, "07/10/2018", 110.839, 8.257, 7.82)]
-      //[InlineData("602453HJ4", "06/15/2048", 4, "07/10/2018", 103.753, 17.61, 13.73)]
-      //[InlineData("397586QG6", "02/15/2035", 4, "07/17/2018", 103.681, 12.138, 8.3)]
-      //[InlineData("544351NT2", "06/27/2019", 4, "07/10/2018", 102.424, 0.951, 0.96)]
-      //[InlineData("15147TDU9", "07/15/2035", 4, "07/10/2018", 105.591, 12.405, 10.7)]
-      //[InlineData("832645JK2", "08/15/2048", 4, "07/10/2018", 103.076, 17.618, 13.35)]
-      //[InlineData("956622N91", "06/01/2051", 4, "07/11/2018", 100, 18.206, 14.92)]
-      //[InlineData("397586QF8", "02/15/2034", 4, "07/17/2018", 103.941, 11.612, 7.87)]
+      [InlineData("64990C4X6", "07/01/2035", 4, "07/10/2018", 106.599, 12.417)]
+      [InlineData("64990C5B3", "07/01/2047", 4, "07/10/2018", 103.9, 17.296)]
+      [InlineData("546415L40", "05/15/2033", 4, "07/10/2018", 104.239, 11.154)]
+      [InlineData("646140CN1", "01/01/2035", 4, "07/10/2018", 105.262, 12.118)]
+      [InlineData("70024PCW7", "06/15/2028", 4, "07/10/2018", 110.839, 8.257)]
       public void testDurations(string Cusip, string MaturityDate, double Coupon,
-                                string SettlementDate, double Price, double ExpectedModifiedDuration, double ExpectedOASDuration)
+                                string SettlementDate, double Price, double ExpectedModifiedDuration)
       {
          // Convert dates
          Date maturityDate = Convert.ToDateTime(MaturityDate, new CultureInfo("en-US"));

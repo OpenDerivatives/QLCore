@@ -133,6 +133,7 @@ namespace TestSuite
 
    public class T_LowDiscrepancySequences
    {
+      [Fact]
       public void testSeedGenerator()
       {
          //("Testing random-seed generator...");
@@ -276,7 +277,10 @@ namespace TestSuite
          }
       }
 
-      /*public void testFaure() {
+      /*
+      FauseRsg is not implemented
+      [Fact]
+      public void testFaure() {
 
           //("Testing Faure sequences...");
 
@@ -587,7 +591,7 @@ namespace TestSuite
          }
       }
 
-      public void testGeneratorDiscrepancy(IRNGFactory generatorFactory, double[][] discrepancy)
+      protected void testGeneratorDiscrepancy(IRNGFactory generatorFactory, double[][] discrepancy)
       {
          //QL_TEST_START_TIMING
          double tolerance = 1.0e-2;
@@ -632,7 +636,7 @@ namespace TestSuite
       }
 
       #region testMersenneTwisterDiscrepancy
-
+      [Fact]
       public void testMersenneTwisterDiscrepancy()
       {
          //("Testing Mersenne-twister discrepancy...");
@@ -654,7 +658,7 @@ namespace TestSuite
       #endregion
 
       #region testAltonDiscrepancy
-
+      [Fact]
       public void testPlainHaltonDiscrepancy()
       {
 
@@ -674,6 +678,7 @@ namespace TestSuite
                                  );
       }
 
+      [Fact]
       public void testRandomStartHaltonDiscrepancy()
       {
 
@@ -693,6 +698,7 @@ namespace TestSuite
                                  );
       }
 
+      [Fact]
       public void testRandomShiftHaltonDiscrepancy()
       {
 
@@ -712,6 +718,7 @@ namespace TestSuite
                                  );
       }
 
+      [Fact]
       public void testRandomStartRandomShiftHaltonDiscrepancy()
       {
 
@@ -731,19 +738,11 @@ namespace TestSuite
                                  );
       }
 
-      //[TestMethod()]
-      public void _testDiscrepancy_Alton()
-      {
-         testPlainHaltonDiscrepancy();
-         testRandomStartHaltonDiscrepancy();
-         testRandomShiftHaltonDiscrepancy();
-         testRandomStartRandomShiftHaltonDiscrepancy();
-      }
-
       #endregion Halton
 
       #region testSobolDiscrepancy
 
+      [Fact]
       public void testJackelSobolDiscrepancy()
       {
 
@@ -760,6 +759,7 @@ namespace TestSuite
                                   discrepancy /*,"JackelSobolDiscrepancy.txt","DiscrJackel_Sobol"*/);
       }
 
+      [Fact]
       public void testSobolLevitanSobolDiscrepancy()
       {
 
@@ -778,6 +778,7 @@ namespace TestSuite
                                   /*,"SobolLevitanSobolDiscrepancy.txt",                                                        "DiscrSobLev_Sobol"*/);
       }
 
+      [Fact]
       public void testSobolLevitanLemieuxSobolDiscrepancy()
       {
 
@@ -798,6 +799,7 @@ namespace TestSuite
                                  );
       }
 
+      [Fact]
       public void testUnitSobolDiscrepancy()
       {
 
@@ -815,15 +817,6 @@ namespace TestSuite
                                   discrepancy /*,"UnitSobolDiscrepancy.txt",
                                       "Discr__Unit_Sobol"*/
                                  );
-      }
-
-      //[TestMethod()]
-      public void _testDiscrepancy_Sobol()
-      {
-         testJackelSobolDiscrepancy();
-         testSobolLevitanSobolDiscrepancy();
-         testSobolLevitanLemieuxSobolDiscrepancy();
-         testUnitSobolDiscrepancy();
       }
 
       #endregion

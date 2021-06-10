@@ -425,7 +425,7 @@ namespace TestSuite
          }
       }
    
-      public void testFdGreeks<Engine>() where Engine : IFDEngine, new ()
+      protected void testFdGreeks<Engine>() where Engine : IFDEngine, new ()
       {
          using (SavedSettings backup = new SavedSettings())
          {

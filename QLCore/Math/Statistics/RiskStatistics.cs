@@ -48,6 +48,7 @@ namespace QLCore
       public double percentile(double percent) { return impl_.percentile(percent); }
       public double weightSum() { return impl_.weightSum(); }
       public double errorEstimate() { return impl_.errorEstimate(); }
+      public List<KeyValuePair<double, double>> data() { return impl_.data(); }
 
       public void reset() { impl_.reset(); }
       public void add

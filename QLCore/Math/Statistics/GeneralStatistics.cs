@@ -37,6 +37,7 @@ namespace QLCore
       double percentile(double percent);
       double weightSum();
       double errorEstimate();
+      List<KeyValuePair<double, double>> data();
 
       void reset();
       void add
