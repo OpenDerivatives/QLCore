@@ -35,22 +35,22 @@ namespace QLCore
                   by overriding the referenceDate() method.
       */
 
-      protected CallableBondVolatilityStructure(DayCounter dc = null, BusinessDayConvention bdc = BusinessDayConvention.Following)
-         : base(dc ?? new DayCounter())
+      protected CallableBondVolatilityStructure(Settings settings, DayCounter dc = null, BusinessDayConvention bdc = BusinessDayConvention.Following)
+         : base(settings, dc ?? new DayCounter())
       {
          bdc_ = bdc;
       }
       //! initialize with a fixed reference date
-      protected CallableBondVolatilityStructure(Date referenceDate, Calendar calendar = null, DayCounter dc = null,
+      protected CallableBondVolatilityStructure(Settings settings, Date referenceDate, Calendar calendar = null, DayCounter dc = null,
                                                 BusinessDayConvention bdc = BusinessDayConvention.Following)
-         : base(referenceDate, calendar ?? new Calendar(), dc ?? new DayCounter())
+         : base(settings, referenceDate, calendar ?? new Calendar(), dc ?? new DayCounter())
       {
          bdc_ = bdc;
       }
       //! calculate the reference date based on the global evaluation date
-      protected CallableBondVolatilityStructure(int settlementDays, Calendar calendar, DayCounter dc = null,
+      protected CallableBondVolatilityStructure(Settings settings, int settlementDays, Calendar calendar, DayCounter dc = null,
                                                 BusinessDayConvention bdc = BusinessDayConvention.Following)
-         : base(settlementDays, calendar, dc ?? new DayCounter())
+         : base(settings, settlementDays, calendar, dc ?? new DayCounter())
       {
          bdc_ = bdc;
       }

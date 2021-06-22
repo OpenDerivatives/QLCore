@@ -23,32 +23,32 @@ namespace QLCore
    //! Constant callable-bond volatility, no time-strike dependence
    public class CallableBondConstantVolatility : CallableBondVolatilityStructure
    {
-      public CallableBondConstantVolatility(Date referenceDate, double volatility, DayCounter dayCounter)
-         : base(referenceDate)
+      public CallableBondConstantVolatility(Settings settings, Date referenceDate, double volatility, DayCounter dayCounter)
+         : base(settings, referenceDate, null, null, BusinessDayConvention.Following)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
          dayCounter_ = dayCounter;
          maxBondTenor_ = new Period(100, TimeUnit.Years);
       }
 
-      public CallableBondConstantVolatility(Date referenceDate, Handle<Quote> volatility, DayCounter dayCounter)
-         : base(referenceDate)
+      public CallableBondConstantVolatility(Settings settings, Date referenceDate, Handle<Quote> volatility, DayCounter dayCounter)
+         : base(settings, referenceDate, null, null, BusinessDayConvention.Following)
       {
          volatility_ = volatility;
          dayCounter_ = dayCounter;
          maxBondTenor_ = new Period(100, TimeUnit.Years);
       }
 
-      public CallableBondConstantVolatility(int settlementDays, Calendar calendar, double volatility, DayCounter dayCounter)
-         : base(settlementDays, calendar)
+      public CallableBondConstantVolatility(Settings settings, int settlementDays, Calendar calendar, double volatility, DayCounter dayCounter)
+         : base(settings, settlementDays, calendar, null, BusinessDayConvention.Following)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
          dayCounter_ = dayCounter;
          maxBondTenor_ = new Period(100, TimeUnit.Years);
       }
 
-      public CallableBondConstantVolatility(int settlementDays, Calendar calendar, Handle<Quote> volatility, DayCounter dayCounter)
-         : base(settlementDays, calendar)
+      public CallableBondConstantVolatility(Settings settings, int settlementDays, Calendar calendar, Handle<Quote> volatility, DayCounter dayCounter)
+         : base(settings, settlementDays, calendar, null, BusinessDayConvention.Following)
       {
          volatility_ = volatility;
          dayCounter_ = dayCounter;
@@ -72,7 +72,7 @@ namespace QLCore
       protected override SmileSection smileSectionImpl(double optionTime, double bondLength)
       {
          double atmVol = volatility_.link.value();
-         return new FlatSmileSection(optionTime, atmVol, dayCounter_);
+         return new FlatSmileSection(this.settings(), optionTime, atmVol, dayCounter_);
       }
       protected override double volatilityImpl(Date d, Period p, double d1)
       {

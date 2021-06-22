@@ -26,12 +26,12 @@ namespace QLCore
    */
    public class SEKLibor : Libor
    {
-      public SEKLibor(Period tenor)
-         : base("SEKLibor", tenor, 2, new SEKCurrency(), new Sweden(), new Actual360(), new Handle<YieldTermStructure>())
+      public SEKLibor(Period tenor, Settings settings)
+         : base("SEKLibor", tenor, 2, new SEKCurrency(), new Sweden(), new Actual360(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public SEKLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("SEKLibor", tenor, 2, new SEKCurrency(), new Sweden(), new Actual360(), h)
+      public SEKLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("SEKLibor", tenor, 2, new SEKCurrency(), new Sweden(), new Actual360(), settings, h)
       {}
 
    }

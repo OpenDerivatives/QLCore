@@ -31,13 +31,14 @@ namespace QLCore
    public class CapFloorTermVolCurve : CapFloorTermVolatilityStructure
    {
       //! floating reference date, floating market data
-      public CapFloorTermVolCurve(int settlementDays,
+      public CapFloorTermVolCurve(Settings settings,
+                                  int settlementDays,
                                   Calendar calendar,
                                   BusinessDayConvention bdc,
                                   List<Period> optionTenors,
                                   List<Handle<Quote> > vols,
-                                  DayCounter dc = null)  // Actual365Fixed()
-         : base(settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
+                                  DayCounter dc = null) // Actual365Fixed()
+         : base(settings, settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -52,13 +53,14 @@ namespace QLCore
       }
 
       //! fixed reference date, floating market data
-      public CapFloorTermVolCurve(Date settlementDate,
+      public CapFloorTermVolCurve(Settings settings,
+                                  Date settlementDate,
                                   Calendar calendar,
                                   BusinessDayConvention bdc,
                                   List<Period> optionTenors,
                                   List<Handle<Quote> > vols,
-                                  DayCounter dc = null)  // Actual365Fixed()
-         : base(settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
+                                  DayCounter dc = null) // Actual365Fixed()
+         : base(settings, settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -72,13 +74,14 @@ namespace QLCore
          interpolate();
       }
       //! fixed reference date, fixed market data
-      public CapFloorTermVolCurve(Date settlementDate,
+      public CapFloorTermVolCurve(Settings settings,
+                                  Date settlementDate,
                                   Calendar calendar,
                                   BusinessDayConvention bdc,
                                   List<Period> optionTenors,
                                   List<double> vols,
-                                  DayCounter dc = null)  // Actual365Fixed()
-         : base(settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
+                                  DayCounter dc = null) // Actual365Fixed()
+         : base(settings, settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -95,13 +98,14 @@ namespace QLCore
          interpolate();
       }
       //! floating reference date, fixed market data
-      public CapFloorTermVolCurve(int settlementDays,
+      public CapFloorTermVolCurve(Settings settings,
+                                  int settlementDays,
                                   Calendar calendar,
                                   BusinessDayConvention bdc,
                                   List<Period> optionTenors,
                                   List<double> vols,
-                                  DayCounter dc = null) // Actual365Fixed()
-         : base(settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
+                                  DayCounter dc = null)  // Actual365Fixed()
+         : base(settings, settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -134,7 +138,7 @@ namespace QLCore
          // recalculate dates if necessary...
          if (moving_)
          {
-            Date d = QLCore.Settings.Instance.evaluationDate();
+            Date d = this.settings().evaluationDate();
             if (evaluationDate_ != d)
             {
                evaluationDate_ = d;

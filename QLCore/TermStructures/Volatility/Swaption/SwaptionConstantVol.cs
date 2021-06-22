@@ -31,14 +31,15 @@ namespace QLCore
       private double? shift_;
 
       //! floating reference date, floating market data
-      public ConstantSwaptionVolatility(int settlementDays,
+      public ConstantSwaptionVolatility(Settings settings, 
+                                        int settlementDays,
                                         Calendar cal,
                                         BusinessDayConvention bdc,
                                         Handle<Quote> vol,
                                         DayCounter dc,
                                         VolatilityType type = VolatilityType.ShiftedLognormal,
                                         double? shift = 0.0)
-      : base(settlementDays, cal, bdc, dc)
+      : base(settings, settlementDays, cal, bdc, dc)
       {
          volatility_ = vol;
          maxSwapTenor_ = new Period(100, TimeUnit.Years);
@@ -47,7 +48,8 @@ namespace QLCore
       }
 
       //! fixed reference date, floating market data
-      public ConstantSwaptionVolatility(Date referenceDate,
+      public ConstantSwaptionVolatility(Settings settings,
+                                        Date referenceDate,
                                         Calendar cal,
                                         BusinessDayConvention bdc,
                                         Handle<Quote> vol,
@@ -55,7 +57,7 @@ namespace QLCore
                                         VolatilityType type = VolatilityType.ShiftedLognormal,
                                         double? shift = 0.0)
 
-      : base(referenceDate, cal, bdc, dc)
+      : base(settings, referenceDate, cal, bdc, dc)
       {
          volatility_ = vol;
          maxSwapTenor_ = new Period(100, TimeUnit.Years);
@@ -64,14 +66,15 @@ namespace QLCore
       }
 
       //! floating reference date, fixed market data
-      public ConstantSwaptionVolatility(int settlementDays,
+      public ConstantSwaptionVolatility(Settings settings,
+                                        int settlementDays,
                                         Calendar cal,
                                         BusinessDayConvention bdc,
                                         double vol,
                                         DayCounter dc,
                                         VolatilityType type = VolatilityType.ShiftedLognormal,
                                         double? shift = 0.0)
-      : base(settlementDays, cal, bdc, dc)
+      : base(settings, settlementDays, cal, bdc, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(vol));
          maxSwapTenor_ = new Period(100, TimeUnit.Years);
@@ -80,14 +83,15 @@ namespace QLCore
       }
 
       //! fixed reference date, fixed market data
-      public ConstantSwaptionVolatility(Date referenceDate,
+      public ConstantSwaptionVolatility(Settings settings,
+                                        Date referenceDate,
                                         Calendar cal,
                                         BusinessDayConvention bdc,
                                         double vol,
                                         DayCounter dc,
                                         VolatilityType type = VolatilityType.ShiftedLognormal,
                                         double? shift = 0.0)
-      : base(referenceDate, cal, bdc, dc)
+      : base(settings, referenceDate, cal, bdc, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(vol));
          maxSwapTenor_ = new Period(100, TimeUnit.Years);
@@ -125,13 +129,13 @@ namespace QLCore
       protected new SmileSection smileSectionImpl(Date d, Period p)
       {
          double atmVol = volatility_.link.value();
-         return new FlatSmileSection(d, atmVol, dayCounter(), referenceDate());
+         return new FlatSmileSection(settings(), d, atmVol, dayCounter(), referenceDate());
       }
 
       protected override SmileSection smileSectionImpl(double optionTime, double time)
       {
          double atmVol = volatility_.link.value();
-         return new FlatSmileSection(optionTime, atmVol, dayCounter());
+         return new FlatSmileSection(settings(), optionTime, atmVol, dayCounter());
       }
 
       protected new double volatilityImpl(Date date, Period period, double rate)

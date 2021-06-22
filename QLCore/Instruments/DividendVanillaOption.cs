@@ -29,11 +29,11 @@ namespace QLCore
    {
       private DividendSchedule cashFlow_;
 
-      public DividendVanillaOption(StrikedTypePayoff payoff, Exercise exercise,
+      public DividendVanillaOption(Settings settings, StrikedTypePayoff payoff, Exercise exercise,
                                    List<Date> dividendDates, List<double> dividends)
-         : base(payoff, exercise)
+         : base(settings, payoff, exercise)
       {
-         cashFlow_ = Utils.DividendVector(dividendDates, dividends);
+         cashFlow_ = Utils.DividendVector(settings, dividendDates, dividends);
       }
 
 

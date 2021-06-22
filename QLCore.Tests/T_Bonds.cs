@@ -28,40 +28,23 @@ using Calendar = QLCore.Calendar;
 namespace TestSuite
 {
 
-   public class T_Bonds : IDisposable
+   public class T_Bonds
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_Bonds()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       class CommonVars
       {
          // common data
          public Calendar calendar;
          public Date today;
          public double faceAmount;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
+            settings = new Settings();
             calendar = new TARGET();
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             faceAmount = 1000000.0;
          }
       }
@@ -105,7 +88,7 @@ namespace TestSuite
                         Date issue = dated;
                         Date maturity = vars.calendar.advance(issue, lengths[j], TimeUnit.Years);
 
-                        Schedule sch = new Schedule(dated, maturity, new Period(frequencies[l]), vars.calendar,
+                        Schedule sch = new Schedule(vars.settings, dated, maturity, new Period(frequencies[l]), vars.calendar,
                                                     accrualConvention, accrualConvention, DateGeneration.Rule.Backward, false);
 
                         FixedRateBond bond = new FixedRateBond(settlementDays, vars.faceAmount, sch,
@@ -178,9 +161,9 @@ namespace TestSuite
                   Date maturity = vars.calendar.advance(issue, lengths[j], TimeUnit.Years);
 
                   SimpleQuote rate = new SimpleQuote(0.0);
-                  var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.today, rate, bondDayCount));
+                  var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, vars.today, rate, bondDayCount));
 
-                  Schedule sch = new Schedule(dated, maturity, new Period(frequencies[l]), vars.calendar,
+                  Schedule sch = new Schedule(vars.settings, dated, maturity, new Period(frequencies[l]), vars.calendar,
                                               accrualConvention, accrualConvention, DateGeneration.Rule.Backward, false);
 
                   FixedRateBond bond = new FixedRateBond(settlementDays, vars.faceAmount, sch, new List<double>() { coupons[k] },
@@ -238,17 +221,17 @@ namespace TestSuite
 
          // with implicit settlement calculation:
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          Calendar bondCalendar = new NullCalendar();
          DayCounter bondDayCount = new ActualActual(ActualActual.Convention.ISMA);
          int settlementDays = 1;
 
-         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, new SimpleQuote(0.03), new Actual360()));
+         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, new SimpleQuote(0.03), new Actual360()));
 
          // actual market values from the evaluation date
          Frequency freq = Frequency.Semiannual;
-         Schedule sch1 = new Schedule(new Date(31, Month.October, 2004), new Date(31, Month.October, 2006), new Period(freq),
+         Schedule sch1 = new Schedule(vars.settings, new Date(31, Month.October, 2004), new Date(31, Month.October, 2006), new Period(freq),
                                       bondCalendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                       DateGeneration.Rule.Backward, false);
 
@@ -261,7 +244,7 @@ namespace TestSuite
          double marketPrice1 = 99.203125;
          double marketYield1 = 0.02925;
 
-         Schedule sch2 = new Schedule(new Date(15, Month.November, 2004), new Date(15, Month.November, 2009), new Period(freq),
+         Schedule sch2 = new Schedule(vars.settings, new Date(15, Month.November, 2004), new Date(15, Month.November, 2009), new Period(freq),
                                       bondCalendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                       DateGeneration.Rule.Backward, false);
 
@@ -387,7 +370,7 @@ namespace TestSuite
          }
 
          // with explicit settlement date:
-         Schedule sch3 = new Schedule(new Date(30, Month.November, 2004), new Date(30, Month.November, 2006), new Period(freq),
+         Schedule sch3 = new Schedule(vars.settings, new Date(30, Month.November, 2004), new Date(30, Month.November, 2006), new Period(freq),
                                       new UnitedStates(UnitedStates.Market.GovernmentBond), BusinessDayConvention.Unadjusted,
                                       BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false);
 
@@ -413,7 +396,7 @@ namespace TestSuite
 
          // this should give the same result since the issue date is the
          // earliest possible settlement date
-         Settings.Instance.setEvaluationDate(new Date(22, Month.November, 2004));
+         vars.settings.setEvaluationDate(new Date(22, Month.November, 2004));
 
          price = bond3.cleanPrice(marketYield3, bondDayCount, Compounding.Compounded, freq);
          if (Math.Abs(price - cachedPrice3) > tolerance)
@@ -432,16 +415,16 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
          double tolerance = 1.0e-6;
 
          // plain
-         ZeroCouponBond bond1 = new ZeroCouponBond(settlementDays, new UnitedStates(UnitedStates.Market.GovernmentBond),
+         ZeroCouponBond bond1 = new ZeroCouponBond(vars.settings, settlementDays, new UnitedStates(UnitedStates.Market.GovernmentBond),
                                                    vars.faceAmount, new Date(30, Month.November, 2008), BusinessDayConvention.ModifiedFollowing,
                                                    100.0, new Date(30, Month.November, 2004));
 
@@ -459,7 +442,7 @@ namespace TestSuite
                          + "    error:      " + (price - cachedPrice1));
          }
 
-         ZeroCouponBond bond2 = new ZeroCouponBond(settlementDays, new UnitedStates(UnitedStates.Market.GovernmentBond),
+         ZeroCouponBond bond2 = new ZeroCouponBond(vars.settings, settlementDays, new UnitedStates(UnitedStates.Market.GovernmentBond),
                                                    vars.faceAmount, new Date(30, Month.November, 2007), BusinessDayConvention.ModifiedFollowing,
                                                    100.0, new Date(30, Month.November, 2004));
 
@@ -476,7 +459,7 @@ namespace TestSuite
                          + "    error:      " + (price - cachedPrice2));
          }
 
-         ZeroCouponBond bond3 = new ZeroCouponBond(settlementDays, new UnitedStates(UnitedStates.Market.GovernmentBond),
+         ZeroCouponBond bond3 = new ZeroCouponBond(vars.settings, settlementDays, new UnitedStates(UnitedStates.Market.GovernmentBond),
                                                    vars.faceAmount, new Date(30, Month.November, 2006), BusinessDayConvention.ModifiedFollowing,
                                                    100.0, new Date(30, Month.November, 2004));
 
@@ -501,16 +484,16 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
          double tolerance = 1.0e-6;
 
          // plain
-         Schedule sch = new Schedule(new Date(30, Month.November, 2004),
+         Schedule sch = new Schedule(vars.settings, new Date(30, Month.November, 2004),
                                      new Date(30, Month.November, 2008), new Period(Frequency.Semiannual),
                                      new UnitedStates(UnitedStates.Market.GovernmentBond),
                                      BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false);
@@ -559,7 +542,7 @@ namespace TestSuite
          }
 
          // stub date
-         Schedule sch3 = new Schedule(new Date(30, Month.November, 2004),
+         Schedule sch3 = new Schedule(vars.settings, new Date(30, Month.November, 2004),
                                       new Date(30, Month.March, 2009), new Period(Frequency.Semiannual),
                                       new UnitedStates(UnitedStates.Market.GovernmentBond),
                                       BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false,
@@ -591,14 +574,14 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         var riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.025, new Actual360()));
-         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         var riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.025, new Actual360()));
+         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
-         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), riskFreeRate);
+         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), vars.settings, riskFreeRate);
          int fixingDays = 1;
 
          double tolerance = 1.0e-6;
@@ -606,7 +589,7 @@ namespace TestSuite
          IborCouponPricer pricer = new BlackIborCouponPricer(new Handle<OptionletVolatilityStructure>());
 
          // plain
-         Schedule sch = new Schedule(new Date(30, Month.November, 2004), new Date(30, Month.November, 2008),
+         Schedule sch = new Schedule(vars.settings, new Date(30, Month.November, 2004), new Date(30, Month.November, 2008),
                                      new Period(Frequency.Semiannual), new UnitedStates(UnitedStates.Market.GovernmentBond),
                                      BusinessDayConvention.ModifiedFollowing, BusinessDayConvention.ModifiedFollowing,
                                      DateGeneration.Rule.Backward, false);
@@ -715,7 +698,7 @@ namespace TestSuite
          Date issueDate = new Date(1, Month.January, 2007);
 
          Date today = new Date(6, Month.June, 2007);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          // NTN-F maturity dates
          List<Date> maturityDates = new InitializedList<Date>(6);
@@ -760,7 +743,7 @@ namespace TestSuite
             InterestRate yield = new InterestRate(yields[bondIndex], new Business252(new Brazil()),
                                                   Compounding.Compounded, Frequency.Annual);
 
-            Schedule schedule = new Schedule(new Date(1, Month.January, 2007),
+            Schedule schedule = new Schedule(vars.settings, new Date(1, Month.January, 2007),
                                              maturityDates[bondIndex], new Period(Frequency.Semiannual),
                                              new Brazil(Brazil.Market.Settlement),
                                              BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
@@ -796,17 +779,19 @@ namespace TestSuite
       [Fact]
       public void testAmortizingFixedBond()
       {
+         CommonVars vars = new CommonVars();
+
          Date startDate = new Date(2, 1, 2007);
-         Settings.Instance.setEvaluationDate(startDate);
+         vars.settings.setEvaluationDate(startDate);
 
          Period bondLength = new Period(12, TimeUnit.Months);
          DayCounter dCounter = new Thirty360();
          Frequency payFrequency = Frequency.Monthly;
          double amount = 400000000;
          double rate = 0.06;
-         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(startDate, new SimpleQuote(rate), new Thirty360()));
+         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, startDate, new SimpleQuote(rate), new Thirty360()));
 
-         AmortizingFixedRateBond bond = BondFactory.makeAmortizingFixedBond(startDate, bondLength, dCounter, payFrequency, amount, rate);
+         AmortizingFixedRateBond bond = BondFactory.makeAmortizingFixedBond(vars.settings, startDate, bondLength, dCounter, payFrequency, amount, rate);
          IPricingEngine bondEngine = new DiscountingBondEngine(discountCurve);
          bond.setPricingEngine(bondEngine);
 
@@ -973,8 +958,9 @@ namespace TestSuite
                                        };
          #endregion
 
+         CommonVars vars = new CommonVars();
          Date startDate = new Date(1, 2, 2007);
-         Settings.Instance.setEvaluationDate(startDate);
+         vars.settings.setEvaluationDate(startDate);
 
          Period bondLength = new Period(358, TimeUnit.Months);
          Period originalLenght = new Period(360, TimeUnit.Months);
@@ -985,11 +971,12 @@ namespace TestSuite
          double PassThroughRate = 0.055;
          PSACurve psa100 = new PSACurve(startDate);
 
-         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(startDate, new SimpleQuote(WACrate), new Thirty360()));
+         var discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, startDate, new SimpleQuote(WACrate), new Thirty360()));
 
          // 400 Million Pass-Through with a 5.5% Pass-through Rate, a WAC of 6.0%, and a WAM of 358 Months,
          // Assuming 100% PSA
-         MBSFixedRateBond bond = BondFactory.makeMBSFixedBond(startDate,
+         MBSFixedRateBond bond = BondFactory.makeMBSFixedBond(vars.settings,
+                                                              startDate,
                                                               bondLength,
                                                               originalLenght,
                                                               dCounter,
@@ -1058,6 +1045,7 @@ namespace TestSuite
       public void testAmortizingBond1()
       {
          // Input Values
+         CommonVars vars = new CommonVars();
          double faceValue = 40000;
          double marketValue = 43412;
          double couponRate = 0.06;
@@ -1068,7 +1056,7 @@ namespace TestSuite
          DayCounter dc = new Thirty360(Thirty360.Thirty360Convention.USA);
 
          // Build Bond
-         AmortizingBond bond = BondFactory.makeAmortizingBond(faceValue, marketValue, couponRate,
+         AmortizingBond bond = BondFactory.makeAmortizingBond(vars.settings, faceValue, marketValue, couponRate,
                                                               issueDate, maturirtyDate, tradeDate, paymentFrequency, dc, AmortizingMethod.EffectiveInterestRate);
 
          // Amortizing Yield ( Effective Rate )
@@ -1098,6 +1086,7 @@ namespace TestSuite
          // Day Count Method - 30/360
 
          // Input Values
+         CommonVars vars = new CommonVars();
          double faceValue = 500000;
          double marketValue = 471444;
          double couponRate = 0.0520;
@@ -1108,7 +1097,7 @@ namespace TestSuite
          DayCounter dc = new Thirty360(Thirty360.Thirty360Convention.USA);
 
          // Build Bond
-         AmortizingBond bond = BondFactory.makeAmortizingBond(faceValue, marketValue, couponRate,
+         AmortizingBond bond = BondFactory.makeAmortizingBond(vars.settings, faceValue, marketValue, couponRate,
                                                               issueDate, maturirtyDate, tradeDate, paymentFrequency, dc, AmortizingMethod.EffectiveInterestRate);
 
          // Amortizing Yield ( Effective Rate )
@@ -1141,6 +1130,7 @@ namespace TestSuite
                              0.877571570, 0.952323396, 1.028612597
                             };
 
+         CommonVars vars = new CommonVars();
          Frequency freq = Frequency.Monthly;
 
          Date refDate = Date.Today;
@@ -1149,7 +1139,7 @@ namespace TestSuite
 
          for (int i = 0; i < rates.Length; ++i)
          {
-            AmortizingFixedRateBond myBond = new AmortizingFixedRateBond(0,
+            AmortizingFixedRateBond myBond = new AmortizingFixedRateBond(vars.settings, 0,
                                                                          new NullCalendar(), 100.0, refDate, new Period(30, TimeUnit.Years), freq, rates[i], new ActualActual(ActualActual.Convention.ISMA));
 
             List<CashFlow> cashflows = myBond.cashflows();
@@ -1203,14 +1193,14 @@ namespace TestSuite
 
          //When pricing bond from Yield To Maturity, use NullCalendar()
          Calendar calendar = new NullCalendar();
-
+         CommonVars vars = new CommonVars();
          int settlementDays = 3;
 
          Date issueDate = new Date(29, Month.June, 2012);
          Date today = new Date(7, Month.September, 2015);
          Date evaluationDate = calendar.adjust(today);
          Date settlementDate = calendar.advance(evaluationDate, new Period(settlementDays, TimeUnit.Days));
-         Settings.Instance.setEvaluationDate(evaluationDate);
+         vars.settings.setEvaluationDate(evaluationDate);
 
          // For the schedule to generate correctly for Feb-28's, make maturity date on Feb 29
          Date maturityDate = new Date(29, Month.February, 2048);
@@ -1230,7 +1220,7 @@ namespace TestSuite
          // For leap years, this will generate 29 Feb, but the bond
          // actually pays coupons on 28 Feb, regardsless of whether
          // it is a leap year or not.
-         Schedule schedule = new Schedule(issueDate, maturityDate, tenor,
+         Schedule schedule = new Schedule(vars.settings, issueDate, maturityDate, tenor,
                                           new NullCalendar(), BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                           DateGeneration.Rule.Backward, true);
 
@@ -1245,7 +1235,7 @@ namespace TestSuite
                dates.Add(d);
          }
 
-         schedule = new Schedule(dates,
+         schedule = new Schedule(vars.settings, dates,
                                  schedule.calendar(),
                                  schedule.businessDayConvention(),
                                  schedule.terminationDateBusinessDayConvention(),
@@ -1312,6 +1302,7 @@ namespace TestSuite
                                       string SettlementDate, string FirstCouponDate, double expectedAccruedInterest)
       {
          // Convert dates
+         CommonVars vars = new CommonVars();
          Date maturityDate = Convert.ToDateTime(MaturityDate, new CultureInfo("en-US"));
          Date settlementDate = Convert.ToDateTime(SettlementDate, new CultureInfo("en-US"));
          Date datedDate = Convert.ToDateTime(AccrualDate, new CultureInfo("en-US"));
@@ -1329,7 +1320,7 @@ namespace TestSuite
          //Frequency freq = Frequency.Semiannual;
          DayCounter dc = new Thirty360(Thirty360.Thirty360Convention.USA);
 
-         Schedule schedule = new Schedule(datedDate, maturityDate, tenor, new NullCalendar(),
+         Schedule schedule = new Schedule(vars.settings, datedDate, maturityDate, tenor, new NullCalendar(),
                                           BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false,
                                           firstCouponDate);
 
@@ -1419,7 +1410,7 @@ namespace TestSuite
              PV 0.01 : 0.06057829784
          */
 
-
+         CommonVars vars = new CommonVars();
          Calendar calendar = new UnitedKingdom();
 
          int settlementDays = 3;
@@ -1439,7 +1430,7 @@ namespace TestSuite
          DayCounter dc = new ActualActual(ActualActual.Convention.ISMA);
 
          FixedRateBond bond = new FixedRateBond(settlementDays, 100.0,
-                                                new Schedule(startDate, maturityDate, tenor,
+                                                new Schedule(vars.settings, startDate, maturityDate, tenor,
                                                              new NullCalendar(), BusinessDayConvention.Unadjusted,
                                                              BusinessDayConvention.Unadjusted, DateGeneration.Rule.Forward,
                                                              true, firstCouponDate), new InitializedList<double>(1, coupon),
@@ -1558,7 +1549,7 @@ namespace TestSuite
          */
 
          Calendar calendar = new Australia();
-
+         CommonVars vars = new CommonVars();
          int settlementDays = 3;
 
          Date issueDate = new Date(10, Month.June, 2004);
@@ -1576,7 +1567,7 @@ namespace TestSuite
          DayCounter dc = new ActualActual(ActualActual.Convention.ISMA);
 
          FixedRateBond bond = new FixedRateBond(settlementDays, 100.0,
-                                                new Schedule(startDate, maturityDate, tenor, new NullCalendar(), BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
+                                                new Schedule(vars.settings, startDate, maturityDate, tenor, new NullCalendar(), BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                                              DateGeneration.Rule.Forward, true, firstCouponDate),
                                                 new InitializedList<double>(1, coupon), dc, BusinessDayConvention.Unadjusted, 100.0, issueDate, calendar, exCouponPeriod, new NullCalendar());
 
@@ -1641,9 +1632,9 @@ namespace TestSuite
       public void testThirty360BondWithSettlementOn31st()
       {
          // Testing Thirty/360 bond with settlement on 31st of the month
-
+         CommonVars vars = new CommonVars();
          // cusip 3130A0X70, data is from Bloomberg
-         Settings.Instance.setEvaluationDate(new Date(28, Month.July, 2017));
+         vars.settings.setEvaluationDate(new Date(28, Month.July, 2017));
 
          Date datedDate = new Date(13, Month.February, 2014);
          Date settlement = new Date(31, Month.July, 2017);
@@ -1652,7 +1643,7 @@ namespace TestSuite
          DayCounter dayCounter = new Thirty360(Thirty360.Thirty360Convention.USA);
          Compounding compounding = Compounding.Compounded;
 
-         Schedule fixedBondSchedule = new Schedule(datedDate, maturity, new Period(Frequency.Semiannual), new UnitedStates(UnitedStates.Market.GovernmentBond),
+         Schedule fixedBondSchedule = new Schedule(vars.settings, datedDate, maturity, new Period(Frequency.Semiannual), new UnitedStates(UnitedStates.Market.GovernmentBond),
                                                    BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted, DateGeneration.Rule.Forward, false);
 
          FixedRateBond fixedRateBond = new FixedRateBond(1, 100, fixedBondSchedule, new InitializedList<double>(1, 0.015), dayCounter,
@@ -1696,11 +1687,12 @@ namespace TestSuite
                                 string SettlementDate, double Price, double ExpectedModifiedDuration)
       {
          // Convert dates
+         CommonVars vars = new CommonVars();
          Date maturityDate = Convert.ToDateTime(MaturityDate, new CultureInfo("en-US"));
          Date settlementDate = Convert.ToDateTime(SettlementDate, new CultureInfo("en-US"));
 
          // Set evaluation date
-         Settings.Instance.setEvaluationDate(settlementDate);
+         vars.settings.setEvaluationDate(settlementDate);
 
          // Divide number by 100
          Coupon = Coupon / 100;
@@ -1715,7 +1707,7 @@ namespace TestSuite
          Compounding comp = Compounding.Compounded;
          Frequency freq = Frequency.Semiannual;
          DayCounter dc = new Thirty360(Thirty360.Thirty360Convention.USA);
-         Schedule sch = new Schedule(null, maturityDate, tenor,
+         Schedule sch = new Schedule(vars.settings, null, maturityDate, tenor,
                                      new NullCalendar(), BusinessDayConvention.Unadjusted,
                                      BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false);
 
@@ -1749,6 +1741,8 @@ namespace TestSuite
       [Fact]
       public void testSteppedCoupon()
       {
+         CommonVars vars = new CommonVars();
+
          // Sample 1
          double Coupon = 0.0;
          string AccrualDate = "12/12/2012";
@@ -1777,7 +1771,7 @@ namespace TestSuite
          Frequency freq = Frequency.Semiannual;
          DayCounter dc = new Thirty360(Thirty360.Thirty360Convention.USA);
 
-         Schedule schedule = new Schedule(datedDate, maturityDate, tenor, calendar,
+         Schedule schedule = new Schedule(vars.settings, datedDate, maturityDate, tenor, calendar,
                                           BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false,
                                           firstCouponDate);
 
@@ -1850,7 +1844,7 @@ namespace TestSuite
 
          Coupon = Coupon / 100;
 
-         schedule = new Schedule(datedDate, maturityDate, tenor, calendar,
+         schedule = new Schedule(vars.settings, datedDate, maturityDate, tenor, calendar,
                                  BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false,
                                  firstCouponDate);
 
@@ -1886,6 +1880,8 @@ namespace TestSuite
       public void testQLNetExceptions(double Coupon, string AccrualDate, string MaturityDate, 
                                       string SettlementDate, string FirstCouponDate, double Price)
       {
+         CommonVars vars = new CommonVars();
+
          // Convert dates
          Date maturityDate = Convert.ToDateTime(MaturityDate, new CultureInfo("en-US"));
          Date settlementDate = Convert.ToDateTime(SettlementDate, new CultureInfo("en-US"));
@@ -1903,7 +1899,7 @@ namespace TestSuite
          Frequency freq = Frequency.Semiannual;
          DayCounter dc = new Thirty360(Thirty360.Thirty360Convention.USA);
 
-         Schedule schedule = new Schedule(datedDate, maturityDate, tenor, calendar,
+         Schedule schedule = new Schedule(vars.settings, datedDate, maturityDate, tenor, calendar,
                                           BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                           DateGeneration.Rule.Backward, false, firstCouponDate);
 

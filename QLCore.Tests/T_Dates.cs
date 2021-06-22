@@ -33,12 +33,12 @@ namespace TestSuite
       public void testECBDates()
       {
          // Testing ECB dates
-
+         Settings settings = new Settings();
          List<Date> knownDates = ECB.knownDates();
          if (knownDates.empty())
             QAssert.Fail("Empty EBC date vector");
 
-         int n = ECB.nextDates(Date.minDate()).Count;
+         int n = ECB.nextDates(settings, Date.minDate()).Count;
 
          if (n != knownDates.Count)
             QAssert.Fail("NextDates(minDate) returns "  + n +
@@ -52,18 +52,18 @@ namespace TestSuite
 
             currentEcbDate = knownDates[i];
 
-            if (!ECB.isECBdate(currentEcbDate))
+            if (!ECB.isECBdate(settings, currentEcbDate))
                QAssert.Fail(currentEcbDate + " fails isECBdate check");
 
             ecbDateMinusOne = currentEcbDate - 1;
-            if (ECB.isECBdate(ecbDateMinusOne))
+            if (ECB.isECBdate(settings, ecbDateMinusOne))
                QAssert.Fail(ecbDateMinusOne + " fails isECBdate check");
 
-            if (ECB.nextDate(ecbDateMinusOne) != currentEcbDate)
+            if (ECB.nextDate(settings, ecbDateMinusOne) != currentEcbDate)
                QAssert.Fail("Next EBC date following " + ecbDateMinusOne +
                             " must be " + currentEcbDate);
 
-            if (ECB.nextDate(previousEcbDate) != currentEcbDate)
+            if (ECB.nextDate(settings, previousEcbDate) != currentEcbDate)
                QAssert.Fail("Next EBC date following " + previousEcbDate +
                             " must be " + currentEcbDate);
 
@@ -72,11 +72,11 @@ namespace TestSuite
 
          Date knownDate = knownDates.First();
          ECB.removeDate(knownDate);
-         if (ECB.isECBdate(knownDate))
+         if (ECB.isECBdate(settings, knownDate))
             QAssert.Fail("Unable to remove an EBC date");
 
          ECB.addDate(knownDate);
-         if (!ECB.isECBdate(knownDate))
+         if (!ECB.isECBdate(settings, knownDate))
             QAssert.Fail("Unable to add an EBC date");
 
       }
@@ -85,6 +85,7 @@ namespace TestSuite
       public void testIMMDates()
       {
          // ("Testing IMM dates...");
+         Settings settings = new Settings();
 
          string[] IMMcodes = new string[]
          {
@@ -107,7 +108,7 @@ namespace TestSuite
 
          while (counter <= last)
          {
-            imm = IMM.nextDate(counter, false);
+            imm = IMM.nextDate(settings, counter, false);
 
             // check that imm is greater than counter
             if (imm <= counter)
@@ -122,10 +123,10 @@ namespace TestSuite
                             + counter.DayOfWeek + " " + counter + ")");
 
             // check that imm is <= to the next IMM date in the main cycle
-            if (imm > IMM.nextDate(counter, true))
+            if (imm > IMM.nextDate(settings, counter, true))
                QAssert.Fail(imm.DayOfWeek + " " + imm
                             + " is not less than or equal to the next future in the main cycle "
-                            + IMM.nextDate(counter, true));
+                            + IMM.nextDate(settings, counter, true));
 
             //// check that if counter is an IMM date, then imm==counter
             //if (IMM::isIMMdate(counter, false) && (imm!=counter))
@@ -135,7 +136,7 @@ namespace TestSuite
             //               << imm.weekday() << " " << imm);
 
             // check that for every date IMMdate is the inverse of IMMcode
-            if (IMM.date(IMM.code(imm), counter) != imm)
+            if (IMM.date(settings, IMM.code(imm), counter) != imm)
                QAssert.Fail(IMM.code(imm)
                             + " at calendar day " + counter
                             + " is not the IMM code matching " + imm);
@@ -143,8 +144,8 @@ namespace TestSuite
             // check that for every date the 120 IMM codes refer to future dates
             for (int i = 0; i < 40; ++i)
             {
-               if (IMM.date(IMMcodes[i], counter) < counter)
-                  QAssert.Fail(IMM.date(IMMcodes[i], counter)
+               if (IMM.date(settings, IMMcodes[i], counter) < counter)
+                  QAssert.Fail(IMM.date(settings, IMMcodes[i], counter)
                                + " is wrong for " + IMMcodes[i]
                                + " at reference date " + counter);
             }
@@ -261,6 +262,7 @@ namespace TestSuite
       public void testASXDates()
       {
          //Testing ASX dates...");
+         Settings settings = new Settings();
 
          String[] ASXcodes =
          {
@@ -283,7 +285,7 @@ namespace TestSuite
 
          while (counter <= last)
          {
-            asx = ASX.nextDate(counter, false);
+            asx = ASX.nextDate(settings, counter, false);
 
             // check that asx is greater than counter
             if (asx <= counter)
@@ -298,14 +300,14 @@ namespace TestSuite
                             + counter.weekday() + " " + counter + ")");
 
             // check that asx is <= to the next ASX date in the main cycle
-            if (asx > ASX.nextDate(counter, true))
+            if (asx > ASX.nextDate(settings, counter, true))
                QAssert.Fail(asx.weekday() + " " + asx
                             + " is not less than or equal to the next future in the main cycle "
-                            + ASX.nextDate(counter, true));
+                            + ASX.nextDate(settings, counter, true));
 
 
             // check that for every date ASXdate is the inverse of ASXcode
-            if (ASX.date(ASX.code(asx), counter) != asx)
+            if (ASX.date(settings, ASX.code(asx), counter) != asx)
                QAssert.Fail(ASX.code(asx)
                             + " at calendar day " + counter
                             + " is not the ASX code matching " + asx);
@@ -313,15 +315,14 @@ namespace TestSuite
             // check that for every date the 120 ASX codes refer to future dates
             for (int i = 0; i < 120; ++i)
             {
-               if (ASX.date(ASXcodes[i], counter) < counter)
-                  QAssert.Fail(ASX.date(ASXcodes[i], counter)
+               if (ASX.date(settings, ASXcodes[i], counter) < counter)
+                  QAssert.Fail(ASX.date(settings, ASXcodes[i], counter)
                                + " is wrong for " + ASXcodes[i]
                                + " at reference date " + counter);
             }
 
             counter = counter + 1;
          }
-
       }
 
       [Fact]

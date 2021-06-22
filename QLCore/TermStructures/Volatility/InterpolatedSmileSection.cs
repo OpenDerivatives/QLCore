@@ -27,7 +27,8 @@ namespace QLCore
    public class InterpolatedSmileSection<Interpolator> : SmileSection, InterpolatedCurve
       where Interpolator : IInterpolationFactory, new ()
    {
-      public InterpolatedSmileSection(double timeToExpiry,
+      public InterpolatedSmileSection(Settings settings, 
+                                      double timeToExpiry,
                                       List<double> strikes,
                                       List<Handle<Quote>> stdDevHandles,
                                       Handle<Quote> atmLevel,
@@ -35,7 +36,7 @@ namespace QLCore
                                       DayCounter dc = null, //Actual365Fixed()
                                       VolatilityType type = VolatilityType.ShiftedLognormal,
                                       double shift = 0.0)
-         : base(timeToExpiry, dc ?? new Actual365Fixed(), type, shift)
+         : base(settings, timeToExpiry, dc ?? new Actual365Fixed(), type, shift)
       {
          exerciseTimeSquareRoot_ = Math.Sqrt(exerciseTime());
          strikes_ = strikes;
@@ -49,7 +50,8 @@ namespace QLCore
          interpolation_ = interpolator.interpolate(strikes_, strikes_.Count, vols_);
       }
 
-      public InterpolatedSmileSection(double timeToExpiry,
+      public InterpolatedSmileSection(Settings settings, 
+                                      double timeToExpiry,
                                       List<double> strikes,
                                       List<double> stdDevs,
                                       double atmLevel,
@@ -57,7 +59,7 @@ namespace QLCore
                                       DayCounter dc = null,  //Actual365Fixed(),
                                       VolatilityType type = VolatilityType.ShiftedLognormal,
                                       double shift = 0.0)
-         : base(timeToExpiry, dc ?? new Actual365Fixed(), type, shift)
+         : base(settings, timeToExpiry, dc ?? new Actual365Fixed(), type, shift)
       {
          exerciseTimeSquareRoot_ = Math.Sqrt(exerciseTime());
          strikes_ = strikes;
@@ -76,7 +78,8 @@ namespace QLCore
          interpolation_ = interpolator.interpolate(strikes_, strikes_.Count, vols_);
       }
 
-      public InterpolatedSmileSection(Date d,
+      public InterpolatedSmileSection(Settings settings, 
+                                      Date d,
                                       List<double> strikes,
                                       List<Handle<Quote> > stdDevHandles,
                                       Handle<Quote> atmLevel,
@@ -85,7 +88,7 @@ namespace QLCore
                                       Date referenceDate = null,
                                       VolatilityType type = VolatilityType.ShiftedLognormal,
                                       double shift = 0.0)
-         : base(d, dc ?? new Actual365Fixed(), referenceDate, type, shift)
+         : base(settings, d, dc ?? new Actual365Fixed(), referenceDate, type, shift)
       {
          exerciseTimeSquareRoot_ = Math.Sqrt(exerciseTime());
          strikes_ = strikes;
@@ -99,7 +102,8 @@ namespace QLCore
          interpolation_ = interpolator.interpolate(strikes_, strikes_.Count, vols_);
       }
 
-      public InterpolatedSmileSection(Date d,
+      public InterpolatedSmileSection(Settings settings, 
+                                      Date d,
                                       List<double> strikes,
                                       List<double> stdDevs,
                                       double atmLevel,
@@ -107,7 +111,7 @@ namespace QLCore
                                       Interpolator interpolator = default(Interpolator),
                                       Date referenceDate = null,
                                       double shift = 0.0)
-         : base(d, dc ?? new Actual365Fixed(), referenceDate, VolatilityType.ShiftedLognormal, shift)
+         : base(settings, d, dc ?? new Actual365Fixed(), referenceDate, VolatilityType.ShiftedLognormal, shift)
       {
          exerciseTimeSquareRoot_ = Math.Sqrt(exerciseTime());
          strikes_ = strikes;

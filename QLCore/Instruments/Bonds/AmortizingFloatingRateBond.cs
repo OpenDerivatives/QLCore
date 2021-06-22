@@ -38,7 +38,7 @@ namespace QLCore
                                         List < double? > floors = null,
                                         bool inArrears = false,
                                         Date issueDate = null)
-      : base(settlementDays, schedule.calendar(), issueDate)
+      : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          if (gearings == null)
             gearings = new List<double>() {1, 1.0};

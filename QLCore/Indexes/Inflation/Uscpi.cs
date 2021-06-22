@@ -23,10 +23,10 @@ namespace QLCore
    //! US CPI index
    public class USCPI : ZeroInflationIndex
    {
-      public USCPI(bool interpolated)
-         : this(interpolated, new Handle<ZeroInflationTermStructure>()) {}
+      public USCPI(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<ZeroInflationTermStructure>()) {}
 
-      public USCPI(bool interpolated,
+      public USCPI(bool interpolated, Settings settings,
                    Handle<ZeroInflationTermStructure> ts)
          : base("CPI",
                 new USRegion(),
@@ -35,16 +35,17 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months), // availability
                 new USDCurrency(),
+                settings,
                 ts) {}
    }
 
    //! Genuine year-on-year US CPI (i.e. not a ratio of US CPI)
    public class YYUSCPI : YoYInflationIndex
    {
-      public YYUSCPI(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) {}
+      public YYUSCPI(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) {}
 
-      public YYUSCPI(bool interpolated,
+      public YYUSCPI(bool interpolated, Settings settings,
                      Handle<YoYInflationTermStructure> ts)
          : base("YY_CPI",
                 new USRegion(),
@@ -54,16 +55,17 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new USDCurrency(),
+                settings,
                 ts) {}
    }
 
    //! Fake year-on-year US CPI (i.e. a ratio of US CPI)
    public class YYUSCPIr : YoYInflationIndex
    {
-      public YYUSCPIr(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) { }
+      public YYUSCPIr(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
-      public YYUSCPIr(bool interpolated,
+      public YYUSCPIr(bool interpolated, Settings settings,
                       Handle<YoYInflationTermStructure> ts)
          : base("YYR_CPI",
                 new USRegion(),
@@ -73,6 +75,7 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new USDCurrency(),
+                settings,
                 ts) {}
    }
 }

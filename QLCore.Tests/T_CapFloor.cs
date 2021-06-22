@@ -26,28 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_CapFloor : IDisposable
+   public class T_CapFloor
    {
-
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_CapFloor()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       class CommonVars
       {
          // common data
@@ -59,21 +39,23 @@ namespace TestSuite
          public Calendar calendar;
          public int fixingDays;
          public RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
+            settings = new Settings();
             nominals = new List<double>() { 100 };
             frequency = Frequency.Semiannual;
-            index = (IborIndex)new Euribor6M(termStructure);
+            index = (IborIndex)new Euribor6M(settings, termStructure);
             calendar = index.fixingCalendar();
             convention = BusinessDayConvention.ModifiedFollowing;
             Date today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             int settlementDays = 2;
             fixingDays = 2;
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
-            termStructure.linkTo(Utilities.flatRate(settlement, 0.05,
+            termStructure.linkTo(Utilities.flatRate(settings, settlement, 0.05,
                                                     new ActualActual(ActualActual.Convention.ISDA)));
          }
 
@@ -81,7 +63,7 @@ namespace TestSuite
          public List<CashFlow> makeLeg(Date startDate, int length)
          {
             Date endDate = calendar.advance(startDate, new Period(length, TimeUnit.Years), convention);
-            Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                              convention, convention, DateGeneration.Rule.Forward,
                                              false);
             return new IborLeg(schedule, index)
@@ -108,10 +90,10 @@ namespace TestSuite
             switch (type)
             {
                case CapFloorType.Cap:
-                  result = (CapFloor)new Cap(leg, new List<double>() { strike });
+                  result = (CapFloor)new Cap(settings, leg, new List<double>() { strike });
                   break;
                case CapFloorType.Floor:
-                  result = (CapFloor)new Floor(leg, new List<double>() { strike });
+                  result = (CapFloor)new Floor(settings, leg, new List<double>() { strike });
                   break;
                default:
                   throw new ArgumentException("unknown cap/floor type");
@@ -285,7 +267,7 @@ namespace TestSuite
                                                         cap_rates[j], vols[l]);
                      Instrument floor = vars.makeCapFloor(CapFloorType.Floor, leg,
                                                           floor_rates[k], vols[l]);
-                     Collar collar = new Collar(leg, new InitializedList<double>(1, cap_rates[j]),
+                     Collar collar = new Collar(vars.settings, leg, new InitializedList<double>(1, cap_rates[j]),
                                                 new InitializedList<double>(1, floor_rates[k]));
                      collar.setPricingEngine(vars.makeEngine(vols[l]));
 
@@ -329,7 +311,7 @@ namespace TestSuite
                   Instrument cap = vars.makeCapFloor(CapFloorType.Cap, leg, strikes[j], vols[k]);
                   Instrument floor = vars.makeCapFloor(CapFloorType.Floor, leg, strikes[j], vols[k]);
                   Date maturity = vars.calendar.advance(startDate, lengths[i], TimeUnit.Years, vars.convention);
-                  Schedule schedule = new Schedule(startDate, maturity,
+                  Schedule schedule = new Schedule(vars.settings, startDate, maturity,
                                                    new Period(vars.frequency), vars.calendar,
                                                    vars.convention, vars.convention,
                                                    DateGeneration.Rule.Forward, false);
@@ -370,7 +352,7 @@ namespace TestSuite
          {
             List<CashFlow> leg = vars.makeLeg(startDate, lengths[i]);
             Date maturity = vars.calendar.advance(startDate, lengths[i], TimeUnit.Years, vars.convention);
-            Schedule schedule = new Schedule(startDate, maturity,
+            Schedule schedule = new Schedule(vars.settings, startDate, maturity,
                                              new Period(vars.frequency), vars.calendar,
                                              vars.convention, vars.convention,
                                              DateGeneration.Rule.Forward, false);
@@ -449,7 +431,7 @@ namespace TestSuite
                      {
                         double r = rRates[n];
                         double v = vols[m];
-                        vars.termStructure.linkTo(Utilities.flatRate(vars.settlement, r, new Actual360()));
+                        vars.termStructure.linkTo(Utilities.flatRate(vars.settings, vars.settlement, r, new Actual360()));
                         capfloor.setPricingEngine(vars.makeEngine(v));
 
                         double value = capfloor.NPV();
@@ -519,8 +501,8 @@ namespace TestSuite
 
          Date cachedToday = new Date(14, Month.March, 2002),
          cachedSettlement = new Date(18, Month.March, 2002);
-         Settings.Instance.setEvaluationDate(cachedToday);
-         vars.termStructure.linkTo(Utilities.flatRate(cachedSettlement, 0.05, new Actual360()));
+         vars.settings.setEvaluationDate(cachedToday);
+         vars.termStructure.linkTo(Utilities.flatRate(vars.settings, cachedSettlement, 0.05, new Actual360()));
          Date startDate = vars.termStructure.link.referenceDate();
          List<CashFlow> leg = vars.makeLeg(startDate, 20);
          Instrument cap = vars.makeCapFloor(CapFloorType.Cap, leg, 0.07, 0.20);

@@ -68,12 +68,11 @@ namespace QLCore
             strikeVector = new InitializedList<double>(1, strike_.Value);
          }
 
-         CapFloor capFloor = new CapFloor(capFloorType_, leg, strikeVector);
+         CapFloor capFloor = new CapFloor(swap.settings(), capFloorType_, leg, strikeVector);
          capFloor.setPricingEngine(engine_);
          return capFloor;
 
       }
-
 
       public MakeCapFloor withNominal(double n)
       {
@@ -101,6 +100,7 @@ namespace QLCore
          makeVanillaSwap_.withFloatingLegCalendar(cal);
          return this;
       }
+
       public MakeCapFloor withConvention(BusinessDayConvention bdc)
       {
          makeVanillaSwap_.withFixedLegConvention(bdc);
@@ -170,6 +170,5 @@ namespace QLCore
       private MakeVanillaSwap makeVanillaSwap_;
 
       private IPricingEngine engine_;
-
    }
 }

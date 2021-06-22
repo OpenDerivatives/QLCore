@@ -78,16 +78,19 @@ namespace QLCore
          type_ = flag ? BasisSwap.Type.Receiver : BasisSwap.Type.Payer;
          return this;
       }
+
       public MakeBasisSwap withType(BasisSwap.Type type)
       {
          type_ = type;
          return this;
       }
+
       public MakeBasisSwap withNominal(double n)
       {
          nominal_ = n;
          return this;
       }
+
       public MakeBasisSwap withEffectiveDate(Date effectiveDate)
       {
          effectiveDate_ = effectiveDate;
@@ -119,103 +122,117 @@ namespace QLCore
          float1Tenor_ = t;
          return this;
       }
+
       public MakeBasisSwap withFloating1Calendar(Calendar cal)
       {
          float1Calendar_ = cal;
          return this;
       }
+
       public MakeBasisSwap withFloating1LegConvention(BusinessDayConvention bdc)
       {
          float1Convention_ = bdc;
          return this;
       }
+
       public MakeBasisSwap withFloating1LegTerminationDateConvention(BusinessDayConvention bdc)
       {
          float1TerminationDateConvention_ = bdc;
          return this;
       }
+      
       public MakeBasisSwap withFloating1LegRule(DateGeneration.Rule r)
       {
          float1Rule_ = r;
          return this;
       }
+
       public MakeBasisSwap withFloating1LegEndOfMonth() { return withFloating1LegEndOfMonth(true); }
       public MakeBasisSwap withFloating1LegEndOfMonth(bool flag)
       {
          float1EndOfMonth_ = flag;
          return this;
       }
+
       public MakeBasisSwap withFloating1LegFirstDate(Date d)
       {
          float1FirstDate_ = d;
          return this;
       }
+
       public MakeBasisSwap withFloating1LegNextToLastDate(Date d)
       {
          float1NextToLastDate_ = d;
          return this;
       }
+
       public MakeBasisSwap withFloating1LegDayCount(DayCounter dc)
       {
          float1DayCount_ = dc;
          return this;
       }
 
-
       // *****
-
       public MakeBasisSwap withFloating2LegTenor(Period t)
       {
          float2Tenor_ = t;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegCalendar(Calendar cal)
       {
          float2Calendar_ = cal;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegConvention(BusinessDayConvention bdc)
       {
          float2Convention_ = bdc;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegTerminationDateConvention(BusinessDayConvention bdc)
       {
          float2TerminationDateConvention_ = bdc;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegRule(DateGeneration.Rule r)
       {
          float2Rule_ = r;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegEndOfMonth() { return withFloating2LegEndOfMonth(true); }
       public MakeBasisSwap withFloating2LegEndOfMonth(bool flag)
       {
          float2EndOfMonth_ = flag;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegFirstDate(Date d)
       {
          float2FirstDate_ = d;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegNextToLastDate(Date d)
       {
          float2NextToLastDate_ = d;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegDayCount(DayCounter dc)
       {
          float2DayCount_ = dc;
          return this;
       }
+
       public MakeBasisSwap withFloating2LegSpread(double sp)
       {
          float2Spread_ = sp;
          return this;
       }
-
 
       // swap creator
       public static implicit operator BasisSwap(MakeBasisSwap o) { return o.value(); }
@@ -228,7 +245,7 @@ namespace QLCore
          else
          {
             int fixingDays = iborIndex1_.fixingDays();
-            Date referenceDate = Settings.Instance.evaluationDate();
+            Date referenceDate = iborIndex1_.settings().evaluationDate();
             Date spotDate = float1Calendar_.advance(referenceDate, new Period(fixingDays, TimeUnit.Days));
             startDate = spotDate + forwardStart_;
          }
@@ -240,13 +257,15 @@ namespace QLCore
             endDate = startDate + swapTenor_;
 
 
-         Schedule float1Schedule = new Schedule(startDate, endDate,
+         Schedule float1Schedule = new Schedule(iborIndex1_.settings(),
+                                                startDate, endDate,
                                                 float1Tenor_, float1Calendar_,
                                                 float1Convention_, float1TerminationDateConvention_,
                                                 float1Rule_, float1EndOfMonth_,
                                                 float1FirstDate_, float1NextToLastDate_);
 
-         Schedule float2Schedule = new Schedule(startDate, endDate,
+         Schedule float2Schedule = new Schedule(iborIndex2_.settings(),
+                                                startDate, endDate,
                                                 float2Tenor_, float2Calendar_,
                                                 float2Convention_, float2TerminationDateConvention_,
                                                 float2Rule_, float2EndOfMonth_,

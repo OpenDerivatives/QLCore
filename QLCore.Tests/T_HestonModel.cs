@@ -67,7 +67,8 @@ namespace TestSuite
             http://math.ut.ee/~spartak/papers/stochjumpvols.pdf
          */
 
-         Date settlementDate = Settings.Instance.evaluationDate();
+         Settings settings = new Settings();
+         Date settlementDate = settings.evaluationDate();
 
          DayCounter dayCounter = new Actual365Fixed();
          Calendar calendar = new TARGET();
@@ -87,10 +88,10 @@ namespace TestSuite
          }
          // FLOATING_POINT_EXCEPTION
          Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(
-            new InterpolatedZeroCurve<Linear>(dates, rates, dayCounter));
+            new InterpolatedZeroCurve<Linear>(settings, dates, rates, dayCounter));
 
 
-         Handle<YieldTermStructure> dividendYield = new Handle<YieldTermStructure>(Utilities.flatRate(settlementDate, 0.0, dayCounter));
+         Handle<YieldTermStructure> dividendYield = new Handle<YieldTermStructure>(Utilities.flatRate(settings, settlementDate, 0.0, dayCounter));
 
          double[] v =
          {
@@ -123,7 +124,7 @@ namespace TestSuite
                Handle<Quote> vol = new Handle<Quote>(new SimpleQuote(v[s * 8 + m]));
 
                Period maturity = new Period((int)((t[m] + 3) / 7.0), TimeUnit.Weeks); // round to weeks
-               options.Add(new HestonModelHelper(maturity, calendar, s0, strike[s], vol, riskFreeTS, dividendYield,
+               options.Add(new HestonModelHelper(maturity, calendar, s0, strike[s], vol, riskFreeTS, dividendYield, settings,
                                                  CalibrationHelper.CalibrationErrorType.ImpliedVolError));
             }
          }
@@ -138,20 +139,20 @@ namespace TestSuite
       {
          // Testing Heston model calibration using a flat volatility surface
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             /* calibrate a Heston model to a constant volatility surface without
                smile. expected result is a vanishing volatility of the volatility.
                In addition theta and v0 should be equal to the constant variance */
 
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             DayCounter dayCounter = new Actual360();
             Calendar calendar = new NullCalendar();
 
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.04, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.50, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.04, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.50, dayCounter));
 
             List<Period> optionMaturities = new List<Period>();
             optionMaturities.Add(new Period(1, TimeUnit.Months));
@@ -179,8 +180,8 @@ namespace TestSuite
                                     / riskFreeTS.link.discount(tau);
                   double strikePrice = fwdPrice * Math.Exp(-moneyness * volatility * Math.Sqrt(tau));
 
-                  options.Add(new HestonModelHelper(optionMaturities[i], calendar, s0, strikePrice, vol,
-                                                    riskFreeTS, dividendTS));
+                  options.Add(new HestonModelHelper(optionMaturities[i], calendar, s0, strikePrice, vol, 
+                                                    riskFreeTS, dividendTS, settings));
                }
             }
 
@@ -233,11 +234,11 @@ namespace TestSuite
       public void testDAXCalibration()
       {
          // Testing Heston model calibration using DAX volatility data
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(5, Month.July, 2002);
 
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             CalibrationMarketData marketData = getDAXCalibrationMarketData();
 
@@ -285,19 +286,19 @@ namespace TestSuite
       public void testAnalyticVsBlack()
       {
          //Testing analytic Heston engine against Black formula
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
 
                Date settlementDate = Date.Today;
-               Settings.Instance.setEvaluationDate(settlementDate);
+               settings.setEvaluationDate(settlementDate);
                DayCounter dayCounter = new ActualActual();
                Date exerciseDate = settlementDate + new Period(6, TimeUnit.Months);
 
                StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 30);
                Exercise exercise = new EuropeanExercise(exerciseDate);
 
-               Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.1, dayCounter));
-               Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.04, dayCounter));
+               Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.1, dayCounter));
+               Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.04, dayCounter));
 
                Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(32.0));
 
@@ -309,7 +310,7 @@ namespace TestSuite
 
                HestonProcess process = new HestonProcess(riskFreeTS, dividendTS, s0, v0, kappa, theta, sigma, rho);
 
-               VanillaOption option = new VanillaOption(payoff, exercise);
+               VanillaOption option = new VanillaOption(settings, payoff, exercise);
                // FLOATING_POINT_EXCEPTION
                IPricingEngine engine = new AnalyticHestonEngine(new HestonModel(process), 144);
 
@@ -352,18 +353,18 @@ namespace TestSuite
       {
          // Testing analytic Heston engine against cached values
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(27, Month.December, 2004);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
             DayCounter dayCounter = new ActualActual();
             Date exerciseDate = new Date(28, Month.March, 2005);
 
             StrikedTypePayoff payoff  = new PlainVanillaPayoff(Option.Type.Call, 1.05);
             Exercise exercise  = new EuropeanExercise(exerciseDate);
 
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0225, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0225, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(1.0));
             double v0 = 0.1;
@@ -374,7 +375,7 @@ namespace TestSuite
 
             HestonProcess process = new HestonProcess(riskFreeTS, dividendTS, s0, v0, kappa, theta, sigma, rho);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
             AnalyticHestonEngine engine  = new AnalyticHestonEngine(new HestonModel(process), 64);
 
@@ -406,15 +407,15 @@ namespace TestSuite
                StrikedTypePayoff payoff2 = new PlainVanillaPayoff(Option.Type.Call, K[i % 3]);
                Exercise exercise2 = new EuropeanExercise(exerciseDate2);
 
-               Handle<YieldTermStructure> riskFreeTS2 = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, dayCounter));
-               Handle<YieldTermStructure> dividendTS2 = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
+               Handle<YieldTermStructure> riskFreeTS2 = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.05, dayCounter));
+               Handle<YieldTermStructure> dividendTS2 = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dayCounter));
 
                double s = riskFreeTS2.link.discount(0.7) / dividendTS2.link.discount(0.7);
                Handle<Quote> s02 = new Handle<Quote>(new SimpleQuote(s));
 
                HestonProcess process2 = new HestonProcess(riskFreeTS2, dividendTS2, s02, 0.09, 1.2, 0.08, 1.8, -0.45);
 
-               VanillaOption option2  = new VanillaOption(payoff2, exercise2);
+               VanillaOption option2  = new VanillaOption(settings, payoff2, exercise2);
 
                IPricingEngine engine2  = new AnalyticHestonEngine(new HestonModel(process2));
 
@@ -444,10 +445,10 @@ namespace TestSuite
       public void testMcVsCached()
       {
          // Testing Monte Carlo Heston engine against cached values
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(27, Month.December, 2004);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             DayCounter dayCounter = new ActualActual();
             Date exerciseDate = new Date(28, Month.March, 2005);
@@ -455,14 +456,14 @@ namespace TestSuite
             StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 1.05);
             Exercise exercise  = new EuropeanExercise(exerciseDate);
 
-            Handle<YieldTermStructure> riskFreeTS  = new Handle<YieldTermStructure>(Utilities.flatRate(0.7, dayCounter));
-            Handle<YieldTermStructure> dividendTS  = new Handle<YieldTermStructure>(Utilities.flatRate(0.4, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS  = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.7, dayCounter));
+            Handle<YieldTermStructure> dividendTS  = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.4, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(1.05));
 
             HestonProcess process = new HestonProcess(riskFreeTS, dividendTS, s0, 0.3, 1.16, 0.2, 0.8, 0.8);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
             IPricingEngine engine = new MakeMCEuropeanHestonEngine<PseudoRandom, Statistics>(process)
             .withStepsPerYear(11)
@@ -498,14 +499,14 @@ namespace TestSuite
       public void testFdBarrierVsCached()
       {
          // Testing FD barrier Heston engine against cached value
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             DayCounter dc = new Actual360();
             Date today = Date.Today;
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.08, dc));
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.04, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.08, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.04, dc));
 
             Date exDate = today + (int)(0.5 * 360 + 0.5);
             Exercise exercise = new EuropeanExercise(exDate);
@@ -516,7 +517,7 @@ namespace TestSuite
 
             IPricingEngine engine = new FdHestonBarrierEngine(new HestonModel(process), 200, 400, 100);
 
-            BarrierOption option = new BarrierOption(Barrier.Type.DownOut, 95.0, 3.0, payoff, exercise);
+            BarrierOption option = new BarrierOption(settings, Barrier.Type.DownOut, 95.0, 3.0, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -530,7 +531,7 @@ namespace TestSuite
                            + "\n    error:      " + error);
             }
 
-            option = new BarrierOption(Barrier.Type.DownIn, 95.0, 3.0, payoff, exercise);
+            option = new BarrierOption(settings, Barrier.Type.DownIn, 95.0, 3.0, payoff, exercise);
             option.setPricingEngine(engine);
 
             calculated = option.NPV();
@@ -550,10 +551,10 @@ namespace TestSuite
       public void testFdVanillaVsCached()
       {
          // Testing FD vanilla Heston engine against cached values
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(27, Month.December, 2004);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             DayCounter dayCounter = new ActualActual();
             Date exerciseDate = new Date(28, Month.March, 2005);
@@ -561,12 +562,12 @@ namespace TestSuite
             StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 1.05);
             Exercise exercise = new EuropeanExercise(exerciseDate);
 
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.7, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.4, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.7, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.4, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(1.05));
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
             HestonProcess process = new HestonProcess(riskFreeTS, dividendTS, s0, 0.3, 1.16, 0.2, 0.8, 0.8);
 
@@ -595,8 +596,8 @@ namespace TestSuite
             payoff = new PlainVanillaPayoff(Option.Type.Call, 95.0);
             s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
-            riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, dayCounter));
-            dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, dayCounter));
+            riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.05, dayCounter));
+            dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, dayCounter));
 
             exerciseDate = new Date(28, Month.March, 2006);
             exercise = new EuropeanExercise(exerciseDate);
@@ -611,7 +612,7 @@ namespace TestSuite
                dividends.Add(1.0);
             }
 
-            DividendVanillaOption divOption = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+            DividendVanillaOption divOption = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
             process = new HestonProcess(riskFreeTS, dividendTS, s0, 0.04, 1.0, 0.04, 0.001, 0.0);
             divOption.setPricingEngine(new MakeFdHestonVanillaEngine(new HestonModel(process))
                .withTGrid(200)
@@ -636,11 +637,11 @@ namespace TestSuite
             }
 
             // Testing FD vanilla Heston engine for american exercise
-            dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.03, dayCounter));
+            dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.03, dayCounter));
             process = new HestonProcess(riskFreeTS, dividendTS, s0, 0.04, 1.0, 0.04, 0.001, 0.0);
             payoff = new PlainVanillaPayoff(Option.Type.Put, 95.0);
             exercise = new AmericanExercise(settlementDate, exerciseDate);
-            option = new VanillaOption(payoff, exercise);
+            option = new VanillaOption(settings, payoff, exercise);
             option.setPricingEngine(new MakeFdHestonVanillaEngine(new HestonModel(process))
                .withTGrid(200)
                .withXGrid(400)
@@ -649,7 +650,7 @@ namespace TestSuite
             );
             calculated = option.NPV();
 
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settlementDate, 0.2,
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, settlementDate, 0.2,
                dayCounter));
             BlackScholesMertonProcess ref_process = new BlackScholesMertonProcess(s0, dividendTS, riskFreeTS, volTS);
             IPricingEngine ref_engine = new FdBlackScholesVanillaEngine(ref_process, 200, 400);
@@ -680,10 +681,10 @@ namespace TestSuite
             "QuantLib code is very high quatlity"
          */
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(30, Month.March, 2007);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             DayCounter dayCounter = new ActualActual();
             Date exerciseDate = new Date(30, Month.March, 2017);
@@ -691,10 +692,10 @@ namespace TestSuite
             StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, 200);
             Exercise exercise = new EuropeanExercise(exerciseDate);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
 
@@ -798,15 +799,15 @@ namespace TestSuite
       {
          // Testing different numerical Heston integration algorithms
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(27, Month.December, 2004);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             DayCounter dayCounter = new ActualActual();
 
-            Handle<YieldTermStructure> riskFreeTS  = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.03, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS  = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.05, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.03, dayCounter));
 
             double[] strikes = {0.5, 0.7, 1.0, 1.25, 1.5, 2.0};
             int[] maturities = {1, 2, 3, 12, 60, 120, 360};
@@ -858,7 +859,7 @@ namespace TestSuite
                      {
                         StrikedTypePayoff payoff = new PlainVanillaPayoff(types[k], strikes[j]);
 
-                        VanillaOption option = new VanillaOption(payoff, exercise);
+                        VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
                         option.setPricingEngine(lobattoEngine);
                         double lobattoNPV = option.NPV();
@@ -900,18 +901,18 @@ namespace TestSuite
       public void testMultipleStrikesEngine()
       {
          // Testing multiple-strikes FD Heston engine...");
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(27,Month.December,2004);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             DayCounter dayCounter = new ActualActual();
             Date exerciseDate = new Date(28,Month.March,2006);
 
             Exercise exercise  = new EuropeanExercise(exerciseDate);
 
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.06, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.06, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(1.05));
 
@@ -934,7 +935,7 @@ namespace TestSuite
             {
             StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, strikes[i]);
 
-            VanillaOption aOption = new VanillaOption(payoff, exercise);
+            VanillaOption aOption = new VanillaOption(settings, payoff, exercise);
             aOption.setPricingEngine(multiStrikeEngine);
 
             double npvCalculated = aOption.NPV();
@@ -984,10 +985,10 @@ namespace TestSuite
       public void testAnalyticPiecewiseTimeDependent()
       {
          // Testing analytic piecewise time dependent Heston prices
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(27, Month.December, 2004);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
             DayCounter dayCounter = new ActualActual();
             Date exerciseDate = new Date(28, Month.March, 2005);
 
@@ -1001,13 +1002,13 @@ namespace TestSuite
             irates.Add(0.0);
             irates.Add(0.2);
             Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(
-               new InterpolatedZeroCurve<Linear>(dates, irates, dayCounter));
+               new InterpolatedZeroCurve<Linear>(settings, dates, irates, dayCounter));
 
             List<double> qrates = new List<double>();
             qrates.Add(0.0);
             qrates.Add(0.3);
             Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(
-               new InterpolatedZeroCurve<Linear>(dates, qrates, dayCounter));
+               new InterpolatedZeroCurve<Linear>(settings, dates, qrates, dayCounter));
 
 
             double v0 = 0.1;
@@ -1021,7 +1022,7 @@ namespace TestSuite
             PiecewiseTimeDependentHestonModel model = new PiecewiseTimeDependentHestonModel(riskFreeTS, dividendTS,
                                                                                             s0, v0, theta, kappa, sigma, rho, new TimeGrid(20.0, 2));
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
             option.setPricingEngine(new AnalyticPTDHestonEngine(model));
 
             double calculated = option.NPV();
@@ -1046,10 +1047,10 @@ namespace TestSuite
       {
          // Testing time-dependent Heston model calibration
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(5, Month.July, 2002);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             CalibrationMarketData marketData = getDAXCalibrationMarketData();
 
@@ -1114,17 +1115,17 @@ namespace TestSuite
             * http://wilmott.com/messageview.cfm?catid=34&threadid=90957
          */
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(5, Month.July, 2002);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             Date maturityDate = new Date(5, Month.July, 2003);
             Exercise exercise = new EuropeanExercise(maturityDate);
 
             DayCounter dayCounter = new Actual365Fixed();
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.01, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.01, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
@@ -1186,7 +1187,7 @@ namespace TestSuite
 
                      StrikedTypePayoff payoff = new PlainVanillaPayoff(type, strike);
 
-                     VanillaOption option = new VanillaOption(payoff, exercise);
+                     VanillaOption option = new VanillaOption(settings, payoff, exercise);
                      option.setPricingEngine(engine);
 
                      double expected = expectedResults[i][j];
@@ -1212,17 +1213,17 @@ namespace TestSuite
       {
          // Testing expansion on Alan Lewis reference prices
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date settlementDate = new Date(5, Month.July, 2002);
-            Settings.Instance.setEvaluationDate(settlementDate);
+            settings.setEvaluationDate(settlementDate);
 
             Date maturityDate = new Date(5, Month.July, 2003);
             Exercise exercise = new EuropeanExercise(maturityDate);
 
             DayCounter dayCounter = new Actual365Fixed();
-            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.01, dayCounter));
-            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dayCounter));
+            Handle<YieldTermStructure> riskFreeTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.01, dayCounter));
+            Handle<YieldTermStructure> dividendTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dayCounter));
 
             Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
@@ -1283,7 +1284,7 @@ namespace TestSuite
 
                      StrikedTypePayoff payoff = new PlainVanillaPayoff(type, strike);
 
-                     VanillaOption option = new VanillaOption(payoff, exercise);
+                     VanillaOption option = new VanillaOption(settings, payoff, exercise);
                      option.setPricingEngine(engine);
 
                      double expected = expectedResults[i][j];
@@ -1309,7 +1310,7 @@ namespace TestSuite
       {
          // Testing expansion on Forde reference prices
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             double forward = 100.0;
             double v0 = 0.04;

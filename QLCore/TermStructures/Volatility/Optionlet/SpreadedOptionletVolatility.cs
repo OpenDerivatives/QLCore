@@ -27,7 +27,8 @@ namespace QLCore
 {
    public class SpreadedOptionletVolatility : OptionletVolatilityStructure
    {
-      public SpreadedOptionletVolatility(Handle<OptionletVolatilityStructure> baseVol, Handle<Quote> spread)
+      public SpreadedOptionletVolatility(Settings settings, Handle<OptionletVolatilityStructure> baseVol, Handle<Quote> spread)
+      : base(settings, BusinessDayConvention.ModifiedFollowing, null)
       {
          baseVol_ = baseVol;
          spread_ = spread;

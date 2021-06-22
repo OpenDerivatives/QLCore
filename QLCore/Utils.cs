@@ -68,10 +68,38 @@ namespace QLCore
             return v[i];
       }
    }
-
-
    public static partial class Utils
    {
+      public static Date cdsMaturity(Date tradeDate, Period tenor, DateGeneration.Rule rule)
+      {
+         Utils.QL_REQUIRE(rule == DateGeneration.Rule.CDS2015 || rule == DateGeneration.Rule.CDS || rule == DateGeneration.Rule.OldCDS,
+                        () => "cdsMaturity should only be used with date generation rule CDS2015, CDS or OldCDS");
+
+         Utils.QL_REQUIRE(tenor.units() == TimeUnit.Years || (tenor.units() == TimeUnit.Months && tenor.length() % 3 == 0),
+                        () => "cdsMaturity expects a tenor that is a multiple of 3 months.");
+
+         if (rule == DateGeneration.Rule.OldCDS) 
+         {
+            Utils.QL_REQUIRE(tenor != new Period(0, TimeUnit.Months), () => "A tenor of 0M is not supported for OldCDS.");
+         }
+
+         Date anchorDate = new Schedule().previousTwentieth(tradeDate, rule);
+         if (rule == DateGeneration.Rule.CDS2015 && (anchorDate == new Date(20, Month.Dec, anchorDate.year()) ||
+            anchorDate == new Date(20, Month.Jun, anchorDate.year()))) 
+         {
+            if (tenor.length() == 0) {
+                  return null;
+            } else {
+                  anchorDate -= new Period(3, TimeUnit.Months);
+            }
+         }
+
+         Date maturity = anchorDate + tenor + new Period(3, TimeUnit.Months);
+         Utils.QL_REQUIRE(maturity > tradeDate, () => "error calculating CDS maturity. Tenor is " + tenor.ToShortString() + ", trade date is " +
+            tradeDate.ToShortDateString() + " generating a maturity of " + maturity.ToShortDateString() + " <= trade date.");
+
+         return maturity;
+      }
       public static double effectiveFixedRate(List<double> spreads, List < double? > caps, List < double? > floors, int i)
       {
          double result = Get(spreads, i);

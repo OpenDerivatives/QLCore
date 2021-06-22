@@ -88,13 +88,12 @@ namespace QLCore
 
          AnalyticEuropeanEngine bsmEngine = new AnalyticEuropeanEngine(adjProcess);
 
-         VanillaOption option = new VanillaOption(payoff, exercise);
+         VanillaOption option = new VanillaOption(arguments_.settings, payoff, exercise);
          option.setupArguments(bsmEngine.getArguments());
 
          bsmEngine.calculate();
 
          results_ = bsmEngine.getResults() as OneAssetOption.Results;
-
       }
 
       private double rho_;
@@ -105,7 +104,7 @@ namespace QLCore
    public class ShiftedBlackVolTermStructure :  BlackVolTermStructure
    {
       public ShiftedBlackVolTermStructure(double varianceOffset, Handle<BlackVolTermStructure>  volTS)
-         : base(volTS.link.referenceDate(), volTS.link.calendar(), BusinessDayConvention.Following, volTS.link.dayCounter())
+         : base(volTS.link.settings(), volTS.link.referenceDate(), volTS.link.calendar(), BusinessDayConvention.Following, volTS.link.dayCounter())
       {
          varianceOffset_ = varianceOffset;
          volTS_ = volTS;

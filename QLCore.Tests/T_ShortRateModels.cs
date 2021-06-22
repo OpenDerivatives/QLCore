@@ -47,12 +47,12 @@ namespace TestSuite
       public void testCachedHullWhite()
       {
          //("Testing Hull-White calibration against cached values...");
-
+         Settings settings = new Settings();
          Date today = new Date(15, Month.February, 2002);
          Date settlement = new Date(19, Month.February, 2002);
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
          Handle<YieldTermStructure> termStructure =
-            new Handle<YieldTermStructure>(Utilities.flatRate(settlement, 0.04875825, new Actual365Fixed()));
+            new Handle<YieldTermStructure>(Utilities.flatRate(settings, settlement, 0.04875825, new Actual365Fixed()));
          //termStructure.link
          HullWhite model = new HullWhite(termStructure);
 
@@ -62,7 +62,7 @@ namespace TestSuite
                             new CalibrationData(4, 2, 0.1021),
                             new CalibrationData(5, 1, 0.1000)
          };
-         IborIndex index = new Euribor6M(termStructure);
+         IborIndex index = new Euribor6M(settings, termStructure);
 
          IPricingEngine engine = new JamshidianSwaptionEngine(model);
 
@@ -130,10 +130,10 @@ namespace TestSuite
          //BOOST_MESSAGE("Testing Hull-White swap pricing against known values...");
 
          Date today;  //=Settings::instance().evaluationDate();;
-
+         Settings settings = new Settings();
          Calendar calendar = new TARGET();
          today = calendar.adjust(Date.Today);
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          Date settlement = calendar.advance(today, 2, TimeUnit.Days);
 
@@ -175,7 +175,7 @@ namespace TestSuite
 
          Handle<YieldTermStructure> termStructure =
             new Handle<YieldTermStructure>(
-            new InterpolatedDiscountCurve<LogLinear>(
+            new InterpolatedDiscountCurve<LogLinear>(settings, 
                dates.ToList<Date>(),
                discounts.ToList<double>(),
                new Actual365Fixed(), new Calendar(), null, null, Interpolator)
@@ -186,7 +186,7 @@ namespace TestSuite
          int[] start = { -3, 0, 3 };
          int[] length = { 2, 5, 10 };
          double[] rates = { 0.02, 0.04, 0.06 };
-         IborIndex euribor = new Euribor6M(termStructure);
+         IborIndex euribor = new Euribor6M(settings, termStructure);
          IPricingEngine engine = new TreeVanillaSwapEngine(model, 120, termStructure);
 
 #if QL_USE_INDEXED_COUPON
@@ -210,10 +210,10 @@ namespace TestSuite
             {
 
                Date maturity = calendar.advance(startDate, length[i], TimeUnit.Years);
-               Schedule fixedSchedule = new Schedule(startDate, maturity, new Period(Frequency.Annual),
+               Schedule fixedSchedule = new Schedule(settings, startDate, maturity, new Period(Frequency.Annual),
                                                      calendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                                      DateGeneration.Rule.Forward, false);
-               Schedule floatSchedule = new Schedule(startDate, maturity, new Period(Frequency.Semiannual),
+               Schedule floatSchedule = new Schedule(settings, startDate, maturity, new Period(Frequency.Semiannual),
                                                      calendar, BusinessDayConvention.Following, BusinessDayConvention.Following,
                                                      DateGeneration.Rule.Forward, false);
                for (int k = 0; k < rates.Length; k++)

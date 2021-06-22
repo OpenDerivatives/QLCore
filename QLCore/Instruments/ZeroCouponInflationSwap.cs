@@ -62,7 +62,8 @@ namespace QLCore
          they use an interpolated fixing or not.  Here, we make the
          swap use the interpolation of the index to avoid incompatibilities.
       */
-      public ZeroCouponInflationSwap(Type type,
+      public ZeroCouponInflationSwap(Settings settings, 
+                                     Type type,
                                      double nominal,
                                      Date startDate,   // start date of contract (only)
                                      Date maturity,    // this is pre-adjustment!
@@ -75,7 +76,7 @@ namespace QLCore
                                      bool adjustInfObsDates = false,
                                      Calendar infCalendar = null,
                                      BusinessDayConvention? infConvention = null)
-      : base(2)
+      : base(settings, 2)
       {
          type_ = type;
          nominal_ = nominal;
@@ -137,7 +138,7 @@ namespace QLCore
          // N.B. the -1.0 is because swaps only exchange growth, not notionals as well
          double fixedAmount = nominal * (Math.Pow(1.0 + fixedRate, T) - 1.0);
 
-         legs_[0].Add(new SimpleCashFlow(fixedAmount, fixedPayDate));
+         legs_[0].Add(new SimpleCashFlow(this.settings(), fixedAmount, fixedPayDate));
          bool growthOnly = true;
          legs_[1].Add(new IndexedCashFlow(nominal, infIndex, baseDate_, obsDate_, infPayDate, growthOnly));
 

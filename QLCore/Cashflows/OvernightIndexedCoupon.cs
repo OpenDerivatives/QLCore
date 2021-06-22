@@ -46,7 +46,7 @@ namespace QLCore
          double compoundFactor = 1.0;
 
          // already fixed part
-         Date today = Settings.Instance.evaluationDate();
+         Date today = coupon_.settings().evaluationDate();
          while (fixingDates[i] < today && i < n)
          {
             // rate must have been fixed
@@ -128,7 +128,7 @@ namespace QLCore
                 dayCounter, false)
       {
          // value dates
-         Schedule sch = new MakeSchedule()
+         Schedule sch = new MakeSchedule(overnightIndex.settings())
          .from(startDate)
          .to(endDate)
          .withTenor(new Period(1, TimeUnit.Days))

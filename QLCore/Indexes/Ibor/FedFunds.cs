@@ -22,8 +22,8 @@ namespace QLCore
 {
    public class FedFunds : OvernightIndex
    {
-      public FedFunds(Handle<YieldTermStructure> h = null)
+      public FedFunds(Settings settings, Handle<YieldTermStructure> h = null)
          : base("FedFunds", 0, new USDCurrency(), new UnitedStates(UnitedStates.Market.Settlement),
-                new Actual360(), h ?? new Handle<YieldTermStructure>()) {}
+                new Actual360(), settings, h ?? new Handle<YieldTermStructure>()) {}
    }
 }

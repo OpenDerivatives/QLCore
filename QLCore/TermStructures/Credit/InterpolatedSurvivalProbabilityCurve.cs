@@ -31,14 +31,15 @@ namespace QLCore
    public class InterpolatedSurvivalProbabilityCurve<Interpolator> : SurvivalProbabilityStructure,
       InterpolatedCurve where Interpolator : IInterpolationFactory, new ()
    {
-      public InterpolatedSurvivalProbabilityCurve(List<Date> dates,
+      public InterpolatedSurvivalProbabilityCurve(Settings settings, 
+                                                  List<Date> dates,
                                                   List<double> probabilities,
                                                   DayCounter dayCounter,
                                                   Calendar calendar = null,
                                                   List<Handle<Quote>> jumps = null,
                                                   List<Date> jumpDates = null,
                                                   Interpolator interpolator = default(Interpolator))
-         : base(dates[0], calendar, dayCounter, jumps, jumpDates)
+         : base(settings, dates[0], calendar, dayCounter, jumps, jumpDates)
       {
          dates_ = dates;
 
@@ -88,26 +89,29 @@ namespace QLCore
          return results;
       }
 
-      protected internal InterpolatedSurvivalProbabilityCurve(DayCounter dc,
-                                                     List<Handle<Quote>> jumps = null,
-                                                     List<Date> jumpDates = null,
-                                                     Interpolator interpolator = default(Interpolator))
-         : base(dc, jumps, jumpDates) { }
-
-      protected internal InterpolatedSurvivalProbabilityCurve(Date referenceDate,
+      protected internal InterpolatedSurvivalProbabilityCurve(Settings settings,
                                                      DayCounter dc,
                                                      List<Handle<Quote>> jumps = null,
                                                      List<Date> jumpDates = null,
                                                      Interpolator interpolator = default(Interpolator))
-         : base(referenceDate, new Calendar(), dc, jumps, jumpDates) { }
+         : base(settings, dc, jumps, jumpDates) { }
 
-      protected internal InterpolatedSurvivalProbabilityCurve(int settlementDays,
+      protected internal InterpolatedSurvivalProbabilityCurve(Settings settings,
+                                                     Date referenceDate,
+                                                     DayCounter dc,
+                                                     List<Handle<Quote>> jumps = null,
+                                                     List<Date> jumpDates = null,
+                                                     Interpolator interpolator = default(Interpolator))
+         : base(settings, referenceDate, new Calendar(), dc, jumps, jumpDates) { }
+
+      protected internal InterpolatedSurvivalProbabilityCurve(Settings settings,
+                                                     int settlementDays,
                                                      Calendar cal,
                                                      DayCounter dc,
                                                      List<Handle<Quote>> jumps = null,
                                                      List<Date> jumpDates = null,
                                                      Interpolator interpolator = default(Interpolator))
-         : base(settlementDays, cal, dc, jumps, jumpDates) { }
+         : base(settings, settlementDays, cal, dc, jumps, jumpDates) { }
 
       /// <summary>
       /// DefaultProbabilityTermStructure implementation

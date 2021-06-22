@@ -23,10 +23,10 @@ namespace QLCore
    //! South African CPI index
    public class ZACPI : ZeroInflationIndex
    {
-      public ZACPI(bool interpolated)
-         : this(interpolated, new Handle<ZeroInflationTermStructure>()) { }
+      public ZACPI(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<ZeroInflationTermStructure>()) { }
 
-      public ZACPI(bool interpolated,
+      public ZACPI(bool interpolated, Settings settings,
                    Handle<ZeroInflationTermStructure> ts)
          : base("CPI",
                 new ZARegion(),
@@ -35,16 +35,17 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),   // availability
                 new ZARCurrency(),
+                settings,
                 ts) { }
    }
 
    //! Genuine year-on-year South African CPI (i.e. not a ratio of South African CPI)
    public class YYZACPI : YoYInflationIndex
    {
-      public YYZACPI(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) { }
+      public YYZACPI(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
-      public YYZACPI(bool interpolated,
+      public YYZACPI(bool interpolated, Settings settings,
                      Handle<YoYInflationTermStructure> ts)
          : base("YY_CPI",
                 new ZARegion(),
@@ -54,16 +55,17 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new ZARCurrency(),
+                settings,
                 ts) { }
    }
 
    //! Fake year-on-year South African CPI (i.e. a ratio of South African CPI)
    public class YYZACPIr : YoYInflationIndex
    {
-      public YYZACPIr(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) { }
+      public YYZACPIr(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
-      public YYZACPIr(bool interpolated,
+      public YYZACPIr(bool interpolated, Settings settings,
                       Handle<YoYInflationTermStructure> ts)
          : base("YYR_CPI",
                 new ZARegion(),
@@ -73,6 +75,7 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new ZARCurrency(),
+                settings,
                 ts) { }
    }
 }

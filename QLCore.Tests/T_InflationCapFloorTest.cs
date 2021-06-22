@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_InflationCapFloorTest : IDisposable
+   public class T_InflationCapFloorTest
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_InflationCapFloorTest()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       class CommonVars
       {
          // common data
@@ -66,10 +47,12 @@ namespace TestSuite
          public RelinkableHandle<YieldTermStructure> nominalTS = new RelinkableHandle<YieldTermStructure>();
          public YoYInflationTermStructure yoyTS;
          public RelinkableHandle<YoYInflationTermStructure> hy = new RelinkableHandle<YoYInflationTermStructure>();
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
+            settings = new Settings();
             // option variables
             nominals = new List<double> {1000000};
             frequency = Frequency.Annual;
@@ -78,7 +61,7 @@ namespace TestSuite
             convention = BusinessDayConvention.ModifiedFollowing;
             Date today = new Date(13, Month.August, 2007);
             evaluationDate = calendar.adjust(today);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
             settlementDays = 0;
             fixingDays = 0;
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
@@ -88,7 +71,7 @@ namespace TestSuite
             //      fixing data
             Date from = new Date(1, Month.January, 2005);
             Date to = new Date(13, Month.August, 2007);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withConvention(BusinessDayConvention.ModifiedFollowing)
             .withCalendar(new UnitedKingdom())
             .withTenor(new Period(1, TimeUnit.Months)).value();
@@ -101,13 +84,13 @@ namespace TestSuite
                                };
             // link from yoy index to yoy TS
             bool interp = false;
-            iir = new YYUKRPIr(interp, hy);
+            iir = new YYUKRPIr(interp, settings, hy);
             for (int i = 0; i < rpiSchedule.Count; i++)
             {
                iir.addFixing(rpiSchedule[i], fixData[i]);
             }
 
-            YieldTermStructure nominalFF = new FlatForward(evaluationDate, 0.05, new ActualActual());
+            YieldTermStructure nominalFF = new FlatForward(settings, evaluationDate, 0.05, new ActualActual());
             nominalTS.linkTo(nominalFF);
 
             // now build the YoY inflation curve
@@ -140,7 +123,7 @@ namespace TestSuite
 
             double baseYYRate = yyData[0].rate / 100.0;
             PiecewiseYoYInflationCurve<Linear>  pYYTS =
-               new PiecewiseYoYInflationCurve<Linear>(
+               new PiecewiseYoYInflationCurve<Linear>(settings,
                evaluationDate, calendar, dc, observationLag,
                iir.frequency(), iir.interpolated(), baseYYRate,
                new Handle<YieldTermStructure>(nominalTS), helpers);
@@ -157,7 +140,7 @@ namespace TestSuite
          {
             YoYInflationIndex ii = iir as YoYInflationIndex;
             Date endDate = calendar.advance(startDate, new Period(length, TimeUnit.Years), BusinessDayConvention.Unadjusted);
-            Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                              BusinessDayConvention.Unadjusted,
                                              BusinessDayConvention.Unadjusted,// ref periods & acc periods
                                              DateGeneration.Rule.Forward, false);
@@ -174,7 +157,8 @@ namespace TestSuite
             YoYInflationIndex yyii = iir as YoYInflationIndex;
 
             Handle<YoYOptionletVolatilitySurface> vol =
-               new Handle<YoYOptionletVolatilitySurface>(new ConstantYoYOptionletVolatility(volatility,
+               new Handle<YoYOptionletVolatilitySurface>(new ConstantYoYOptionletVolatility(settings,
+                                                                                            volatility,
                                                                                             settlementDays,
                                                                                             calendar,
                                                                                             convention,
@@ -216,10 +200,10 @@ namespace TestSuite
             switch (type)
             {
                case CapFloorType.Cap:
-                  result = new YoYInflationCap(leg, new List<double>() {strike});
+                  result = new YoYInflationCap(settings, leg, new List<double>() {strike});
                   break;
                case CapFloorType.Floor:
-                  result = new YoYInflationFloor(leg, new List<double>() { strike });
+                  result = new YoYInflationFloor(settings, leg, new List<double>() { strike });
                   break;
                default:
                   Utils.QL_FAIL("unknown YoYInflation cap/floor type");
@@ -279,7 +263,7 @@ namespace TestSuite
                         YoYInflationCapFloor floor = vars.makeYoYCapFloor(CapFloorType.Floor,
                                                                           leg, floor_rates[k], vols[l], whichPricer);
 
-                        YoYInflationCollar collar = new YoYInflationCollar(leg, new List<double>() {cap_rates[j]},
+                        YoYInflationCollar collar = new YoYInflationCollar(vars.settings, leg, new List<double>() {cap_rates[j]},
                         new List<double>() {floor_rates[k]});
 
                         collar.setPricingEngine(vars.makeEngine(vols[l], whichPricer));
@@ -415,7 +399,7 @@ namespace TestSuite
 
                      Date from = vars.nominalTS.link.referenceDate();
                      Date to = from + new Period(lengths[i], TimeUnit.Years);
-                     Schedule yoySchedule = new MakeSchedule().from(from).to(to)
+                     Schedule yoySchedule = new MakeSchedule(vars.settings).from(from).to(to)
                      .withTenor(new Period(1, TimeUnit.Years))
                      .withConvention(BusinessDayConvention.Unadjusted)
                      .withCalendar(new UnitedKingdom()).backwards().value();

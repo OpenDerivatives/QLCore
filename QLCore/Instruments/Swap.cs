@@ -47,7 +47,8 @@ namespace QLCore
 
       // The cash flows belonging to the first leg are paid
       // the ones belonging to the second leg are received.
-      public Swap(List<CashFlow> firstLeg, List<CashFlow> secondLeg)
+      public Swap(Settings settings, List<CashFlow> firstLeg, List<CashFlow> secondLeg)
+         : base(settings)
       {
          legs_ = new InitializedList<List<CashFlow>>(2);
          legs_[0] = firstLeg;
@@ -64,7 +65,8 @@ namespace QLCore
       }
 
       // Multi leg constructor.
-      public Swap(List<List<CashFlow>> legs, List<bool> payer)
+      public Swap(Settings settings, List<List<CashFlow>> legs, List<bool> payer)
+         : base(settings)
       {
          legs_ = (InitializedList<List<CashFlow>>)legs;
          payer_ = new InitializedList<double>(legs.Count, 1.0);
@@ -86,7 +88,8 @@ namespace QLCore
       /*! This constructor can be used by derived classes that will
             build their legs themselves.
       */
-      protected Swap(int legs)
+      protected Swap(Settings settings, int legs)
+         : base(settings)
       {
          legs_ = new InitializedList<List<CashFlow>>(legs);
          payer_ = new InitializedList<double>(legs);
@@ -102,7 +105,7 @@ namespace QLCore
 
       public override bool isExpired()
       {
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings().evaluationDate();
          return !legs_.Any<List<CashFlow>>(leg => leg.Any<CashFlow>(cf => !cf.hasOccurred(today)));
       }
 
@@ -123,6 +126,7 @@ namespace QLCore
 
          arguments.legs = legs_;
          arguments.payer = payer_;
+         arguments.settings = settings_;
       }
 
       public override void fetchResults(IPricingEngineResults r)
@@ -252,6 +256,7 @@ namespace QLCore
       {
          public List<List<CashFlow >> legs { get; set; }
          public List<double> payer { get; set; }
+         public Settings settings { get; set; }
          public virtual void validate()
          {
             Utils.QL_REQUIRE(legs.Count == payer.Count, () => "number of legs and multipliers differ");

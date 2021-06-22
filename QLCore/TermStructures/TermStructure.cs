@@ -51,16 +51,17 @@ namespace QLCore
                    by overriding the referenceDate() method.
         */
 
-      protected TermStructure(DayCounter dc = null)
+      protected TermStructure(Settings settings, DayCounter dc = null)
       {
          moving_ = false;
          updated_ = true;
          settlementDays_ = null;
          dayCounter_ = dc;
+         settings_ = settings ?? new Settings();
       }
 
       //! initialize with a fixed reference date
-      protected TermStructure(Date referenceDate, Calendar calendar = null, DayCounter dc = null)
+      protected TermStructure(Settings settings, Date referenceDate, Calendar calendar = null, DayCounter dc = null)
       {
          moving_ = false;
          updated_ = true;
@@ -68,16 +69,18 @@ namespace QLCore
          referenceDate_ = referenceDate;
          settlementDays_ = null;
          dayCounter_ = dc;
+         settings_ = settings ?? new Settings();
       }
 
       //! calculate the reference date based on the global evaluation date
-      protected TermStructure(int settlementDays, Calendar cal, DayCounter dc = null)
+      protected TermStructure(Settings settings, int settlementDays, Calendar cal, DayCounter dc = null)
       {
          moving_ = true;
          updated_ = false;
          calendar_ = cal;
          settlementDays_ = settlementDays;
          dayCounter_ = dc;
+         settings_ = settings ?? new Settings();
       }
 
 
@@ -98,7 +101,7 @@ namespace QLCore
       {
          if (!updated_)
          {
-            Date today = Settings.Instance.evaluationDate();
+            Date today = settings_.evaluationDate();
             referenceDate_ = calendar().advance(today, settlementDays(), TimeUnit.Days);
             updated_ = true;
          }
@@ -113,6 +116,8 @@ namespace QLCore
          return settlementDays_.Value;
       }
 
+      public Settings settings() { return settings_; }
+      public void setSettings(Settings s) { settings_ = s; }
       #endregion
 
       public override void update()
@@ -154,6 +159,7 @@ namespace QLCore
       private  Date referenceDate_;
       private  int? settlementDays_;
       private  DayCounter dayCounter_;
+      private  Settings settings_;
    }
 
 }

@@ -65,14 +65,14 @@ namespace TestSuite
          double[] vols = { 0.05, 0.20, 0.50 };
 
          DayCounter dc = new Actual360();
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.0);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
          for (int i = 0; i < types.Length; i++)
          {
@@ -94,7 +94,7 @@ namespace TestSuite
                                                                                       qTS, rTS, volTS);
 
                IPricingEngine engine = FastActivator<Engine>.Create().factory(stochProcess);
-               DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+               DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
                option.setPricingEngine(engine);
 
                for (int l = 0; l < underlyings.Length; l++)
@@ -174,11 +174,12 @@ namespace TestSuite
 
       private void testFdDegenerate<Engine>(Date today, Exercise exercise) where Engine : IFDEngine, new ()
       {
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          SimpleQuote spot = new SimpleQuote(54.625);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.052706, dc));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, dc));
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(0.282922, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.052706, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, 0.282922, dc));
 
          BlackScholesMertonProcess process = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                            qTS, rTS, volTS);
@@ -195,7 +196,7 @@ namespace TestSuite
          List<double> dividends = new List<double>();
          List<Date> dividendDates = new List<Date>();
 
-         DividendVanillaOption option1 = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+         DividendVanillaOption option1 = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
          option1.setPricingEngine(engine);
 
          // FLOATING_POINT_EXCEPTION
@@ -206,7 +207,7 @@ namespace TestSuite
             dividends.Add(0.0);
             dividendDates.Add(today + i);
 
-            DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+            DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
             option.setPricingEngine(engine);
             double value = option.NPV();
 
@@ -222,7 +223,7 @@ namespace TestSuite
       public void testEuropeanValues()
       {
          // Testing dividend European option values with no dividends...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             double tolerance = 1.0e-5;
 
@@ -236,15 +237,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -275,10 +276,10 @@ namespace TestSuite
 
                      IPricingEngine engine = new AnalyticDividendEuropeanEngine(stochProcess);
 
-                     DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+                     DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
                      option.setPricingEngine(engine);
 
-                     VanillaOption ref_option = new VanillaOption(payoff, exercise);
+                     VanillaOption ref_option = new VanillaOption(settings, payoff, exercise);
                      ref_option.setPricingEngine(ref_engine);
 
                      for (int l = 0; l < underlyings.Length; l++)
@@ -325,22 +326,22 @@ namespace TestSuite
       private void testEuropeanKnownValue()
       {
          // Testing dividend European option values with known value...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             double tolerance = 1.0e-2;
             double expected = 3.67;
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             Date exDate = today + new Period(6, TimeUnit.Months);
             Exercise exercise = new EuropeanExercise(exDate);
@@ -359,7 +360,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticDividendEuropeanEngine(stochProcess);
 
-            DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+            DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
             option.setPricingEngine(engine);
 
             double u = 40.0;
@@ -387,7 +388,7 @@ namespace TestSuite
       public void testEuropeanStartLimit()
       {
          // Testing dividend European option with a dividend on today's date...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             double tolerance = 1.0e-5;
             double dividendValue = 10.0;
@@ -402,15 +403,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -435,10 +436,10 @@ namespace TestSuite
 
                      IPricingEngine ref_engine = new AnalyticEuropeanEngine(stochProcess);
 
-                     DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+                     DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
                      option.setPricingEngine(engine);
 
-                     VanillaOption ref_option = new VanillaOption(payoff, exercise);
+                     VanillaOption ref_option = new VanillaOption(settings, payoff, exercise);
                      ref_option.setPricingEngine(ref_engine);
 
                      for (int l = 0; l < underlyings.Length; l++)
@@ -483,7 +484,7 @@ namespace TestSuite
       public void testEuropeanGreeks()
       {
          // Testing dividend European option greeks...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Dictionary<string, double> calculated = new Dictionary<string, double>(),
             expected = new Dictionary<string, double>(),
@@ -504,15 +505,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -540,7 +541,7 @@ namespace TestSuite
 
                      IPricingEngine engine = new AnalyticDividendEuropeanEngine(stochProcess);
 
-                     DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates,
+                     DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates,
                                                                               dividends);
                      option.setPricingEngine(engine);
 
@@ -612,13 +613,13 @@ namespace TestSuite
 
                                     // perturb date and get theta
                                     double dT = dc.yearFraction(today - 1, today + 1);
-                                    Settings.Instance.setEvaluationDate(today - 1);
+                                    settings.setEvaluationDate(today - 1);
                                     option.update();
                                     value_m = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today + 1);
+                                    settings.setEvaluationDate(today + 1);
                                     option.update();
                                     value_p = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today);
+                                    settings.setEvaluationDate(today);
                                     option.update();
                                     expected["theta"] = (value_p - value_m) / dT;
 
@@ -652,7 +653,7 @@ namespace TestSuite
       public void testFdEuropeanValues()
       {
          // Testing finite-difference dividend European option values...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             double tolerance = 1.0e-2;
             int gridPoints = 300;
@@ -670,15 +671,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -708,10 +709,10 @@ namespace TestSuite
 
                      IPricingEngine ref_engine = new AnalyticDividendEuropeanEngine(stochProcess);
 
-                     DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+                     DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
                      option.setPricingEngine(engine);
 
-                     DividendVanillaOption ref_option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+                     DividendVanillaOption ref_option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
                      ref_option.setPricingEngine(ref_engine);
 
                      for (int l = 0; l < underlyings.Length; l++)
@@ -762,10 +763,10 @@ namespace TestSuite
       public void testFdEuropeanGreeks()
       {
          // Testing finite-differences dividend European option greeks...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             int[] lengths = { 1, 2 };
 
             for (int i = 0; i < lengths.Length; i++)
@@ -781,10 +782,10 @@ namespace TestSuite
       public void testFdAmericanGreeks()
       {
          // Testing finite-differences dividend American option greeks...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             int[] lengths = { 1, 2 };
 
             for (int i = 0; i < lengths.Length; i++)
@@ -800,10 +801,10 @@ namespace TestSuite
       public void testFdEuropeanDegenerate()
       {
          // Testing degenerate finite-differences dividend European option...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date today = new Date(27, Month.February, 2005);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             Date exDate = new Date(13, Month.April, 2005);
 
             Exercise exercise = new EuropeanExercise(exDate);
@@ -816,10 +817,10 @@ namespace TestSuite
       public void testFdAmericanDegenerate()
       {
          // Testing degenerate finite-differences dividend American option...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date today = new Date(27, Month.February, 2005);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             Date exDate = new Date(13, Month.April, 2005);
 
             Exercise exercise = new AmericanExercise(exDate);

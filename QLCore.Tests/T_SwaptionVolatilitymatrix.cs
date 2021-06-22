@@ -27,27 +27,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_SwaptionVolatilityMatrix : IDisposable
+   public class T_SwaptionVolatilityMatrix
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_SwaptionVolatilityMatrix()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-      
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       public class SwaptionTenors
       {
          public List<Period> options;
@@ -59,11 +40,12 @@ namespace TestSuite
          public Calendar calendar;
          public BusinessDayConvention optionBdc;
          public DayCounter dayCounter;
-         public void setConventions()
+
+         public void setConventions(Settings settings)
          {
             calendar = new TARGET();
             Date today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             optionBdc = BusinessDayConvention.ModifiedFollowing;
             dayCounter = new  Actual365Fixed();
          }
@@ -120,23 +102,25 @@ namespace TestSuite
          public AtmVolatility atm;
          public RelinkableHandle<YieldTermStructure> termStructure;
          public RelinkableHandle<SwaptionVolatilityStructure> atmVolMatrix;
-
+         public Settings settings;
          // setup
          public CommonVars()
          {
+            settings = new Settings();
             conventions = new SwaptionMarketConventions();
-            conventions.setConventions();
+            conventions.setConventions(settings);
             atm = new AtmVolatility();
             atm.setMarketData();
             atmVolMatrix = new RelinkableHandle<SwaptionVolatilityStructure> (new
-                                                                              SwaptionVolatilityMatrix(conventions.calendar,
+                                                                              SwaptionVolatilityMatrix(settings,
+                                                                                    conventions.calendar,
                                                                                     conventions.optionBdc,
                                                                                     atm.tenors.options,
                                                                                     atm.tenors.swaps,
                                                                                     atm.volsHandle,
                                                                                     conventions.dayCounter));
             termStructure = new RelinkableHandle<YieldTermStructure>();
-            termStructure.linkTo((new FlatForward(0, conventions.calendar,
+            termStructure.linkTo((new FlatForward(settings, 0, conventions.calendar,
                                                   0.05, new Actual365Fixed())));
          }
 
@@ -181,7 +165,7 @@ namespace TestSuite
                                "\n actual swap length: " + swapLength +
                                "\n   exp. swap length: " + atm.tenors.swaps[j].length());
 
-               SwapIndex swapIndex = new EuriborSwapIsdaFixA(atm.tenors.swaps[j], termStructure);
+               SwapIndex swapIndex = new EuriborSwapIsdaFixA(atm.tenors.swaps[j], settings, termStructure);
 
                for (int i = 0; i < atm.tenors.options.Count; ++i)
                {
@@ -288,18 +272,19 @@ namespace TestSuite
       [Fact]
       public void testSwaptionVolMatrixCoherence()
       {
-         // Set evaluation date
-         Settings.Instance.setEvaluationDate(Date.Today);
-
          // Testing swaption volatility matrix
          CommonVars vars = new CommonVars();
+
+         // Set evaluation date
+         vars.settings.setEvaluationDate(Date.Today);
 
          SwaptionVolatilityMatrix vol;
          string description;
 
          //floating reference date, floating market data
          description = "floating reference date, floating market data";
-         vol = new SwaptionVolatilityMatrix(vars.conventions.calendar,
+         vol = new SwaptionVolatilityMatrix(vars.settings,
+                                            vars.conventions.calendar,
                                             vars.conventions.optionBdc,
                                             vars.atm.tenors.options,
                                             vars.atm.tenors.swaps,
@@ -310,7 +295,8 @@ namespace TestSuite
 
          //fixed reference date, floating market data
          description = "fixed reference date, floating market data";
-         vol = new SwaptionVolatilityMatrix(Settings.Instance.evaluationDate(),
+         vol = new SwaptionVolatilityMatrix(vars.settings,
+                                            vars.settings.evaluationDate(),
                                             vars.conventions.calendar,
                                             vars.conventions.optionBdc,
                                             vars.atm.tenors.options,
@@ -322,7 +308,8 @@ namespace TestSuite
 
          // floating reference date, fixed market data
          description = "floating reference date, fixed market data";
-         vol = new SwaptionVolatilityMatrix(vars.conventions.calendar,
+         vol = new SwaptionVolatilityMatrix(vars.settings,
+                                            vars.conventions.calendar,
                                             vars.conventions.optionBdc,
                                             vars.atm.tenors.options,
                                             vars.atm.tenors.swaps,
@@ -333,7 +320,8 @@ namespace TestSuite
 
          // fixed reference date, fixed market data
          description = "fixed reference date, fixed market data";
-         vol = new SwaptionVolatilityMatrix(Settings.Instance.evaluationDate(),
+         vol = new SwaptionVolatilityMatrix(vars.settings,
+                                            vars.settings.evaluationDate(),
                                             vars.conventions.calendar,
                                             vars.conventions.optionBdc,
                                             vars.atm.tenors.options,

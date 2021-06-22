@@ -232,7 +232,7 @@ namespace QLCore
             }
          }
 
-         return swaptionVola = new SwaptionVolatilityMatrix(today, exercises, lengths,
+         return swaptionVola = new SwaptionVolatilityMatrix(index.settings(), today, exercises, lengths,
                                                             volatilities, index.dayCounter());
       }
    }

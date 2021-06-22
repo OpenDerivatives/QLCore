@@ -72,9 +72,9 @@ namespace QLCore
          Handle<Quote> spot = process_.stateVariable();
          Utils.QL_REQUIRE(spot.link.value() >= 0.0, () => "negative or null underlting given");
          Handle<YieldTermStructure> dividendYield = new Handle<YieldTermStructure>(
-            new ImpliedTermStructure(process_.dividendYield(), this.arguments_.resetDate));
+            new ImpliedTermStructure(arguments_.settings, process_.dividendYield(), this.arguments_.resetDate));
          Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(
-            new ImpliedTermStructure(process_.riskFreeRate(), this.arguments_.resetDate));
+            new ImpliedTermStructure(arguments_.settings, process_.riskFreeRate(), this.arguments_.resetDate));
          // The following approach is ok if the vol is at most
          // time dependant. It is plain wrong if it is asset dependant.
          // In the latter case the right solution would be stochastic

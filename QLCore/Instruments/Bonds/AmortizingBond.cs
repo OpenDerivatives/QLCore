@@ -31,7 +31,8 @@ namespace QLCore
    public class AmortizingBond : Bond
    {
 
-      public AmortizingBond(double FaceValue,
+      public AmortizingBond(Settings settings,
+                            double FaceValue,
                             double MarketValue,
                             double CouponRate,
                             Date IssueDate,
@@ -42,7 +43,7 @@ namespace QLCore
                             AmortizingMethod Method,
                             Calendar calendar,
                             double gYield = 0) :
-         base(0, new TARGET(), IssueDate)
+         base(settings, 0, new TARGET(), IssueDate)
       {
          _faceValue = FaceValue;
          _marketValue = MarketValue;
@@ -87,7 +88,7 @@ namespace QLCore
       {
 
          // Amortizing Schedule
-         Schedule schedule = new Schedule(_tradeDate, _maturityDate, new Period(_payFrequency),
+         Schedule schedule = new Schedule(settings(), _tradeDate, _maturityDate, new Period(_payFrequency),
                                           _calendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                           DateGeneration.Rule.Backward, false);
          double currentNominal = _marketValue;
@@ -103,8 +104,8 @@ namespace QLCore
             FixedRateCoupon r, r2;
             if (i > 1)
             {
-               r = new FixedRateCoupon(actualDate, currentNominal, rate, prevDate, actualDate, prevDate, actualDate);
-               r2 = new FixedRateCoupon(actualDate, currentNominal, rate2, prevDate, actualDate, prevDate, actualDate, null, _originalPayment);
+               r = new FixedRateCoupon(settings(), actualDate, currentNominal, rate, prevDate, actualDate, prevDate, actualDate);
+               r2 = new FixedRateCoupon(settings(), actualDate, currentNominal, rate2, prevDate, actualDate, prevDate, actualDate, null, _originalPayment);
             }
 
             else
@@ -113,13 +114,13 @@ namespace QLCore
                Period p1 = new Period(_payFrequency);
                Date testDate = nullCalendar.advance(actualDate, -1 * p1);
 
-               r = new FixedRateCoupon(actualDate, currentNominal, rate, testDate, actualDate, prevDate, actualDate);
-               r2 = new FixedRateCoupon(actualDate, currentNominal, rate2, testDate, actualDate, prevDate, actualDate, null, _originalPayment);
+               r = new FixedRateCoupon(settings(), actualDate, currentNominal, rate, testDate, actualDate, prevDate, actualDate);
+               r2 = new FixedRateCoupon(settings(), actualDate, currentNominal, rate2, testDate, actualDate, prevDate, actualDate, null, _originalPayment);
             }
 
             double amort = Math.Round(Math.Abs(_originalPayment - r.amount()), 2);
 
-            AmortizingPayment p = new AmortizingPayment(amort, actualDate);
+            AmortizingPayment p = new AmortizingPayment(settings(), amort, actualDate);
             if (_isPremium)
                currentNominal -= Math.Abs(amort);
             else
@@ -130,10 +131,9 @@ namespace QLCore
             cashflows_.Add(p);
             prevDate = actualDate;
          }
-
+         
          // Add single redemption for yield calculation
          setSingleRedemption(_faceValue, 100, _maturityDate);
-
       }
 
       public double AmortizationValue(Date d)
@@ -163,12 +163,12 @@ namespace QLCore
 
             // Base Interest
             InterestRate r1 = new InterestRate(_couponRate, _dCounter, Compounding.Simple, _payFrequency);
-            FixedRateCoupon c1 = new FixedRateCoupon(d, _faceValue, r1, lastDate, d);
+            FixedRateCoupon c1 = new FixedRateCoupon(settings(), d, _faceValue, r1, lastDate, d);
             double baseInterest = c1.amount();
 
             //
             InterestRate r2 = new InterestRate(_yield, _dCounter, Compounding.Simple, _payFrequency);
-            FixedRateCoupon c2 = new FixedRateCoupon(d, _marketValue, r2, lastDate, d);
+            FixedRateCoupon c2 = new FixedRateCoupon(settings(), d, _marketValue, r2, lastDate, d);
             double yieldInterest = c2.amount();
 
             totAmortized += Math.Abs(baseInterest - yieldInterest);
@@ -188,7 +188,7 @@ namespace QLCore
       {
          // We create a bond cashflow from issue to maturity just
          // to calculate effective rate ( the rate that discount _marketValue )
-         Schedule schedule = new Schedule(_issueDate, _maturityDate, new Period(_payFrequency),
+         Schedule schedule = new Schedule(settings(), _issueDate, _maturityDate, new Period(_payFrequency),
                                           _calendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                           DateGeneration.Rule.Backward, false);
 
@@ -200,7 +200,7 @@ namespace QLCore
          .withPaymentAdjustment(BusinessDayConvention.Unadjusted);
 
          // Add single redemption for yield calculation
-         Redemption r = new Redemption(_faceValue, _maturityDate);
+         Redemption r = new Redemption(settings(), _faceValue, _maturityDate);
          cashflows.Add(r);
 
          // Calculate Amortizing Yield ( Effective Rate )

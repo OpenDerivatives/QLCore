@@ -22,11 +22,12 @@ namespace QLCore
 {
    public class ForwardVanillaOption : OneAssetOption
    {
-      public ForwardVanillaOption(double moneyness,
+      public ForwardVanillaOption(Settings settings,
+                                  double moneyness,
                                   Date resetDate,
                                   StrikedTypePayoff payoff,
                                   Exercise exercise)
-         : base(payoff, exercise)
+         : base(settings, payoff, exercise)
       {
          moneyness_ = moneyness;
          resetDate_ = resetDate;
@@ -40,7 +41,9 @@ namespace QLCore
 
          arguments.moneyness = moneyness_;
          arguments.resetDate = resetDate_;
+         arguments.settings = settings_;
       }
+
       public override void fetchResults(IPricingEngineResults r)
       {
          base.fetchResults(r);
@@ -64,12 +67,11 @@ namespace QLCore
          {
             Utils.QL_REQUIRE(moneyness > 0.0, () => "negative or zero moneyness given");
             Utils.QL_REQUIRE(resetDate != null, () => "null reset date given");
-            Utils.QL_REQUIRE(resetDate >= Settings.Instance.evaluationDate(), () => "reset date in the past");
+            Utils.QL_REQUIRE(resetDate >= settings.evaluationDate(), () => "reset date in the past");
             Utils.QL_REQUIRE(this.exercise.lastDate() > resetDate, () => "reset date later or equal to maturity");
          }
          public double moneyness { get; set; }
          public Date resetDate { get; set; }
       }
-
    }
 }

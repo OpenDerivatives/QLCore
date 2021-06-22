@@ -32,16 +32,16 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected SwaptionVolatilityStructure(BusinessDayConvention bdc, DayCounter dc = null)
-         : base(bdc, dc) {}
+      protected SwaptionVolatilityStructure(Settings settings, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, bdc, dc) {}
 
       //! initialize with a fixed reference date
-      protected SwaptionVolatilityStructure(Date referenceDate, Calendar calendar, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(referenceDate, calendar, bdc, dc) {}
+      protected SwaptionVolatilityStructure(Settings settings, Date referenceDate, Calendar calendar, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, referenceDate, calendar, bdc, dc) {}
 
       //! calculate the reference date based on the global evaluation date
-      protected SwaptionVolatilityStructure(int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc) {}
+      protected SwaptionVolatilityStructure(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, settlementDays, cal, bdc, dc) {}
 
       #endregion
 

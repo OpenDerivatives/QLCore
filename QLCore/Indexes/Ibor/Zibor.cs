@@ -32,12 +32,12 @@ namespace QLCore
 //
    public class Zibor : IborIndex
    {
-      public Zibor(Period tenor)
-         : base("Zibor", tenor, 2, new CHFCurrency(), new Switzerland(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), new Handle<YieldTermStructure>())
+      public Zibor(Period tenor, Settings settings)
+         : base("Zibor", tenor, 2, new CHFCurrency(), new Switzerland(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings, new Handle<YieldTermStructure>())
       {
       }
-      public Zibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("Zibor", tenor, 2, new CHFCurrency(), new Switzerland(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), h)
+      public Zibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("Zibor", tenor, 2, new CHFCurrency(), new Switzerland(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings, h)
       {
       }
    }

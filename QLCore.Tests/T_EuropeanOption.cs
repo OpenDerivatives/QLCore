@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_EuropeanOption : IDisposable
+   public class T_EuropeanOption
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_EuropeanOption()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       enum EngineType
       {
          Analytic,
@@ -184,10 +165,9 @@ namespace TestSuite
       }
 
 
-      VanillaOption makeOption(StrikedTypePayoff payoff, Exercise exercise, Quote u, YieldTermStructure q,
+      VanillaOption makeOption(Settings settings, StrikedTypePayoff payoff, Exercise exercise, Quote u, YieldTermStructure q,
                                YieldTermStructure r, BlackVolTermStructure vol, EngineType engineType, int binomialSteps, int samples)
       {
-
          GeneralizedBlackScholesProcess stochProcess = makeProcess(u, q, r, vol);
 
          IPricingEngine engine;
@@ -238,7 +218,7 @@ namespace TestSuite
                throw new ArgumentException("unknown engine type");
          }
 
-         VanillaOption option = new EuropeanOption(payoff, exercise);
+         VanillaOption option = new EuropeanOption(settings, payoff, exercise);
          option.setPricingEngine(engine);
          return option;
       }
@@ -264,14 +244,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
 
          for (int i = 0; i < types.Length; i++)
          {
@@ -283,10 +263,10 @@ namespace TestSuite
                   Exercise exercise = new EuropeanExercise(exDate);
                   StrikedTypePayoff payoff = new PlainVanillaPayoff(types[i], strikes[j]);
                   // reference option
-                  VanillaOption refOption = makeOption(payoff, exercise, spot, qTS, rTS, volTS,
+                  VanillaOption refOption = makeOption(settings, payoff, exercise, spot, qTS, rTS, volTS,
                                                        EngineType.Analytic, 0, 0);
                   // option to check
-                  VanillaOption option = makeOption(payoff, exercise, spot, qTS, rTS, volTS,
+                  VanillaOption option = makeOption(settings, payoff, exercise, spot, qTS, rTS, volTS,
                                                     engine, binomialSteps, samples);
 
                   for (int l = 0; l < underlyings.Length; l++)

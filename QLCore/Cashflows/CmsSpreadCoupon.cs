@@ -34,7 +34,9 @@ namespace QLCore
         new protected SwapSpreadIndex index_;
 
         // need by CashFlowVectors
-        public CmsSpreadCoupon() { }
+        public CmsSpreadCoupon() : base(new Settings()) { }
+
+        public CmsSpreadCoupon(Settings settings) : base(settings) { }
 
         public CmsSpreadCoupon(double nominal,
                          Date paymentDate,
@@ -73,7 +75,9 @@ namespace QLCore
 
     public class CappedFlooredCmsSpreadCoupon : CappedFlooredCoupon
     {
-        public CappedFlooredCmsSpreadCoupon() { }
+        public CappedFlooredCmsSpreadCoupon() : base(new Settings()) { }
+
+        public CappedFlooredCmsSpreadCoupon(Settings settings) : base(settings) { }
 
         public CappedFlooredCmsSpreadCoupon(
                   Date paymentDate,
@@ -297,7 +301,7 @@ namespace QLCore
             // only the price member function in this class will be dependent on the
             // coupon discount curve.
 
-            today_ = Settings.Instance.evaluationDate();
+            today_ = coupon_.settings().evaluationDate();
 
             if (couponDiscountCurve_.empty())
                 couponDiscountCurve_ =

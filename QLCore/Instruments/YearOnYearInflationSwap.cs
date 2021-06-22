@@ -54,7 +54,7 @@ namespace QLCore
          DayCounter yoyDayCount,
          Calendar paymentCalendar,    // inflation index does not have a calendar
          BusinessDayConvention paymentConvention = BusinessDayConvention.ModifiedFollowing)
-         : base(2)
+         : base(fixedSchedule.settings(), 2)
       {
          type_ = type;
          nominal_ = nominal;

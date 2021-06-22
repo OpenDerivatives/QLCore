@@ -30,12 +30,12 @@ namespace QLCore
    */
    public class TRLibor : IborIndex
    {
-      public TRLibor(Period tenor)
-         : base("TRLibor", tenor, 0, new TRYCurrency(), new Turkey(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), new Handle<YieldTermStructure>())
+      public TRLibor(Period tenor, Settings settings)
+         : base("TRLibor", tenor, 0, new TRYCurrency(), new Turkey(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public TRLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("TRLibor", tenor, 0, new TRYCurrency(), new Turkey(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), h)
+      public TRLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("TRLibor", tenor, 0, new TRYCurrency(), new Turkey(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings, h)
       {}
 
    }

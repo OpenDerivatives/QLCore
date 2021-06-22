@@ -35,11 +35,13 @@ namespace QLCore
    */
    public class ZeroSpreadedTermStructure : ZeroYieldStructure
    {
-      public ZeroSpreadedTermStructure(Handle<YieldTermStructure> h,
+      public ZeroSpreadedTermStructure(Settings settings, 
+                                       Handle<YieldTermStructure> h,
                                        Handle<Quote> spread,
                                        Compounding comp = Compounding.Continuous,
                                        Frequency freq = Frequency.NoFrequency,
                                        DayCounter dc = null)
+            : base(settings)
       {
          originalCurve_ = h;
          spread_ = spread;

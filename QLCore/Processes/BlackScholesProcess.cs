@@ -186,7 +186,8 @@ namespace QLCore
             if (constVol != null)
             {
                // ok, the local vol is constant too.
-               localVolatility_.linkTo(new LocalConstantVol(constVol.referenceDate(),
+               localVolatility_.linkTo(new LocalConstantVol(constVol.settings(),
+                                                            constVol.referenceDate(),
                                                             constVol.blackVol(0.0, x0_.link.value()),
                                                             constVol.dayCounter()));
                updated_ = true;
@@ -256,7 +257,7 @@ namespace QLCore
                                  IDiscretization1D d)
          : base(x0,
                 // no dividend yield
-                new Handle<YieldTermStructure>(new FlatForward(0, new NullCalendar(), 0.0, new Actual365Fixed())),
+                new Handle<YieldTermStructure>(new FlatForward(riskFreeTS.link.settings(), 0, new NullCalendar(), 0.0, new Actual365Fixed())),
                 riskFreeTS, blackVolTS, d)
       {}
    }

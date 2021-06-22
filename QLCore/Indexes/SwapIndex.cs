@@ -25,8 +25,6 @@ namespace QLCore
    {
       // need by CashFlowVectors
       public SwapIndex() { }
-
-
       public SwapIndex(string familyName,
                        Period tenor,
                        int settlementDays,
@@ -35,8 +33,9 @@ namespace QLCore
                        Period fixedLegTenor,
                        BusinessDayConvention fixedLegConvention,
                        DayCounter fixedLegDayCounter,
-                       IborIndex iborIndex) :
-         base(familyName, tenor, settlementDays, currency, calendar, fixedLegDayCounter)
+                       IborIndex iborIndex,
+                       Settings settings) :
+         base(familyName, tenor, settlementDays, currency, calendar, fixedLegDayCounter, settings)
       {
          tenor_ = tenor;
          iborIndex_ = iborIndex;
@@ -55,8 +54,9 @@ namespace QLCore
                        BusinessDayConvention fixedLegConvention,
                        DayCounter fixedLegDayCounter,
                        IborIndex iborIndex,
+                       Settings settings,
                        Handle<YieldTermStructure> discountingTermStructure) :
-         base(familyName, tenor, settlementDays, currency, calendar, fixedLegDayCounter)
+         base(familyName, tenor, settlementDays, currency, calendar, fixedLegDayCounter, settings)
       {
          tenor_ = tenor;
          iborIndex_ = iborIndex;
@@ -126,6 +126,7 @@ namespace QLCore
                                  fixedLegConvention(),
                                  dayCounter(),
                                  iborIndex_.clone(forwarding),
+                                 settings(),
                                  discount_);
          else
             tmp = new SwapIndex(familyName(),
@@ -136,7 +137,8 @@ namespace QLCore
                                  fixedLegTenor(),
                                  fixedLegConvention(),
                                  dayCounter(),
-                                 iborIndex_.clone(forwarding));
+                                 iborIndex_.clone(forwarding),
+                                 settings());
          
          tmp.data_ = data_;
          return tmp;
@@ -153,6 +155,7 @@ namespace QLCore
                                        fixedLegConvention(),
                                        dayCounter(),
                                        iborIndex_.clone(forwarding),
+                                       settings(),
                                        discounting);
          tmp.data_ = data_;
          return tmp;
@@ -171,6 +174,7 @@ namespace QLCore
                                  fixedLegConvention(),
                                  dayCounter(),
                                  iborIndex(),
+                                 settings(),
                                  discountingTermStructure());
          else
             tmp = new SwapIndex(familyName(),
@@ -181,7 +185,8 @@ namespace QLCore
                                  fixedLegTenor(),
                                  fixedLegConvention(),
                                  dayCounter(),
-                                 iborIndex());
+                                 iborIndex(),
+                                 settings());
          
          tmp.data_ = data_;
          return tmp;
@@ -210,11 +215,12 @@ namespace QLCore
                                        Period tenor,
                                        int settlementDays,
                                        Currency currency,
-                                       OvernightIndex overnightIndex)
+                                       OvernightIndex overnightIndex,
+                                       Settings settings)
          : base(familyName, tenor, settlementDays,
                 currency, overnightIndex.fixingCalendar(),
                 new Period(1, TimeUnit.Years), BusinessDayConvention.ModifiedFollowing,
-                overnightIndex.dayCounter(), overnightIndex)
+                overnightIndex.dayCounter(), overnightIndex, settings)
       {
          overnightIndex_ = overnightIndex;
       }
@@ -229,7 +235,7 @@ namespace QLCore
          if (lastFixingDate_ != fixingDate)
          {
             double fixedRate = 0.0;
-            lastSwap_ = new MakeOIS(tenor_, overnightIndex_, fixedRate)
+            lastSwap_ = new MakeOIS(settings(), tenor_, overnightIndex_, fixedRate)
             .withEffectiveDate(valueDate(fixingDate))
             .withFixedLegDayCount(dayCounter_);
             lastFixingDate_ = fixingDate;

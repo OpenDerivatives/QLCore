@@ -32,16 +32,16 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected CapFloorTermVolatilityStructure(BusinessDayConvention bdc, DayCounter dc = null)
-         : base(bdc, dc) {}
+      protected CapFloorTermVolatilityStructure(Settings settings, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, bdc, dc) {}
 
       //! initialize with a fixed reference date
-      protected CapFloorTermVolatilityStructure(Date referenceDate, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(referenceDate, cal, bdc, dc) {}
+      protected CapFloorTermVolatilityStructure(Settings settings, Date referenceDate, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, referenceDate, cal, bdc, dc) {}
 
       //! calculate the reference date based on the global evaluation date
-      protected CapFloorTermVolatilityStructure(int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc) {}
+      protected CapFloorTermVolatilityStructure(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, settlementDays, cal, bdc, dc) {}
 
       #endregion
 

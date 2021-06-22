@@ -46,7 +46,7 @@ namespace QLCore
                        Schedule floatSchedule = null,
                        DayCounter floatingDayCount = null,
                        bool parAssetSwap = true)
-         : base(2)
+         : base(iborIndex.settings(), 2)
       {
          bond_ = bond;
          bondCleanPrice_ = bondCleanPrice;
@@ -56,7 +56,8 @@ namespace QLCore
 
          Schedule schedule = floatSchedule;
          if (floatSchedule == null)
-            schedule = new Schedule(bond_.settlementDate(),
+            schedule = new Schedule(settings(),
+                                    bond_.settlementDate(),
                                     bond_.maturityDate(),
                                     iborIndex.tenor(),
                                     iborIndex.fixingCalendar(),
@@ -119,18 +120,18 @@ namespace QLCore
          {
             // upfront on the floating leg
             double upfront = (dirtyPrice - 100.0) / 100.0 * notional;
-            CashFlow upfrontCashFlow = new SimpleCashFlow(upfront, upfrontDate_);
+            CashFlow upfrontCashFlow = new SimpleCashFlow(settings(), upfront, upfrontDate_);
             legs_[1].Insert(0, upfrontCashFlow);
             // backpayment on the floating leg
             // (accounts for non-par redemption, if any)
             double backPayment = notional;
-            CashFlow backPaymentCashFlow = new SimpleCashFlow(backPayment, finalDate);
+            CashFlow backPaymentCashFlow = new SimpleCashFlow(settings(), backPayment, finalDate);
             legs_[1].Add(backPaymentCashFlow);
          }
          else
          {
             // final notional exchange
-            CashFlow finalCashFlow = new SimpleCashFlow(notional, finalDate);
+            CashFlow finalCashFlow = new SimpleCashFlow(settings(), notional, finalDate);
             legs_[1].Add(finalCashFlow);
          }
 
@@ -158,7 +159,7 @@ namespace QLCore
                        DayCounter floatingDayCount = null,
                        Date dealMaturity = null,
                        bool payBondCoupon = false)
-         : base(2)
+         : base(iborIndex.settings(), 2)
       {
          bond_ = bond;
          bondCleanPrice_ = bondCleanPrice;
@@ -166,7 +167,8 @@ namespace QLCore
          spread_ = spread;
          parSwap_ = parAssetSwap;
 
-         Schedule tempSch = new Schedule(bond_.settlementDate(),
+         Schedule tempSch = new Schedule(settings(), 
+                                         bond_.settlementDate(),
                                          bond_.maturityDate(),
                                          iborIndex.tenor(),
                                          iborIndex.fixingCalendar(),
@@ -238,12 +240,12 @@ namespace QLCore
             Coupon c = bondLeg[i] as Coupon;
             if (c != null)
             {
-               CashFlow accruedCoupon = new SimpleCashFlow(c.accruedAmount(dealMaturity), finalDate);
+               CashFlow accruedCoupon = new SimpleCashFlow(settings(), c.accruedAmount(dealMaturity), finalDate);
                legs_[0].Add(accruedCoupon);
             }
          }
          // add the nonParRepayment_
-         CashFlow nonParRepaymentFlow = new SimpleCashFlow(nonParRepayment_, finalDate);
+         CashFlow nonParRepaymentFlow = new SimpleCashFlow(settings(), nonParRepayment_, finalDate);
          legs_[0].Add(nonParRepaymentFlow);
 
          Utils.QL_REQUIRE(!legs_[0].empty(), () => "empty bond leg to start with");
@@ -253,18 +255,18 @@ namespace QLCore
          {
             // upfront on the floating leg
             double upfront = (dirtyPrice - 100.0) / 100.0 * notional;
-            CashFlow upfrontCashFlow = new SimpleCashFlow(upfront, upfrontDate_);
+            CashFlow upfrontCashFlow = new SimpleCashFlow(settings(), upfront, upfrontDate_);
             legs_[1].Insert(0, upfrontCashFlow);
             // backpayment on the floating leg
             // (accounts for non-par redemption, if any)
             double backPayment = notional;
-            CashFlow backPaymentCashFlow = new SimpleCashFlow(backPayment, finalDate);
+            CashFlow backPaymentCashFlow = new SimpleCashFlow(settings(), backPayment, finalDate);
             legs_[1].Add(backPaymentCashFlow);
          }
          else
          {
             // final notional exchange
-            CashFlow finalCashFlow = new SimpleCashFlow(notional, finalDate);
+            CashFlow finalCashFlow = new SimpleCashFlow(settings(), notional, finalDate);
             legs_[1].Add(finalCashFlow);
          }
 

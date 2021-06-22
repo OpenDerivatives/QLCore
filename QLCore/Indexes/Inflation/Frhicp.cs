@@ -24,10 +24,10 @@ namespace QLCore
    //! FR HICP index
    public class FRHICP : ZeroInflationIndex
    {
-      public FRHICP(bool interpolated)
-         : this(interpolated, new Handle<ZeroInflationTermStructure>()) {}
+      public FRHICP(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<ZeroInflationTermStructure>()) {}
 
-      public FRHICP(bool interpolated,
+      public FRHICP(bool interpolated, Settings settings,
                     Handle<ZeroInflationTermStructure> ts)
          : base("HICP",
                 new FranceRegion(),
@@ -36,16 +36,17 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new EURCurrency(),
+                settings,
                 ts) {}
    }
 
    //! Genuine year-on-year FR HICP (i.e. not a ratio)
    public class YYFRHICP : YoYInflationIndex
    {
-      public YYFRHICP(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) {}
+      public YYFRHICP(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) {}
 
-      public YYFRHICP(bool interpolated,
+      public YYFRHICP(bool interpolated, Settings settings,
                       Handle<YoYInflationTermStructure> ts)
          : base("YY_HICP",
                 new FranceRegion(),
@@ -55,16 +56,17 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new EURCurrency(),
+                settings,
                 ts) {}
    }
 
    //! Fake year-on-year FR HICP (i.e. a ratio)
    public class YYFRHICPr : YoYInflationIndex
    {
-      public YYFRHICPr(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) { }
+      public YYFRHICPr(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
-      public YYFRHICPr(bool interpolated,
+      public YYFRHICPr(bool interpolated, Settings settings,
                        Handle<YoYInflationTermStructure> ts)
          : base("YYR_HICP",
                 new FranceRegion(),
@@ -74,6 +76,7 @@ namespace QLCore
                 Frequency.Monthly,
                 new Period(1, TimeUnit.Months),
                 new EURCurrency(),
+                settings,
                 ts) {}
    }
 }

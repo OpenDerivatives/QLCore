@@ -136,7 +136,7 @@ namespace QLCore
                 : eps2() * (x[3] > 0.0 ? 1.0 : (-1.0));
          return y;
       }
-      public IWrapper instance(double t, double forward, List < double? > param, List < double? > addParams)
+      public IWrapper instance(Settings settings, double t, double forward, List < double? > param, List < double? > addParams)
       {
          shift_ = addParams == null ? 0.0 : Convert.ToDouble(addParams[0]);
          volatilityType_ = addParams == null ? VolatilityType.ShiftedLognormal : (addParams[1] > 0.0 ? VolatilityType.Normal : VolatilityType.ShiftedLognormal);
@@ -158,7 +158,8 @@ namespace QLCore
    // For volatility type Normal and when the forward < 0, it is suggested to fix beta = 0.0
    public class SABRInterpolation : Interpolation
    {
-      public SABRInterpolation(List<double> xBegin,   // x = strikes
+      public SABRInterpolation(Settings settings, 
+                               List<double> xBegin,   // x = strikes
                                int xEnd,
                                List<double> yBegin,  // y = volatilities
                                double t,             // option expiry
@@ -187,7 +188,7 @@ namespace QLCore
          addParams.Add((double?)approximationModel);
 
          impl_ = new XABRInterpolationImpl<SABRSpecs>(
-            xBegin, xEnd, yBegin, t, forward,
+         settings, xBegin, xEnd, yBegin, t, forward,
          new List < double? >() {alpha, beta, nu, rho},
          //boost::assign::list_of(alpha)(beta)(nu)(rho),
          new List<bool>() {alphaIsFixed, betaIsFixed, nuIsFixed, rhoIsFixed},
@@ -213,7 +214,7 @@ namespace QLCore
    //! %SABR interpolation factory and traits
    public class SABR
    {
-      public SABR(double t, double forward, double alpha, double beta, double nu, double rho,
+      public SABR(Settings settings, double t, double forward, double alpha, double beta, double nu, double rho,
                   bool alphaIsFixed, bool betaIsFixed, bool nuIsFixed, bool rhoIsFixed,
                   bool vegaWeighted = false,
                   EndCriteria endCriteria = null,
@@ -241,11 +242,12 @@ namespace QLCore
          shift_ = shift;
          volatilityType_ = volatilityType;
          approximationModel_ = approximationModel;
+         settings_ = settings;
       }
 
       public Interpolation interpolate(List<double> xBegin, int xEnd, List<double> yBegin)
       {
-         return new SABRInterpolation(xBegin, xEnd, yBegin, t_, forward_, alpha_, beta_, nu_, rho_,
+         return new SABRInterpolation(settings_, xBegin, xEnd, yBegin, t_, forward_, alpha_, beta_, nu_, rho_,
                                       alphaIsFixed_, betaIsFixed_, nuIsFixed_, rhoIsFixed_, vegaWeighted_,
                                       endCriteria_, optMethod_, errorAccept_, useMaxError_, maxGuesses_, shift_,
                                       volatilityType_, approximationModel_);
@@ -266,6 +268,7 @@ namespace QLCore
       private int maxGuesses_;
       private VolatilityType volatilityType_;
       private SabrApproximationModel approximationModel_;
+      private Settings settings_;
    }
 }
 

@@ -26,31 +26,10 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_TermStructures : IDisposable
+   public class T_TermStructures
    {
       private double sub(double x, double y)
       { return x - y; }
-
-      #region Initialize&Cleanup
-
-      private SavedSettings backup;
-
-      public T_TermStructures()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-
-      #endregion Initialize&Cleanup
 
       public class CommonVars
       {
@@ -89,14 +68,16 @@ namespace TestSuite
          public int settlementDays;
          public YieldTermStructure termStructure;
          public YieldTermStructure dummyTermStructure;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
+            settings = new Settings();
             calendar = new TARGET();
             settlementDays = 2;
             Date today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             Date settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
 
             int deposits = depositData.Length,
@@ -106,18 +87,18 @@ namespace TestSuite
             for (int i = 0; i < deposits; i++)
             {
                instruments.Add(new DepositRateHelper(depositData[i].rate / 100, new Period(depositData[i].n, depositData[i].units),
-                                                     settlementDays, calendar, BusinessDayConvention.ModifiedFollowing, true, new Actual360()));
+                                                     settlementDays, calendar, BusinessDayConvention.ModifiedFollowing, true, new Actual360(), settings));
             }
 
             IborIndex index = new IborIndex("dummy", new Period(6, TimeUnit.Months), settlementDays, new Currency(),
-                                            calendar, BusinessDayConvention.ModifiedFollowing, false, new Actual360());
+                                            calendar, BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings);
             for (int i = 0; i < swaps; ++i)
             {
                instruments.Add(new SwapRateHelper(swapData[i].rate / 100, new Period(swapData[i].n, swapData[i].units),
                                                   calendar, Frequency.Annual, BusinessDayConvention.Unadjusted, new Thirty360(), index));
             }
-            termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(settlement, instruments, new Actual360());
-            dummyTermStructure = new PiecewiseYieldCurve<Discount, LogLinear>(settlement, instruments, new Actual360());
+            termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(settings, settlement, instruments, new Actual360());
+            dummyTermStructure = new PiecewiseYieldCurve<Discount, LogLinear>(settings, settlement, instruments, new Actual360());
          }
       }
 
@@ -129,17 +110,17 @@ namespace TestSuite
 
          SimpleQuote flatRate = new SimpleQuote();
          Handle<Quote> flatRateHandle = new Handle<Quote>(flatRate);
-         vars.termStructure = new FlatForward(vars.settlementDays, new NullCalendar(), flatRateHandle, new Actual360());
+         vars.termStructure = new FlatForward(vars.settings, vars.settlementDays, new NullCalendar(), flatRateHandle, new Actual360());
          flatRate.setValue(.03);
 
          int[] days = new int[] { 10, 30, 60, 120, 360, 720 };
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = vars.settings.evaluationDate();
          List<double> expected = new InitializedList<double>(days.Length);
          for (int i = 0; i < days.Length; i++)
             expected[i] = vars.termStructure.discount(today + days[i]);
 
-         Settings.Instance.setEvaluationDate(today + 30);
+         vars.settings.setEvaluationDate(today + 30);
          vars.termStructure.update();
          List<double> calculated = new InitializedList<double>(days.Length);
          for (int i = 0; i < days.Length; i++)
@@ -161,11 +142,11 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          double tolerance = 1.0e-10;
-         Date today = Settings.Instance.evaluationDate();
+         Date today = vars.settings.evaluationDate();
          Date newToday = today + new Period(3, TimeUnit.Years);
          Date newSettlement = vars.calendar.advance(newToday, vars.settlementDays, TimeUnit.Days);
          Date testDate = newSettlement + new Period(5, TimeUnit.Years);
-         YieldTermStructure implied = new ImpliedTermStructure(new Handle<YieldTermStructure>(vars.termStructure), newSettlement);
+         YieldTermStructure implied = new ImpliedTermStructure(vars.settings, new Handle<YieldTermStructure>(vars.termStructure), newSettlement);
          double baseDiscount = vars.termStructure.discount(newSettlement);
          double discount = vars.termStructure.discount(testDate);
          double impliedDiscount = implied.discount(testDate);
@@ -184,7 +165,7 @@ namespace TestSuite
          double tolerance = 1.0e-10;
          Quote me = new SimpleQuote(0.01);
          Handle<Quote> mh = new Handle<Quote>(me);
-         YieldTermStructure spreaded = new ForwardSpreadedTermStructure(new Handle<YieldTermStructure>(vars.termStructure), mh);
+         YieldTermStructure spreaded = new ForwardSpreadedTermStructure(vars.settings, new Handle<YieldTermStructure>(vars.termStructure), mh);
          Date testDate = vars.termStructure.referenceDate() + new Period(5, TimeUnit.Years);
          DayCounter tsdc = vars.termStructure.dayCounter();
          DayCounter sprdc = spreaded.dayCounter();
@@ -208,7 +189,7 @@ namespace TestSuite
          double tolerance = 1.0e-10;
          Quote me = new SimpleQuote(0.01);
          Handle<Quote> mh = new Handle<Quote>(me);
-         YieldTermStructure spreaded = new ZeroSpreadedTermStructure(new Handle<YieldTermStructure>(vars.termStructure), mh);
+         YieldTermStructure spreaded = new ZeroSpreadedTermStructure(vars.settings, new Handle<YieldTermStructure>(vars.termStructure), mh);
          Date testDate = vars.termStructure.referenceDate() + new Period(5, TimeUnit.Years);
          DayCounter rfdc = vars.termStructure.dayCounter();
          double zero = vars.termStructure.zeroRate(testDate, rfdc, Compounding.Continuous, Frequency.NoFrequency).rate();
@@ -223,8 +204,8 @@ namespace TestSuite
       public void testCompositeZeroYieldStructures()
       {
          // Testing composite zero yield structures...
-
-         Settings.Instance.setEvaluationDate(new Date(10, Month.Nov, 2017));
+         CommonVars vars = new CommonVars();
+         vars.settings.setEvaluationDate(new Date(10, Month.Nov, 2017));
 
          // First curve
          var dates = new List<Date>
@@ -269,7 +250,7 @@ namespace TestSuite
             0.0506086995288751
          };
 
-         var termStructure1 = new InterpolatedForwardCurve<BackwardFlat>(dates, rates, new Actual365Fixed(), new NullCalendar());
+         var termStructure1 = new InterpolatedForwardCurve<BackwardFlat>(vars.settings, dates, rates, new Actual365Fixed(), new NullCalendar());
 
          // Second curve
          dates = new List<Date>();
@@ -305,10 +286,11 @@ namespace TestSuite
          rates.Add(0.0293567711641792);
          rates.Add(0.010518655099659);
 
-         var termStructure2 = new InterpolatedForwardCurve<BackwardFlat>(dates, rates, new Actual365Fixed(), new NullCalendar());
+         var termStructure2 = new InterpolatedForwardCurve<BackwardFlat>(vars.settings, dates, rates, new Actual365Fixed(), new NullCalendar());
 
          var compoundCurve = new CompositeZeroYieldStructure
          (
+            vars.settings, 
             new Handle<YieldTermStructure>(termStructure1),
             new Handle<YieldTermStructure>(termStructure2),
             sub
@@ -392,7 +374,7 @@ namespace TestSuite
                0.01403893
             };
 
-         var curve = new InterpolatedZeroCurve<Linear>(dates,
+         var curve = new InterpolatedZeroCurve<Linear>(vars.settings, dates,
                                                        yields,
                                                        new ActualActual(ActualActual.Convention.ISMA),
                                                        new Linear(),

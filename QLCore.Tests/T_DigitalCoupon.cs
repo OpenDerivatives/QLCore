@@ -41,21 +41,21 @@ namespace TestSuite
          public double blackTolerance;
 
          // cleanup
-         SavedSettings backup;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
-            backup = new SavedSettings();
+            settings = new Settings();
             termStructure = new RelinkableHandle<YieldTermStructure>();
             fixingDays = 2;
             nominal = 1000000.0;
-            index = new Euribor6M(termStructure);
+            index = new Euribor6M(settings, termStructure);
             calendar = index.fixingCalendar();
-            today = calendar.adjust(Settings.Instance.evaluationDate());
-            Settings.Instance.setEvaluationDate(today);
+            today = calendar.adjust(settings.evaluationDate());
+            settings.setEvaluationDate(today);
             settlement = calendar.advance(today, fixingDays, TimeUnit.Days);
-            termStructure.linkTo(Utilities.flatRate(settlement, 0.05, new Actual365Fixed()));
+            termStructure.linkTo(Utilities.flatRate(settings, settlement, 0.05, new Actual365Fixed()));
             optionTolerance = 1.0e-04;
             blackTolerance = 1e-10;
          }
@@ -89,7 +89,7 @@ namespace TestSuite
          {
             double capletVol = vols[i];
             RelinkableHandle<OptionletVolatilityStructure> vol = new RelinkableHandle<OptionletVolatilityStructure>();
-            vol.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+            vol.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                        capletVol, new Actual360()));
             for (int j = 0; j < strikes.Length; j++)
             {
@@ -149,9 +149,9 @@ namespace TestSuite
                         double discountAtFixing = vars.termStructure.link.discount(exerciseDate);
                         SimpleQuote fwd = new SimpleQuote(effFwd * discountAtFixing);
                         SimpleQuote qRate = new SimpleQuote(0.0);
-                        YieldTermStructure qTS = Utilities.flatRate(vars.today, qRate, new Actual360());
+                        YieldTermStructure qTS = Utilities.flatRate(vars.settings, vars.today, qRate, new Actual360());
                         SimpleQuote vol1 = new SimpleQuote(0.0);
-                        BlackVolTermStructure volTS = Utilities.flatVol(vars.today, capletVol, new Actual360());
+                        BlackVolTermStructure volTS = Utilities.flatVol(vars.settings, vars.today, capletVol, new Actual360());
                         StrikedTypePayoff callPayoff = new AssetOrNothingPayoff(Option.Type.Call, effStrike);
                         BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(
                            new Handle<Quote>(fwd),
@@ -159,7 +159,7 @@ namespace TestSuite
                            new Handle<YieldTermStructure>(vars.termStructure),
                            new Handle<BlackVolTermStructure>(volTS));
                         IPricingEngine engine = new AnalyticEuropeanEngine(stochProcess);
-                        VanillaOption callOpt = new VanillaOption(callPayoff, exercise);
+                        VanillaOption callOpt = new VanillaOption(vars.settings, callPayoff, exercise);
                         callOpt.setPricingEngine(engine);
                         double callVO = vars.nominal * gearing
                                         * accrualPeriod * callOpt.NPV()
@@ -205,9 +205,9 @@ namespace TestSuite
                         double discountAtFixing = vars.termStructure.link.discount(exerciseDate);
                         SimpleQuote fwd = new SimpleQuote(effFwd * discountAtFixing);
                         SimpleQuote qRate = new SimpleQuote(0.0);
-                        YieldTermStructure qTS = Utilities.flatRate(vars.today, qRate, new Actual360());
+                        YieldTermStructure qTS = Utilities.flatRate(vars.settings, vars.today, qRate, new Actual360());
                         //SimpleQuote vol = new SimpleQuote(0.0);
-                        BlackVolTermStructure volTS = Utilities.flatVol(vars.today, capletVol, new Actual360());
+                        BlackVolTermStructure volTS = Utilities.flatVol(vars.settings, vars.today, capletVol, new Actual360());
                         BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(
                            new Handle<Quote>(fwd),
                            new Handle<YieldTermStructure>(qTS),
@@ -215,7 +215,7 @@ namespace TestSuite
                            new Handle<BlackVolTermStructure>(volTS));
                         StrikedTypePayoff putPayoff = new AssetOrNothingPayoff(Option.Type.Put, effStrike);
                         IPricingEngine engine = new AnalyticEuropeanEngine(stochProcess);
-                        VanillaOption putOpt = new VanillaOption(putPayoff, exercise);
+                        VanillaOption putOpt = new VanillaOption(vars.settings, putPayoff, exercise);
                         putOpt.setPricingEngine(engine);
                         double putVO  = vars.nominal * gearing
                                         * accrualPeriod * putOpt.NPV()
@@ -248,7 +248,7 @@ namespace TestSuite
 
          double capletVolatility = 0.0001;
          RelinkableHandle<OptionletVolatilityStructure> volatility = new RelinkableHandle<OptionletVolatilityStructure>();
-         volatility.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+         volatility.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                            capletVolatility, new Actual360()));
          double gap = 1e-4;
          DigitalReplication replication = new DigitalReplication(Replication.Type.Central, gap);
@@ -351,7 +351,7 @@ namespace TestSuite
 
          double capletVolatility = 0.0001;
          RelinkableHandle<OptionletVolatilityStructure> volatility = new RelinkableHandle<OptionletVolatilityStructure>();
-         volatility.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+         volatility.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                            capletVolatility, new Actual360()));
          double gap = 1e-4;
          DigitalReplication replication = new DigitalReplication(Replication.Type.Central, gap);
@@ -471,7 +471,7 @@ namespace TestSuite
          for (int i = 0; i < vols.Length; i++)
          {
             double capletVol = vols[i];
-            vol.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+            vol.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                        capletVol, new Actual360()));
             for (int j = 0; j < strikes.Length; j++)
             {
@@ -519,9 +519,9 @@ namespace TestSuite
                   double discountAtFixing = vars.termStructure.link.discount(exerciseDate);
                   SimpleQuote fwd = new SimpleQuote(effFwd * discountAtFixing);
                   SimpleQuote qRate = new SimpleQuote(0.0);
-                  YieldTermStructure qTS = Utilities.flatRate(vars.today, qRate, new Actual360());
+                  YieldTermStructure qTS = Utilities.flatRate(vars.settings, vars.today, qRate, new Actual360());
                   //SimpleQuote vol = new SimpleQuote(0.0);
-                  BlackVolTermStructure volTS = Utilities.flatVol(vars.today, capletVol, new Actual360());
+                  BlackVolTermStructure volTS = Utilities.flatVol(vars.settings, vars.today, capletVol, new Actual360());
                   StrikedTypePayoff callPayoff = new CashOrNothingPayoff(Option.Type.Call, effStrike, cashRate);
                   BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(
                      new Handle<Quote>(fwd),
@@ -529,7 +529,7 @@ namespace TestSuite
                      new Handle<YieldTermStructure>(vars.termStructure),
                      new Handle<BlackVolTermStructure>(volTS));
                   IPricingEngine engine = new AnalyticEuropeanEngine(stochProcess);
-                  VanillaOption callOpt = new VanillaOption(callPayoff, exercise);
+                  VanillaOption callOpt = new VanillaOption(vars.settings, callPayoff, exercise);
                   callOpt.setPricingEngine(engine);
                   double callVO = vars.nominal * accrualPeriod * callOpt.NPV()
                                   * discount / discountAtFixing;
@@ -566,7 +566,7 @@ namespace TestSuite
 
                   // Check digital option price vs N(d2) price using Vanilla Option class
                   StrikedTypePayoff putPayoff = new CashOrNothingPayoff(Option.Type.Put, effStrike, cashRate);
-                  VanillaOption putOpt = new VanillaOption(putPayoff, exercise);
+                  VanillaOption putOpt = new VanillaOption(vars.settings, putPayoff, exercise);
                   putOpt.setPricingEngine(engine);
                   double putVO  = vars.nominal * accrualPeriod * putOpt.NPV()
                                   * discount / discountAtFixing;
@@ -595,7 +595,7 @@ namespace TestSuite
 
          double capletVolatility = 0.0001;
          RelinkableHandle<OptionletVolatilityStructure> volatility = new RelinkableHandle<OptionletVolatilityStructure>();
-         volatility.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+         volatility.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                            capletVolatility, new Actual360()));
 
          for (int k = 0; k < 10; k++)
@@ -696,7 +696,7 @@ namespace TestSuite
 
          double capletVolatility = 0.0001;
          RelinkableHandle<OptionletVolatilityStructure> volatility = new RelinkableHandle<OptionletVolatilityStructure>();
-         volatility.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+         volatility.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                            capletVolatility, new Actual360()));
 
          for (int k = 0; k < 10; k++)
@@ -807,7 +807,7 @@ namespace TestSuite
          {
             double capletVolatility = vols[i];
             RelinkableHandle<OptionletVolatilityStructure> volatility = new RelinkableHandle<OptionletVolatilityStructure>();
-            volatility.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+            volatility.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                               capletVolatility, new Actual360()));
             for (int j = 0; j < strikes.Length; j++)
             {
@@ -901,7 +901,7 @@ namespace TestSuite
          {
             double capletVolatility = vols[i];
             RelinkableHandle<OptionletVolatilityStructure> volatility = new RelinkableHandle<OptionletVolatilityStructure>();
-            volatility.linkTo(new ConstantOptionletVolatility(vars.today, vars.calendar, BusinessDayConvention.Following,
+            volatility.linkTo(new ConstantOptionletVolatility(vars.settings, vars.today, vars.calendar, BusinessDayConvention.Following,
                                                               capletVolatility, new Actual360()));
             for (int j = 0; j < strikes.Length; j++)
             {

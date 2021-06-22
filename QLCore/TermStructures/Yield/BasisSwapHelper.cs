@@ -44,7 +44,7 @@ namespace QLCore
                              Handle<YieldTermStructure> discount = null,
                              bool eom = true,
                              bool spreadOnShort = true)
-         : base(spreadQuote)
+         : base(shortIndex.settings(), spreadQuote)
       {
          settlementDays_ = settlementDays;
          settlementCalendar_ = settlementCalendar;
@@ -103,7 +103,7 @@ namespace QLCore
          Date maturityDate = settlementDate + swapTenor_;
 
          Period shortLegTenor = shortIndex_.tenor();
-         Schedule shortLegSchedule = new MakeSchedule()
+         Schedule shortLegSchedule = new MakeSchedule(settings())
          .from(settlementDate)
          .to(maturityDate)
          .withTenor(shortLegTenor)
@@ -113,7 +113,7 @@ namespace QLCore
          .value();
 
          Period longLegTenor = longIndex_.tenor();
-         Schedule longLegSchedule = new MakeSchedule()
+         Schedule longLegSchedule = new MakeSchedule(settings())
          .from(settlementDate)
          .to(maturityDate)
          .withTenor(longLegTenor)

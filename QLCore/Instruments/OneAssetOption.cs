@@ -36,12 +36,12 @@ namespace QLCore
                 strikeSensitivity_,
                 itmCashProbability_;
 
-      public OneAssetOption(Payoff payoff, Exercise exercise) : base(payoff, exercise)
+      public OneAssetOption(Settings settings, Payoff payoff, Exercise exercise) : base(settings, payoff, exercise)
       {}
 
       public override bool isExpired()
       {
-         return new simple_event(exercise_.lastDate()).hasOccurred();
+         return new simple_event(settings(), exercise_.lastDate()).hasOccurred();
       }
 
       public double delta()

@@ -26,12 +26,12 @@ namespace QLCore
    */
    public class DKKLibor : Libor
    {
-      public DKKLibor(Period tenor)
-         : base("DKKLibor", tenor, 2, new DKKCurrency(), new Denmark(), new Actual360(), new Handle<YieldTermStructure>())
+      public DKKLibor(Period tenor, Settings settings)
+         : base("DKKLibor", tenor, 2, new DKKCurrency(), new Denmark(), new Actual360(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public DKKLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("DKKLibor", tenor, 2, new DKKCurrency(), new Denmark(), new Actual360(), h)
+      public DKKLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("DKKLibor", tenor, 2, new DKKCurrency(), new Denmark(), new Actual360(), settings, h)
       {}
    }
 

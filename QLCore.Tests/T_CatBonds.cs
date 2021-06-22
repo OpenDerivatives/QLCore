@@ -47,13 +47,15 @@ namespace TestSuite
          public Calendar calendar;
          public Date today;
          public double faceAmount;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
             calendar = new TARGET();
+            settings = new Settings();
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             faceAmount = 1000000.0;
          }
       }
@@ -147,14 +149,14 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.025, new Actual360()));
-         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.025, new Actual360()));
+         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
-         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), riskFreeRate);
+         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), vars.settings, riskFreeRate);
          int fixingDays = 1;
 
          double tolerance = 1.0e-6;
@@ -163,7 +165,8 @@ namespace TestSuite
 
          // plain
 
-         Schedule sch = new Schedule(new Date(30, Month.November, 2004),
+         Schedule sch = new Schedule(vars.settings,
+                                     new Date(30, Month.November, 2004),
                                      new Date(30, Month.November, 2008),
                                      new Period(Frequency.Semiannual),
                                      new UnitedStates(UnitedStates.Market.GovernmentBond),
@@ -321,21 +324,22 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.025, new Actual360()));
-         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.025, new Actual360()));
+         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
-         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), riskFreeRate);
+         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), vars.settings, riskFreeRate);
          int fixingDays = 1;
 
          double tolerance = 1.0e-6;
 
          IborCouponPricer pricer = new BlackIborCouponPricer(new Handle<OptionletVolatilityStructure>());
 
-         Schedule sch = new Schedule(new Date(30, Month.November, 2004),
+         Schedule sch = new Schedule(vars.settings,
+                                     new Date(30, Month.November, 2004),
                                      new Date(30, Month.November, 2008),
                                      new Period(Frequency.Semiannual),
                                      new UnitedStates(UnitedStates.Market.GovernmentBond),
@@ -382,21 +386,22 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.025, new Actual360()));
-         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.025, new Actual360()));
+         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
-         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), riskFreeRate);
+         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), vars.settings, riskFreeRate);
          int fixingDays = 1;
 
          double tolerance = 1.0e-6;
 
          IborCouponPricer pricer = new BlackIborCouponPricer(new Handle<OptionletVolatilityStructure>());
 
-         Schedule sch = new Schedule(new Date(30, Month.November, 2004),
+         Schedule sch = new Schedule(vars.settings,
+                                     new Date(30, Month.November, 2004),
                                      new Date(30, Month.November, 2008),
                                      new Period(Frequency.Semiannual),
                                      new UnitedStates(UnitedStates.Market.GovernmentBond),
@@ -461,14 +466,14 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          Date today = new Date(22, Month.November, 2004);
-         Settings.Instance.setEvaluationDate(today);
+         vars.settings.setEvaluationDate(today);
 
          int settlementDays = 1;
 
-         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.025, new Actual360()));
-         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.03, new Actual360()));
+         Handle<YieldTermStructure> riskFreeRate = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.025, new Actual360()));
+         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(Utilities.flatRate(vars.settings, today, 0.03, new Actual360()));
 
-         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), riskFreeRate);
+         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), vars.settings, riskFreeRate);
          int fixingDays = 1;
 
          double tolerance = 1.0e-6;
@@ -476,7 +481,8 @@ namespace TestSuite
          IborCouponPricer pricer = new BlackIborCouponPricer(new Handle<OptionletVolatilityStructure>());
 
          Schedule sch =
-            new Schedule(new Date(30, Month.November, 2004),
+            new Schedule(vars.settings,
+                         new Date(30, Month.November, 2004),
                          new Date(30, Month.November, 2008),
                          new Period(Frequency.Semiannual),
                          new UnitedStates(UnitedStates.Market.GovernmentBond),

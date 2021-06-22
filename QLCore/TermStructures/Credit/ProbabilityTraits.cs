@@ -27,6 +27,7 @@ namespace QLCore
    public static class ITraitsDefaultTermStructure
     {
         public static DefaultProbabilityTermStructure factory<Interpolator>(this ITraits<DefaultProbabilityTermStructure> self,
+                                                               Settings settings,
                                                                DayCounter dayCounter,
                                                                List<Handle<Quote>> jumps = null,
                                                                List<Date> jumpDates = null,
@@ -34,16 +35,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(SurvivalProbability)))
-                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(settings, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(HazardRate)))
-                return new InterpolatedHazardRateCurve<Interpolator>(dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedHazardRateCurve<Interpolator>(settings, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(DefaultDensity)))
-                return new InterpolatedDefaultDensityCurve<Interpolator>(dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDefaultDensityCurve<Interpolator>(settings, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static DefaultProbabilityTermStructure factory<Interpolator>(this ITraits<DefaultProbabilityTermStructure> self,
+                                                               Settings settings,
                                                                Date referenceDate,
                                                                DayCounter dayCounter,
                                                                List<Handle<Quote>> jumps = null,
@@ -52,16 +54,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(SurvivalProbability)))
-                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(HazardRate)))
-                return new InterpolatedHazardRateCurve<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedHazardRateCurve<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(DefaultDensity)))
-                return new InterpolatedDefaultDensityCurve<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDefaultDensityCurve<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static DefaultProbabilityTermStructure factory<Interpolator>(this ITraits<DefaultProbabilityTermStructure> self,
+                                                               Settings settings,
                                                                int settlementDays,
                                                                Calendar calendar,
                                                                DayCounter dayCounter,
@@ -71,16 +74,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(SurvivalProbability)))
-                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(HazardRate)))
-                return new InterpolatedHazardRateCurve<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedHazardRateCurve<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(DefaultDensity)))
-                return new InterpolatedDefaultDensityCurve<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDefaultDensityCurve<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static DefaultProbabilityTermStructure factory<Interpolator>(this ITraits<DefaultProbabilityTermStructure> self,
+                                                               Settings settings,
                                                                List<Date> dates,
                                                                List<double> densities,
                                                                DayCounter dayCounter,
@@ -91,16 +95,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(SurvivalProbability)))
-                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(dates, densities, dayCounter, calendar, jumps, jumpDates, interpolator);
+                return new InterpolatedSurvivalProbabilityCurve<Interpolator>(settings, dates, densities, dayCounter, calendar, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(HazardRate)))
-                return new InterpolatedHazardRateCurve<Interpolator>(dates, densities, dayCounter, calendar, jumps, jumpDates, interpolator);
+                return new InterpolatedHazardRateCurve<Interpolator>(settings, dates, densities, dayCounter, calendar, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(DefaultDensity)))
-                return new InterpolatedDefaultDensityCurve<Interpolator>(dates, densities, dayCounter, calendar, jumps, jumpDates, interpolator);
+                return new InterpolatedDefaultDensityCurve<Interpolator>(settings, dates, densities, dayCounter, calendar, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static DefaultProbabilityTermStructure factory<Interpolator>(this ITraits<DefaultProbabilityTermStructure> self,
+                                                               Settings settings,
                                                                List<Date> dates,
                                                                List<double> densities,
                                                                DayCounter dayCounter,
@@ -109,14 +114,15 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(HazardRate)))
-                return new InterpolatedHazardRateCurve<Interpolator>(dates, densities, dayCounter, calendar, interpolator);
+                return new InterpolatedHazardRateCurve<Interpolator>(settings, dates, densities, dayCounter, calendar, interpolator);
             else if (self.GetType().Equals(typeof(DefaultDensity)))
-                return new InterpolatedDefaultDensityCurve<Interpolator>(dates, densities, dayCounter, calendar, interpolator);
+                return new InterpolatedDefaultDensityCurve<Interpolator>(settings, dates, densities, dayCounter, calendar, interpolator);
             else
                 return null;
         }
 
         public static DefaultProbabilityTermStructure factory<Interpolator>(this ITraits<DefaultProbabilityTermStructure> self,
+                                                               Settings settings,
                                                                List<Date> dates,
                                                                List<double> densities,
                                                                DayCounter dayCounter,
@@ -124,9 +130,9 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(HazardRate)))
-                return new InterpolatedHazardRateCurve<Interpolator>(dates, densities, dayCounter, interpolator);
+                return new InterpolatedHazardRateCurve<Interpolator>(settings, dates, densities, dayCounter, interpolator);
             else if (self.GetType().Equals(typeof(DefaultDensity)))
-                return new InterpolatedDefaultDensityCurve<Interpolator>(dates, densities, dayCounter, interpolator);
+                return new InterpolatedDefaultDensityCurve<Interpolator>(settings, dates, densities, dayCounter, interpolator);
             else
                 return null;
         }

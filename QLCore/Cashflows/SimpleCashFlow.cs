@@ -31,7 +31,8 @@ namespace QLCore
       private Date date_;
       public override Date date() { return date_; }
 
-      public SimpleCashFlow(double amount, Date date)
+      public SimpleCashFlow(Settings settings, double amount, Date date)
+      : base(settings)
       {
          Utils.QL_REQUIRE(date != null, () => "null date SimpleCashFlow");
          amount_ = amount;
@@ -45,7 +46,7 @@ namespace QLCore
    */
    public class Redemption : SimpleCashFlow
    {
-      public Redemption(double amount, Date date) : base(amount, date) { }
+      public Redemption(Settings settings, double amount, Date date) : base(settings, amount, date) { }
    }
 
    //! Amortizing payment
@@ -54,7 +55,7 @@ namespace QLCore
    */
    public class AmortizingPayment : SimpleCashFlow
    {
-      public AmortizingPayment(double amount, Date date) : base(amount, date) { }
+      public AmortizingPayment(Settings settings, double amount, Date date) : base(settings, amount, date) { }
    }
 
    //! Voluntary Prepay
@@ -63,6 +64,6 @@ namespace QLCore
    */
    public class VoluntaryPrepay : SimpleCashFlow
    {
-      public VoluntaryPrepay(double amount, Date date) : base(amount, date) { }
+      public VoluntaryPrepay(Settings settings, double amount, Date date) : base(settings, amount, date) { }
    }
 }

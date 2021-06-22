@@ -44,20 +44,20 @@ namespace TestSuite
          public List<CmsCouponPricer> analyticPricers;
 
          // cleanup
-         public SavedSettings backup;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
-            backup = new SavedSettings();
+            settings = new Settings();
 
             Calendar calendar = new TARGET();
 
             Date referenceDate = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(referenceDate);
+            settings.setEvaluationDate(referenceDate);
 
             termStructure = new RelinkableHandle<YieldTermStructure>();
-            termStructure.linkTo(Utilities.flatRate(referenceDate, 0.05, new Actual365Fixed()));
+            termStructure.linkTo(Utilities.flatRate(settings, referenceDate, 0.05, new Actual365Fixed()));
 
             // ATM Volatility structure
             List<Period> atmOptionTenors = new List<Period>();
@@ -83,7 +83,7 @@ namespace TestSuite
             m[5, 0] = 0.1130; m[5, 1] = 0.1090; m[5, 2] = 0.1070; m[5, 3] = 0.0930;
 
             atmVol = new Handle<SwaptionVolatilityStructure>(
-               new SwaptionVolatilityMatrix(calendar, BusinessDayConvention.Following, atmOptionTenors,
+               new SwaptionVolatilityMatrix(settings, calendar, BusinessDayConvention.Following, atmOptionTenors,
                                             atmSwapTenors, m, new Actual365Fixed()));
 
             // Vol cubes
@@ -171,9 +171,9 @@ namespace TestSuite
                }
             }
 
-            iborIndex = new Euribor6M(termStructure);
-            SwapIndex swapIndexBase = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), termStructure);
-            SwapIndex shortSwapIndexBase = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), termStructure);
+            iborIndex = new Euribor6M(settings, termStructure);
+            SwapIndex swapIndexBase = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), settings, termStructure);
+            SwapIndex shortSwapIndexBase = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), settings, termStructure);
 
             bool vegaWeightedSmileFit = false;
 
@@ -254,7 +254,8 @@ namespace TestSuite
                                              new Period(1, TimeUnit.Years),
                                              BusinessDayConvention.Unadjusted,
                                              vars.iborIndex.dayCounter(),//??
-                                             vars.iborIndex);
+                                             vars.iborIndex,
+                                             vars.settings);
 
          // FIXME
          //shared_ptr<SwapIndex> swapIndex(new
@@ -320,7 +321,8 @@ namespace TestSuite
                                              new Period(1, TimeUnit.Years),
                                              BusinessDayConvention.Unadjusted,
                                              vars.iborIndex.dayCounter(),//??
-                                             vars.iborIndex);
+                                             vars.iborIndex,
+                                             vars.settings);
          // FIXME
          //shared_ptr<SwapIndex> swapIndex(new
          //    EuriborSwapIsdaFixA(10*Years, vars.iborIndex->termStructure()));
@@ -380,7 +382,7 @@ namespace TestSuite
          swaptionVols.Add(vars.SabrVolCube1);
          swaptionVols.Add(vars.SabrVolCube2);
 
-         SwapIndex swapIndex = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years),
+         SwapIndex swapIndex = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), vars.settings,
                                                        vars.iborIndex.forwardingTermStructure());
          Date startDate = vars.termStructure.link.referenceDate() + new Period(20, TimeUnit.Years);
          Date paymentDate = startDate + new Period(1, TimeUnit.Years);

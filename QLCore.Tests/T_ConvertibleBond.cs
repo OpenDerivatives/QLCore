@@ -49,15 +49,15 @@ namespace TestSuite
          public DividendSchedule no_dividends = new DividendSchedule();
 
          public double faceAmount, redemption, conversionRatio;
-
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
             calendar = new TARGET();
-
+            settings = new Settings();
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             dayCounter = new Actual360();
             frequency = Frequency.Annual;
@@ -69,9 +69,9 @@ namespace TestSuite
             issueDate = calendar.advance(maturityDate, -10, TimeUnit.Years);
 
             underlying.linkTo(new SimpleQuote(50.0));
-            dividendYield.linkTo(Utilities.flatRate(today, 0.02, dayCounter));
-            riskFreeRate.linkTo(Utilities.flatRate(today, 0.05, dayCounter));
-            volatility.linkTo(Utilities.flatVol(today, 0.15, dayCounter));
+            dividendYield.linkTo(Utilities.flatRate(settings, today, 0.02, dayCounter));
+            riskFreeRate.linkTo(Utilities.flatRate(settings, today, 0.05, dayCounter));
+            volatility.linkTo(Utilities.flatVol(settings, today, 0.15, dayCounter));
 
             process = new BlackScholesMertonProcess(underlying, dividendYield, riskFreeRate, volatility);
 
@@ -104,17 +104,18 @@ namespace TestSuite
          int timeSteps = 1001;
          IPricingEngine engine = new BinomialConvertibleEngine<CoxRossRubinstein>(vars.process, timeSteps);
 
-         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(new ForwardSpreadedTermStructure(vars.riskFreeRate, vars.creditSpread));
+         Handle<YieldTermStructure> discountCurve = new Handle<YieldTermStructure>(new ForwardSpreadedTermStructure(vars.settings, vars.riskFreeRate, vars.creditSpread));
 
          // zero-coupon
 
-         Schedule schedule = new MakeSchedule().from(vars.issueDate)
+         Schedule schedule = new MakeSchedule(vars.settings).from(vars.issueDate)
          .to(vars.maturityDate)
          .withFrequency(Frequency.Once)
          .withCalendar(vars.calendar)
          .backwards().value();
 
-         ConvertibleZeroCouponBond euZero = new ConvertibleZeroCouponBond(euExercise, vars.conversionRatio,
+         ConvertibleZeroCouponBond euZero = new ConvertibleZeroCouponBond(vars.settings, 
+                                                                          euExercise, vars.conversionRatio,
                                                                           vars.no_dividends, vars.no_callability,
                                                                           vars.creditSpread,
                                                                           vars.issueDate, vars.settlementDays,
@@ -122,7 +123,8 @@ namespace TestSuite
                                                                           vars.redemption);
          euZero.setPricingEngine(engine);
 
-         ConvertibleZeroCouponBond amZero = new ConvertibleZeroCouponBond(amExercise, vars.conversionRatio,
+         ConvertibleZeroCouponBond amZero = new ConvertibleZeroCouponBond(vars.settings, 
+                                                                          amExercise, vars.conversionRatio,
                                                                           vars.no_dividends, vars.no_callability,
                                                                           vars.creditSpread,
                                                                           vars.issueDate, vars.settlementDays,
@@ -130,7 +132,7 @@ namespace TestSuite
                                                                           vars.redemption);
          amZero.setPricingEngine(engine);
 
-         ZeroCouponBond zero = new ZeroCouponBond(vars.settlementDays, vars.calendar,
+         ZeroCouponBond zero = new ZeroCouponBond(vars.settings, vars.settlementDays, vars.calendar,
                                                   100.0, vars.maturityDate,
                                                   BusinessDayConvention.Following, vars.redemption, vars.issueDate);
 
@@ -161,13 +163,13 @@ namespace TestSuite
 
          List<double> coupons = new InitializedList<double>(1, 0.05);
 
-         schedule = new MakeSchedule().from(vars.issueDate)
+         schedule = new MakeSchedule(vars.settings).from(vars.issueDate)
          .to(vars.maturityDate)
          .withFrequency(vars.frequency)
          .withCalendar(vars.calendar)
          .backwards().value();
 
-         ConvertibleFixedCouponBond euFixed = new ConvertibleFixedCouponBond(euExercise, vars.conversionRatio,
+         ConvertibleFixedCouponBond euFixed = new ConvertibleFixedCouponBond(vars.settings, euExercise, vars.conversionRatio,
                                                                              vars.no_dividends, vars.no_callability,
                                                                              vars.creditSpread,
                                                                              vars.issueDate, vars.settlementDays,
@@ -175,7 +177,7 @@ namespace TestSuite
                                                                              schedule, vars.redemption);
          euFixed.setPricingEngine(engine);
 
-         ConvertibleFixedCouponBond amFixed = new ConvertibleFixedCouponBond(amExercise, vars.conversionRatio,
+         ConvertibleFixedCouponBond amFixed = new ConvertibleFixedCouponBond(vars.settings, amExercise, vars.conversionRatio,
                                                                              vars.no_dividends, vars.no_callability,
                                                                              vars.creditSpread,
                                                                              vars.issueDate, vars.settlementDays,
@@ -211,12 +213,12 @@ namespace TestSuite
 
          // floating-rate
 
-         IborIndex index = new Euribor1Y(discountCurve);
+         IborIndex index = new Euribor1Y(vars.settings, discountCurve);
          int fixingDays = 2;
          List<double> gearings = new InitializedList<double>(1, 1.0);
          List<double> spreads = new List<double>();
 
-         ConvertibleFloatingRateBond euFloating = new ConvertibleFloatingRateBond(euExercise, vars.conversionRatio,
+         ConvertibleFloatingRateBond euFloating = new ConvertibleFloatingRateBond(vars.settings, euExercise, vars.conversionRatio,
                                                                                   vars.no_dividends, vars.no_callability,
                                                                                   vars.creditSpread,
                                                                                   vars.issueDate, vars.settlementDays,
@@ -225,7 +227,7 @@ namespace TestSuite
                                                                                   vars.redemption);
          euFloating.setPricingEngine(engine);
 
-         ConvertibleFloatingRateBond amFloating = new ConvertibleFloatingRateBond(amExercise, vars.conversionRatio,
+         ConvertibleFloatingRateBond amFloating = new ConvertibleFloatingRateBond(vars.settings, amExercise, vars.conversionRatio,
                                                                                   vars.no_dividends, vars.no_callability,
                                                                                   vars.creditSpread,
                                                                                   vars.issueDate, vars.settlementDays,
@@ -236,7 +238,7 @@ namespace TestSuite
 
          IborCouponPricer pricer = new BlackIborCouponPricer(new Handle<OptionletVolatilityStructure>());
 
-         Schedule floatSchedule = new Schedule(vars.issueDate, vars.maturityDate,
+         Schedule floatSchedule = new Schedule(vars.settings, vars.issueDate, vars.maturityDate,
                                                new Period(vars.frequency),
                                                vars.calendar, BusinessDayConvention.Following, BusinessDayConvention.Following,
                                                DateGeneration.Rule.Backward, false);
@@ -296,13 +298,13 @@ namespace TestSuite
          double conversionStrike = vars.redemption / vars.conversionRatio;
          StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, conversionStrike);
 
-         Schedule schedule = new MakeSchedule().from(vars.issueDate)
+         Schedule schedule = new MakeSchedule(vars.settings).from(vars.issueDate)
          .to(vars.maturityDate)
          .withFrequency(Frequency.Once)
          .withCalendar(vars.calendar)
          .backwards().value();
 
-         ConvertibleZeroCouponBond euZero = new ConvertibleZeroCouponBond(euExercise, vars.conversionRatio,
+         ConvertibleZeroCouponBond euZero = new ConvertibleZeroCouponBond(vars.settings, euExercise, vars.conversionRatio,
                                                                           vars.no_dividends, vars.no_callability,
                                                                           vars.creditSpread,
                                                                           vars.issueDate, vars.settlementDays,
@@ -310,7 +312,7 @@ namespace TestSuite
                                                                           vars.redemption);
          euZero.setPricingEngine(engine);
 
-         VanillaOption euOption = new VanillaOption(payoff, euExercise);
+         VanillaOption euOption = new VanillaOption(vars.settings, payoff, euExercise);
          euOption.setPricingEngine(vanillaEngine);
 
          double tolerance = 5.0e-2 * (vars.faceAmount / 100.0);
@@ -332,13 +334,12 @@ namespace TestSuite
       [Fact]
       public void testRegression()
       {
-
          // Testing fixed-coupon convertible bond in known regression case
-
+         CommonVars vars = new CommonVars();
          Date today = new Date(23, Month.December, 2008);
          Date tomorrow = today + 1;
 
-         Settings.Instance.setEvaluationDate(tomorrow);
+         vars.settings.setEvaluationDate(tomorrow);
 
          Handle<Quote> u = new Handle<Quote>(new SimpleQuote(2.9084382818797443));
 
@@ -370,9 +371,9 @@ namespace TestSuite
          dates[23] = new Date(29, Month.December, 2038);  forwards[23] = 0.0228343838422;
          dates[24] = new Date(31, Month.December, 2199);  forwards[24] = 0.0228343838422;
 
-         Handle<YieldTermStructure> r = new Handle<YieldTermStructure>(new InterpolatedForwardCurve<BackwardFlat>(dates, forwards, new Actual360()));
+         Handle<YieldTermStructure> r = new Handle<YieldTermStructure>(new InterpolatedForwardCurve<BackwardFlat>(vars.settings, dates, forwards, new Actual360()));
 
-         Handle<BlackVolTermStructure> sigma = new Handle<BlackVolTermStructure>(new BlackConstantVol(tomorrow, new NullCalendar(), 21.685235548092248,
+         Handle<BlackVolTermStructure> sigma = new Handle<BlackVolTermStructure>(new BlackConstantVol(vars.settings, tomorrow, new NullCalendar(), 21.685235548092248,
                                                                                  new Thirty360(Thirty360.Thirty360Convention.BondBasis)));
 
          BlackProcess process = new BlackProcess(u, r, sigma);
@@ -382,7 +383,7 @@ namespace TestSuite
          Date issueDate = new Date(23, Month.July, 2008);
          Date maturityDate = new Date(1, Month.August, 2013);
          Calendar calendar = new UnitedStates();
-         Schedule schedule = new MakeSchedule().from(issueDate)
+         Schedule schedule = new MakeSchedule(vars.settings).from(issueDate)
          .to(maturityDate)
          .withTenor(new Period(6, TimeUnit.Months))
          .withCalendar(calendar)
@@ -396,7 +397,7 @@ namespace TestSuite
          DividendSchedule no_dividends = new DividendSchedule();
          double redemption = 100.0;
 
-         ConvertibleFixedCouponBond bond = new ConvertibleFixedCouponBond(exercise, conversionRatio,
+         ConvertibleFixedCouponBond bond = new ConvertibleFixedCouponBond(vars.settings, exercise, conversionRatio,
                                                                           no_dividends, no_callability,
                                                                           spread, issueDate, settlementDays,
                                                                           coupons, dayCounter,

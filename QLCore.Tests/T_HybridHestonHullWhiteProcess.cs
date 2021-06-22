@@ -27,45 +27,26 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_HybridHestonHullWhiteProcess : IDisposable
+   public class T_HybridHestonHullWhiteProcess
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_HybridHestonHullWhiteProcess()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       [Fact]
       public void testBsmHullWhiteEngine()
       {
          // Testing European option pricing for a BSM process with one-factor Hull-White model
          DayCounter dc = new Actual365Fixed();
-
+         Settings settings = new Settings();
          Date today = Date.Today;
          Date maturity = today + new Period(20, TimeUnit.Years);
 
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          Handle<Quote> spot = new Handle<Quote>(new SimpleQuote(100.0));
          SimpleQuote qRate  = new SimpleQuote(0.04);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.0525);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.25);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, vol, dc));
 
          // FLOATING_POINT_EXCEPTION
          HullWhite hullWhiteModel = new HullWhite(new Handle<YieldTermStructure>(rTS), 0.00883, 0.00526);
@@ -77,7 +58,7 @@ namespace TestSuite
          double fwd = spot.link.value() * qTS.link.discount(maturity) / rTS.link.discount(maturity);
          StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, fwd);
 
-         EuropeanOption option = new EuropeanOption(payoff, exercise);
+         EuropeanOption option = new EuropeanOption(settings, payoff, exercise);
 
          double tol = 1e-8;
          double[] corr = {-0.75, -0.25, 0.0, 0.25, 0.75};
@@ -91,12 +72,12 @@ namespace TestSuite
             double npv = option.NPV();
 
             Handle<BlackVolTermStructure> compVolTS = new Handle<BlackVolTermStructure>(
-               Utilities.flatVol(today, expectedVol[i], dc));
+               Utilities.flatVol(settings, today, expectedVol[i], dc));
 
             BlackScholesMertonProcess bsProcess = new BlackScholesMertonProcess(spot, qTS, rTS, compVolTS);
             IPricingEngine bsEngine = new AnalyticEuropeanEngine(bsProcess);
 
-            EuropeanOption comp = new EuropeanOption(payoff, exercise);
+            EuropeanOption comp = new EuropeanOption(settings, payoff, exercise);
             comp.setPricingEngine(bsEngine);
 
             double impliedVol = comp.impliedVolatility(npv, bsProcess, 1e-10, 100);
@@ -144,9 +125,10 @@ namespace TestSuite
       public void testCompareBsmHWandHestonHW()
       {
          // Comparing European option pricing for a BSM process with one-factor Hull-White model
+         Settings settings = new Settings();
          DayCounter dc = new Actual365Fixed();
          Date today = Date.Today;
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          Handle<Quote> spot = new Handle<Quote>(new SimpleQuote(100.0));
          List<Date> dates = new List<Date>();
@@ -162,12 +144,12 @@ namespace TestSuite
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
          Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(
-            new InterpolatedZeroCurve<Linear>(dates, rates, dc));
+            new InterpolatedZeroCurve<Linear>(settings, dates, rates, dc));
          Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(
-            new InterpolatedZeroCurve<Linear>(dates, divRates, dc));
+            new InterpolatedZeroCurve<Linear>(settings, dates, divRates, dc));
 
          SimpleQuote vol = new SimpleQuote(0.25);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, vol, dc));
 
          BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(spot, qTS, rTS, volTS);
 
@@ -202,7 +184,7 @@ namespace TestSuite
 
                   StrikedTypePayoff payoff = new PlainVanillaPayoff(types[i], fwd);
 
-                  EuropeanOption option = new EuropeanOption(payoff, exercise);
+                  EuropeanOption option = new EuropeanOption(settings, payoff, exercise);
 
                   option.setPricingEngine(bsmhwEngine);
                   double calculated = option.NPV();
@@ -230,11 +212,11 @@ namespace TestSuite
       public void testZeroBondPricing()
       {
          // Testing Monte-Carlo zero bond pricing
-
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          // construct a strange yield curve to check drifts and discounting
          // of the joint stochastic process
@@ -260,8 +242,8 @@ namespace TestSuite
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
 
-         Handle<YieldTermStructure> ts = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, rates, dc));
-         Handle<YieldTermStructure> ds = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.0, dc));
+         Handle<YieldTermStructure> ts = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dc));
+         Handle<YieldTermStructure> ds = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.0, dc));
 
          HestonProcess hestonProcess = new HestonProcess(ts, ds, s0, 0.02, 1.0, 0.2, 0.5, -0.8);
          HullWhiteForwardProcess hwProcess = new HullWhiteForwardProcess(ts, 0.05, 0.05);
@@ -351,8 +333,8 @@ namespace TestSuite
          // Testing Monte-Carlo vanilla option pricing
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
-         Settings.Instance.setEvaluationDate(today);
+         Settings settings = new Settings();
+         settings.setEvaluationDate(today);
 
          // construct a strange yield curve to check drifts and discounting
          // of the joint stochastic process
@@ -373,12 +355,12 @@ namespace TestSuite
          Date maturity = today + new Period(20, TimeUnit.Years);
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates,
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates,
                                                                          rates, dc));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates,
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates,
                                                                          divRates, dc));
          SimpleQuote vol = new SimpleQuote(0.25);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, vol, dc));
 
          BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(s0, qTS, rTS, volTS);
          HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.0625, 0.5, 0.0625, 1e-5, 0.3);
@@ -399,7 +381,7 @@ namespace TestSuite
                StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, strike[j]);
                Exercise exercise = new EuropeanExercise(maturity);
 
-               VanillaOption optionHestonHW = new VanillaOption(payoff, exercise);
+               VanillaOption optionHestonHW = new VanillaOption(settings, payoff, exercise);
                IPricingEngine engine = new MakeMCHestonHullWhiteEngine<PseudoRandom, Statistics>(jointProcess)
                .withSteps(1)
                .withAntitheticVariate()
@@ -412,7 +394,7 @@ namespace TestSuite
                HullWhite hwModel = new HullWhite(new Handle<YieldTermStructure>(rTS),
                                                  hwProcess.a(), hwProcess.sigma());
 
-               VanillaOption optionBsmHW = new VanillaOption(payoff, exercise);
+               VanillaOption optionBsmHW = new VanillaOption(settings, payoff, exercise);
                optionBsmHW.setPricingEngine(new AnalyticBSMHullWhiteEngine(corr[i], bsmProcess, hwModel));
 
                double calculated = optionHestonHW.NPV();
@@ -439,8 +421,8 @@ namespace TestSuite
          // Testing Monte-Carlo Heston option pricing
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
-         Settings.Instance.setEvaluationDate(today);
+         Settings settings = new Settings();
+         settings.setEvaluationDate(today);
 
          // construct a strange yield curve to check drifts and discounting
          // of the joint stochastic process
@@ -461,8 +443,8 @@ namespace TestSuite
          Date maturity = today + new Period(2, TimeUnit.Years);
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, rates, dc));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, divRates, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, divRates, dc));
 
          HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.08, 1.5, 0.0625, 0.5, -0.8);
          HullWhiteForwardProcess hwProcess = new HullWhiteForwardProcess(rTS, 0.1, 1e-8);
@@ -482,8 +464,8 @@ namespace TestSuite
                StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, strike[j]);
                Exercise exercise = new EuropeanExercise(maturity);
 
-               VanillaOption optionHestonHW = new VanillaOption(payoff, exercise);
-               VanillaOption optionPureHeston = new VanillaOption(payoff, exercise);
+               VanillaOption optionHestonHW = new VanillaOption(settings, payoff, exercise);
+               VanillaOption optionPureHeston = new VanillaOption(settings, payoff, exercise);
                optionPureHeston.setPricingEngine(new AnalyticHestonEngine(new HestonModel(hestonProcess)));
 
                double expected = optionPureHeston.NPV();
@@ -519,8 +501,8 @@ namespace TestSuite
          // Testing analytic Heston Hull-White option pricing
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
-         Settings.Instance.setEvaluationDate(today);
+         Settings settings = new Settings();
+         settings.setEvaluationDate(today);
 
          // construct a strange yield curve to check drifts and discounting
          // of the joint stochastic process
@@ -540,8 +522,8 @@ namespace TestSuite
 
          Date maturity = today + new Period(5, TimeUnit.Years);
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, rates, dc));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, divRates, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, divRates, dc));
 
          HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.08, 1.5, 0.0625, 0.5, -0.8);
          HestonModel hestonModel = new HestonModel(hestonProcess);
@@ -564,7 +546,7 @@ namespace TestSuite
                StrikedTypePayoff payoff = new PlainVanillaPayoff(types[i], strike[j]);
                Exercise exercise = new EuropeanExercise(maturity);
 
-               VanillaOption optionHestonHW = new VanillaOption(payoff, exercise);
+               VanillaOption optionHestonHW = new VanillaOption(settings, payoff, exercise);
                optionHestonHW.setPricingEngine(new MakeMCHestonHullWhiteEngine<PseudoRandom, Statistics>(jointProcess)
                                                .withSteps(1)
                                                .withAntitheticVariate()
@@ -572,7 +554,7 @@ namespace TestSuite
                                                .withAbsoluteTolerance(tol)
                                                .withSeed(42).getAsPricingEngine());
 
-               VanillaOption optionPureHeston = new VanillaOption(payoff, exercise);
+               VanillaOption optionPureHeston = new VanillaOption(settings, payoff, exercise);
                optionPureHeston.setPricingEngine(new AnalyticHestonHullWhiteEngine(hestonModel, hullWhiteModel, 128));
 
                double calculated = optionHestonHW.NPV();
@@ -608,14 +590,14 @@ namespace TestSuite
          int maturity = 7;
          DayCounter dc = new Actual365Fixed();
          Date today = Date.Today;
-
-         Settings.Instance.setEvaluationDate(today);
+         Settings settings = new Settings();
+         settings.setEvaluationDate(today);
 
          Handle<Quote> spot = new Handle<Quote>(new SimpleQuote(100.0));
          SimpleQuote qRate = new SimpleQuote(0.04);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.04);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, rRate, dc));
 
          HestonProcess hestonProcess = new HestonProcess(rTS, qTS, spot, 0.0625, 1.0, 0.24 * 0.24, 1e-4, 0.0);
          // FLOATING_POINT_EXCEPTION
@@ -624,7 +606,7 @@ namespace TestSuite
 
          HybridHestonHullWhiteProcess jointProcess = new HybridHestonHullWhiteProcess(hestonProcess, hwProcess, -0.4);
 
-         Schedule schedule = new Schedule(today, today + new Period(maturity, TimeUnit.Years), new Period(1, TimeUnit.Years),
+         Schedule schedule = new Schedule(settings, today, today + new Period(maturity, TimeUnit.Years), new Period(1, TimeUnit.Years),
                                           new TARGET(), BusinessDayConvention.Following, BusinessDayConvention.Following, DateGeneration.Rule.Forward, false);
 
          List<double> times = new InitializedList<double>(maturity + 1);
@@ -711,8 +693,8 @@ namespace TestSuite
          // Testing the discretization error of the Heston Hull-White process
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
-         Settings.Instance.setEvaluationDate(today);
+         Settings settings = new Settings();
+         settings.setEvaluationDate(today);
 
          // construct a strange yield curve to check drifts and discounting
          // of the joint stochastic process
@@ -735,9 +717,9 @@ namespace TestSuite
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100));
          SimpleQuote vol = new SimpleQuote(v);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, vol, dc));
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, rates, dc));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, divRates, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, vol, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, divRates, dc));
 
          BlackScholesMertonProcess bsmProcess = new BlackScholesMertonProcess(s0, qTS, rTS, volTS);
 
@@ -757,13 +739,13 @@ namespace TestSuite
                StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, strike[j]);
                Exercise exercise = new EuropeanExercise(maturity);
 
-               VanillaOption optionBsmHW = new VanillaOption(payoff, exercise);
+               VanillaOption optionBsmHW = new VanillaOption(settings, payoff, exercise);
                HullWhite hwModel = new HullWhite(rTS, hwProcess.a(), hwProcess.sigma());
                optionBsmHW.setPricingEngine(new AnalyticBSMHullWhiteEngine(corr[i], bsmProcess, hwModel));
 
                double expected = optionBsmHW.NPV();
 
-               VanillaOption optionHestonHW = new VanillaOption(payoff, exercise);
+               VanillaOption optionHestonHW = new VanillaOption(settings, payoff, exercise);
                HybridHestonHullWhiteProcess jointProcess = new HybridHestonHullWhiteProcess(hestonProcess,
                                                                                             hwProcess, corr[i]);
                optionHestonHW.setPricingEngine(
@@ -799,8 +781,9 @@ namespace TestSuite
           * Financial Derivatives,
           * http://repository.tudelft.nl/assets/uuid:a8e1a007-bd89-481a-aee3-0e22f15ade6b/PhDThesis_main.pdf
          */
+         Settings settings = new Settings();
          Date today = new Date(15, Month.July, 2012);
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
          Date exerciseDate = new Date(13, Month.July, 2022);
          DayCounter dc = new Actual365Fixed();
 
@@ -819,10 +802,10 @@ namespace TestSuite
          double kappa_r = 0.01;
          double sigma_r = 0.01;
 
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, r, dc));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, q, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, r, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, q, dc));
 
-         Handle<BlackVolTermStructure> flatVolTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, 0.20, dc));
+         Handle<BlackVolTermStructure> flatVolTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, 0.20, dc));
          GeneralizedBlackScholesProcess bsProcess = new GeneralizedBlackScholesProcess(s0, qTS, rTS, flatVolTS);
 
          HullWhiteProcess hwProcess = new HullWhiteProcess(rTS, kappa_r, sigma_r);
@@ -845,7 +828,7 @@ namespace TestSuite
             {
                StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, strikes[i]);
 
-               VanillaOption option = new VanillaOption(payoff, exercise);
+               VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
                IPricingEngine analyticH1HWEngine = new AnalyticH1HWEngine(hestonModel, hullWhiteModel, rho_sr, 144);
                option.setPricingEngine(analyticH1HWEngine);

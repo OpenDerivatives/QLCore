@@ -40,6 +40,7 @@ namespace QLCore
    {
       //! floating reference date, floating market data
       public SwaptionVolatilityMatrix(
+         Settings settings, 
          Calendar calendar,
          BusinessDayConvention bdc,
          List<Period> optionTenors,
@@ -49,7 +50,7 @@ namespace QLCore
          bool flatExtrapolation = false,
          VolatilityType type = VolatilityType.ShiftedLognormal,
          List<List<double>> shifts = null)
-         : base(optionTenors, swapTenors, 0, calendar, bdc, dayCounter)
+         : base(settings, optionTenors, swapTenors, 0, calendar, bdc, dayCounter)
       {
          volHandles_ = vols;
          shiftValues_ = shifts;
@@ -98,6 +99,7 @@ namespace QLCore
 
       //! fixed reference date, floating market data
       public SwaptionVolatilityMatrix(
+         Settings settings, 
          Date referenceDate,
          Calendar calendar,
          BusinessDayConvention bdc,
@@ -108,7 +110,7 @@ namespace QLCore
          bool flatExtrapolation = false,
          VolatilityType type = VolatilityType.ShiftedLognormal,
          List<List<double>> shifts = null)
-         : base(optionTenors, swapTenors, referenceDate, calendar, bdc, dayCounter)
+         : base(settings, optionTenors, swapTenors, referenceDate, calendar, bdc, dayCounter)
       {
          volHandles_ = vols;
          shiftValues_ = shifts;
@@ -157,6 +159,7 @@ namespace QLCore
 
       //! floating reference date, fixed market data
       public SwaptionVolatilityMatrix(
+         Settings settings, 
          Calendar calendar,
          BusinessDayConvention bdc,
          List<Period> optionTenors,
@@ -166,8 +169,7 @@ namespace QLCore
          bool flatExtrapolation = false,
          VolatilityType type = VolatilityType.ShiftedLognormal,
          Matrix shifts = null)
-
-         : base(optionTenors, swapTenors, 0, calendar, bdc, dayCounter)
+         : base(settings, optionTenors, swapTenors, 0, calendar, bdc, dayCounter)
       {
          volHandles_ = new InitializedList<List<Handle<Quote>>>(vols.rows());
          shiftValues_ = new InitializedList<List<double>>(vols.rows());
@@ -213,6 +215,7 @@ namespace QLCore
 
       //! fixed reference date, fixed market data
       public SwaptionVolatilityMatrix(
+         Settings settings, 
          Date referenceDate,
          Calendar calendar,
          BusinessDayConvention bdc,
@@ -223,7 +226,7 @@ namespace QLCore
          bool flatExtrapolation = false,
          VolatilityType type = VolatilityType.ShiftedLognormal,
          Matrix shifts = null)
-         : base(optionTenors, swapTenors, referenceDate, calendar, bdc, dayCounter)
+         : base(settings, optionTenors, swapTenors, referenceDate, calendar, bdc, dayCounter)
       {
          volHandles_ = new InitializedList<List<Handle<Quote>>>(vols.rows());
          shiftValues_ = new InitializedList<List<double>>(vols.rows());
@@ -271,7 +274,8 @@ namespace QLCore
       }
 
       // fixed reference date and fixed market data, option dates
-      public SwaptionVolatilityMatrix(Date today,
+      public SwaptionVolatilityMatrix(Settings settings, 
+                                      Date today,
                                       List<Date> optionDates,
                                       List<Period> swapTenors,
                                       Matrix vols,
@@ -279,7 +283,7 @@ namespace QLCore
                                       bool flatExtrapolation = false,
                                       VolatilityType type = VolatilityType.ShiftedLognormal,
                                       Matrix shifts = null)
-         : base(optionDates, swapTenors, today, new Calendar(), BusinessDayConvention.Following, dayCounter)
+         : base(settings, optionDates, swapTenors, today, new Calendar(), BusinessDayConvention.Following, dayCounter)
       {
          volHandles_ = new InitializedList<List<Handle<Quote>>>(vols.rows());
          shiftValues_ = new InitializedList<List<double>>(vols.rows());
@@ -397,7 +401,7 @@ namespace QLCore
       {
          double atmVol = volatilityImpl(optionTime, swapLength, 0.05);
          double shift = interpolationShifts_.value(optionTime, swapLength, true);
-         return (SmileSection)new FlatSmileSection(optionTime, atmVol, dayCounter(), null, volatilityType(), shift);
+         return (SmileSection)new FlatSmileSection(this.settings(), optionTime, atmVol, dayCounter(), null, volatilityType(), shift);
 
       }
 

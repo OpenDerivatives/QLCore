@@ -25,20 +25,22 @@ namespace QLCore
 {
    public class SVIWrapper : IWrapper
    {
-      public SVIWrapper(double t, double forward, List < double? > param, List < double? > addParams)
+      public SVIWrapper(Settings settings, double t, double forward, List < double? > param, List < double? > addParams)
       {
          t_ = t;
          forward_ = forward;
          params_ = param;
+         settings_ = settings;
          Utils.checkSviParameters(param[0].Value, param[1].Value, param[2].Value, param[3].Value, param[4].Value);
       }
       public double volatility(double x)
       {
-         return Utils.sviVolatility(x, forward_, t_, params_);
+         return Utils.sviVolatility(settings_, x, forward_, t_, params_);
       }
 
       private double t_, forward_;
       private List < double? > params_;
+      private Settings settings_;
    }
 
    public struct SVISpecs : IModel
@@ -112,9 +114,9 @@ namespace QLCore
                    y[1] * y[2] * Math.Sqrt(1.0 - y[3] * y[3]);
          return y;
       }
-      public IWrapper instance(double t, double forward, List < double? > param, List < double? > addParams)
+      public IWrapper instance(Settings settings, double t, double forward, List < double? > param, List < double? > addParams)
       {
-         return new SVIWrapper(t, forward, param, addParams);
+         return new SVIWrapper(settings, t, forward, param, addParams);
       }
       public double weight(double strike, double forward, double stdDev, List < double? > addParams)
       {
@@ -126,7 +128,8 @@ namespace QLCore
    //! %SABR smile interpolation between discrete volatility points.
    public class SviInterpolation : Interpolation
    {
-      public SviInterpolation(List<double> xBegin,  // x = strikes
+      public SviInterpolation(Settings settings, 
+                              List<double> xBegin,  // x = strikes
                               int size,
                               List<double> yBegin,  // y = volatilities
                               double t,             // option expiry
@@ -150,7 +153,7 @@ namespace QLCore
       {
 
          impl_ = new XABRInterpolationImpl<SVISpecs>(
-            xBegin, size, yBegin, t, forward,
+         settings, xBegin, size, yBegin, t, forward,
          new List < double? >() { a, b, sigma, rho, m },
          new List<bool>() { aIsFixed, bIsFixed, sigmaIsFixed, rhoIsFixed, mIsFixed },
          vegaWeighted, endCriteria, optMethod, errorAccept, useMaxError,
@@ -175,7 +178,7 @@ namespace QLCore
    //! %SABR interpolation factory and traits
    public class SVI
    {
-      public SVI(double t, double forward, double a, double b, double sigma, double rho, double m,
+      public SVI(Settings settings, double t, double forward, double a, double b, double sigma, double rho, double m,
                  bool aIsFixed, bool bIsFixed, bool sigmaIsFixed, bool rhoIsFixed, bool mIsFixed,
                  bool vegaWeighted = false,
                  EndCriteria endCriteria = null,
@@ -201,11 +204,12 @@ namespace QLCore
          useMaxError_ = useMaxError;
          maxGuesses_ = maxGuesses;
          addParams_ = addParams;
+         settings_ = settings;
       }
 
       public Interpolation interpolate(List<double> xBegin, int xEnd, List<double> yBegin)
       {
-         return new SviInterpolation(xBegin, xEnd, yBegin, t_, forward_, a_, b_, sigma_, rho_, m_,
+         return new SviInterpolation(settings_, xBegin, xEnd, yBegin, t_, forward_, a_, b_, sigma_, rho_, m_,
                                      aIsFixed_, bIsFixed_, sigmaIsFixed_, rhoIsFixed_, mIsFixed_, vegaWeighted_,
                                      endCriteria_, optMethod_, errorAccept_, useMaxError_, maxGuesses_);
       }
@@ -222,5 +226,6 @@ namespace QLCore
       private bool useMaxError_;
       private int maxGuesses_;
       private List < double? > addParams_;
+      private Settings settings_;
    }
 }

@@ -185,13 +185,13 @@ namespace QLCore
         }
 
         // two constructors to forward down the ctor chain
-        public PiecewiseDefaultCurve(Date referenceDate, Calendar cal, DayCounter dc,
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, Calendar cal, DayCounter dc,
            List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-            : base(referenceDate, cal, dc, jumps, jumpDates)
+            : base(settings, referenceDate, cal, dc, jumps, jumpDates)
         { }
-        public PiecewiseDefaultCurve(int settlementDays, Calendar cal, DayCounter dc,
+        public PiecewiseDefaultCurve(Settings settings, int settlementDays, Calendar cal, DayCounter dc,
            List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-            : base(settlementDays, cal, dc, jumps, jumpDates)
+            : base(settings, settlementDays, cal, dc, jumps, jumpDates)
         { }
         public PiecewiseDefaultCurve()
             : base()
@@ -204,29 +204,29 @@ namespace QLCore
         where BootStrap : IBootStrap<PiecewiseDefaultCurve>, new()
     {
         #region Constructors
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments, DayCounter dayCounter)
-            : this(referenceDate, instruments, dayCounter, new List<Handle<Quote>>(), new List<Date>(),
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments, DayCounter dayCounter)
+            : this(settings, referenceDate, instruments, dayCounter, new List<Handle<Quote>>(), new List<Date>(),
                      1.0e-12, FastActivator<Interpolator>.Create(), FastActivator<BootStrap>.Create()) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates)
-            : this(referenceDate, instruments, dayCounter, jumps, jumpDates, 1.0e-12, FastActivator<Interpolator>.Create(),
+            : this(settings, referenceDate, instruments, dayCounter, jumps, jumpDates, 1.0e-12, FastActivator<Interpolator>.Create(),
                  FastActivator<BootStrap>.Create()) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps,
                                    List<Date> jumpDates, double accuracy)
-            : this(referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy, FastActivator<Interpolator>.Create(),
+            : this(settings, referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy, FastActivator<Interpolator>.Create(),
                  FastActivator<BootStrap>.Create()) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps,
                                    List<Date> jumpDates, double accuracy, Interpolator i)
-            : this(referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy, i, FastActivator<BootStrap>.Create()) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+            : this(settings, referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy, i, FastActivator<BootStrap>.Create()) { }
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates,
                                    double accuracy, Interpolator i, BootStrap bootstrap)
-            : base(referenceDate, new Calendar(), dayCounter, jumps, jumpDates)
+            : base(settings, referenceDate, new Calendar(), dayCounter, jumps, jumpDates)
         {
             _traits_ = FastActivator<Traits>.Create();
-            base_curve = _traits_.factory<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, i);
+            base_curve = _traits_.factory<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, i);
             _instruments_ = instruments;
             accuracy_ = accuracy;
             interpolator_ = i;
@@ -235,17 +235,17 @@ namespace QLCore
             bootstrap_.setup(this);
         }
 
-        public PiecewiseDefaultCurve(int settlementDays, Calendar calendar, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, int settlementDays, Calendar calendar, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates, double accuracy)
-            : this(settlementDays, calendar, instruments, dayCounter, jumps, jumpDates, accuracy,
+            : this(settings, settlementDays, calendar, instruments, dayCounter, jumps, jumpDates, accuracy,
                      FastActivator<Interpolator>.Create(), FastActivator<BootStrap>.Create()) { }
-        public PiecewiseDefaultCurve(int settlementDays, Calendar calendar, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, int settlementDays, Calendar calendar, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates, double accuracy,
                                    Interpolator i, BootStrap bootstrap)
-            : base(settlementDays, calendar, dayCounter, jumps, jumpDates)
+            : base(settings, settlementDays, calendar, dayCounter, jumps, jumpDates)
         {
             _traits_ = FastActivator<Traits>.Create();
-            base_curve = _traits_.factory<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, i);
+            base_curve = _traits_.factory<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, i);
             _instruments_ = instruments;
             accuracy_ = accuracy;
             interpolator_ = i;
@@ -276,30 +276,30 @@ namespace QLCore
         where Traits : ITraits<DefaultProbabilityTermStructure>, new()
         where Interpolator : class, IInterpolationFactory, new()
     {
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments, DayCounter dayCounter)
-            : base(referenceDate, instruments, dayCounter) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments, DayCounter dayCounter, IterativeBootstrap<PiecewiseDefaultCurve, DefaultProbabilityTermStructure> ib)
-            : base(referenceDate, instruments, dayCounter) 
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments, DayCounter dayCounter)
+            : base(settings, referenceDate, instruments, dayCounter) { }
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments, DayCounter dayCounter, IterativeBootstrap<PiecewiseDefaultCurve, DefaultProbabilityTermStructure> ib)
+            : base(settings, referenceDate, instruments, dayCounter) 
             {  
                 bootstrap_ = ib;
                 bootstrap_.setup(this);
             }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates)
-            : base(referenceDate, instruments, dayCounter, jumps, jumpDates) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+            : base(settings, referenceDate, instruments, dayCounter, jumps, jumpDates) { }
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates, double accuracy)
-            : base(referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy) { }
-        public PiecewiseDefaultCurve(Date referenceDate, List<CdsHelper> instruments,
+            : base(settings, referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy) { }
+        public PiecewiseDefaultCurve(Settings settings, Date referenceDate, List<CdsHelper> instruments,
                                    DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates, double accuracy, Interpolator i)
-            : base(referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy, i) { }
+            : base(settings, referenceDate, instruments, dayCounter, jumps, jumpDates, accuracy, i) { }
 
-        public PiecewiseDefaultCurve(int settlementDays, Calendar calendar, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, int settlementDays, Calendar calendar, List<CdsHelper> instruments,
                                    DayCounter dayCounter)
-            : this(settlementDays, calendar, instruments, dayCounter, new List<Handle<Quote>>(), new List<Date>(), 1.0e-12) { }
+            : this(settings, settlementDays, calendar, instruments, dayCounter, new List<Handle<Quote>>(), new List<Date>(), 1.0e-12) { }
 
-        public PiecewiseDefaultCurve(int settlementDays, Calendar calendar, List<CdsHelper> instruments,
+        public PiecewiseDefaultCurve(Settings settings, int settlementDays, Calendar calendar, List<CdsHelper> instruments,
                                       DayCounter dayCounter, List<Handle<Quote>> jumps, List<Date> jumpDates, double accuracy)
-            : base(settlementDays, calendar, instruments, dayCounter, jumps, jumpDates, accuracy) { }
+            : base(settings, settlementDays, calendar, instruments, dayCounter, jumps, jumpDates, accuracy) { }
     }
 }

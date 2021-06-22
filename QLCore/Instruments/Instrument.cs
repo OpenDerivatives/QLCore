@@ -28,9 +28,15 @@ namespace QLCore
    {
       // The value of these attributes and any other that derived classes might declare must be set during calculation.
       protected double? NPV_, errorEstimate_, CASH_;
+      protected Settings settings_;
       protected Dictionary<string, object> additionalResults_ = new Dictionary<string, object>();
       protected IPricingEngine engine_;
       protected Date valuationDate_ = null;
+
+      public Instrument(Settings settings)
+      {
+         settings_ = settings;
+      }
 
       //! sets the pricing engine to be used.
       /*! calling this method will have no effects in case the performCalculation method
@@ -54,6 +60,8 @@ namespace QLCore
        * this method should be overridden to fill it.
        * This is mandatory in case a pricing engine is used. */
       public virtual void setupArguments(IPricingEngineArguments a) { throw new NotImplementedException(); }
+      public virtual Settings settings() { return settings_; }
+      public virtual void setSettings(Settings s) { settings_ = s; }
 
 
       #region Lazy object interface
@@ -184,8 +192,6 @@ namespace QLCore
             additionalResults.Clear();
             valuationDate = null;
          }
-
       }
-
    }
 }

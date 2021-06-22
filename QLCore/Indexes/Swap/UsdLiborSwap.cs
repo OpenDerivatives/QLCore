@@ -22,10 +22,10 @@ namespace QLCore
 {
    public class UsdLiborSwapIsdaFixAm : SwapIndex
    {
-      public UsdLiborSwapIsdaFixAm(Period tenor)
-         : this(tenor, new Handle<YieldTermStructure>()) { }
+      public UsdLiborSwapIsdaFixAm(Period tenor, Settings settings)
+         : this(tenor, settings, new Handle<YieldTermStructure>()) { }
 
-      public UsdLiborSwapIsdaFixAm(Period tenor, Handle<YieldTermStructure> h)
+      public UsdLiborSwapIsdaFixAm(Period tenor, Settings settings, Handle<YieldTermStructure> h)
          : base("UsdLiborSwapIsdaFixAm", // familyName
                 tenor,
                 2, // settlementDays
@@ -34,15 +34,16 @@ namespace QLCore
                 new Period(6, TimeUnit.Months), // fixedLegTenor
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
-                new USDLibor(new Period(3, TimeUnit.Months), h)) { }
+                new USDLibor(new Period(3, TimeUnit.Months), settings, h),
+                settings) { }
    }
 
    public class UsdLiborSwapIsdaFixPm : SwapIndex
    {
-      public UsdLiborSwapIsdaFixPm(Period tenor)
-         : this(tenor, new Handle<YieldTermStructure>()) { }
+      public UsdLiborSwapIsdaFixPm(Period tenor, Settings settings)
+         : this(tenor, settings, new Handle<YieldTermStructure>()) { }
 
-      public UsdLiborSwapIsdaFixPm(Period tenor, Handle<YieldTermStructure> h)
+      public UsdLiborSwapIsdaFixPm(Period tenor, Settings settings, Handle<YieldTermStructure> h)
          : base("UsdLiborSwapIsdaFixPm", // familyName
                 tenor,
                 2, // settlementDays
@@ -51,6 +52,7 @@ namespace QLCore
                 new Period(6, TimeUnit.Months), // fixedLegTenor
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
-                new USDLibor(new Period(3, TimeUnit.Months), h)) { }
+                new USDLibor(new Period(3, TimeUnit.Months), settings, h),
+                settings) { }
    }
 }

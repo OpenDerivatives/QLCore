@@ -109,16 +109,16 @@ namespace TestSuite
          double sigma = 0.5;
 
          BSMOperator refer = new BSMOperator(grid.size(), dx, r, q, sigma);
-
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
          Date exercise = today + new Period(2, TimeUnit.Years);
          double residualTime = dc.yearFraction(today, exercise);
 
          SimpleQuote spot = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, q, dc);
-         YieldTermStructure rTS = Utilities.flatRate(today, r, dc);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, sigma, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, q, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, r, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, sigma, dc);
          GeneralizedBlackScholesProcess stochProcess = new GeneralizedBlackScholesProcess(
             new Handle<Quote>(spot),
             new Handle<YieldTermStructure>(qTS),

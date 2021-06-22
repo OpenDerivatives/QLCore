@@ -77,7 +77,7 @@ namespace QLCore
          Handle<Quote> x0Quote = new Handle<Quote>(new SimpleQuote(spotFX_.link.value()));
          Handle<Quote> atmVolQuote = new Handle<Quote>(new SimpleQuote(atmVol_.link.value()));
 
-         BlackVolTermStructure blackVolTS = new BlackConstantVol(Settings.Instance.evaluationDate(),
+         BlackVolTermStructure blackVolTS = new BlackConstantVol(arguments_.settings, arguments_.settings.evaluationDate(),
                                                                  new NullCalendar(), atmVolQuote, new Actual365Fixed());
 
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(x0Quote, foreignTS_, domesticTS_,
@@ -151,6 +151,7 @@ namespace QLCore
             //only calculate out barrier option price
             // in barrier price = vanilla - out barrier
             DoubleBarrierOption doubleBarrierOption = new DoubleBarrierOption(
+               arguments_.settings, 
                DoubleBarrier.Type.KnockOut,
                arguments_.barrier_lo.GetValueOrDefault(),
                arguments_.barrier_hi.GetValueOrDefault(),

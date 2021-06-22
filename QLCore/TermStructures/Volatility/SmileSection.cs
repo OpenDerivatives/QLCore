@@ -27,27 +27,30 @@ namespace QLCore
    /*! This abstract class provides volatility smile section interface */
    public abstract class SmileSection : LazyObject
    {
-      protected SmileSection(Date d, DayCounter dc = null, Date referenceDate = null,
+      protected SmileSection(Settings settings, Date d, DayCounter dc = null, Date referenceDate = null,
                              VolatilityType type = VolatilityType.ShiftedLognormal, double shift = 0.0)
       {
          exerciseDate_ = d;
          dc_ = dc;
          volatilityType_ = type;
          shift_ = shift;
+         settings_ = settings;
 
          isFloating_ = referenceDate == null;
          if (isFloating_)
          {
-            referenceDate_ = Settings.Instance.evaluationDate();
+            referenceDate_ = settings_.evaluationDate();
          }
          else
             referenceDate_ = referenceDate;
+
          initializeExerciseTime();
       }
 
-      protected SmileSection(double exerciseTime, DayCounter dc = null,
+      protected SmileSection(Settings settings, double exerciseTime, DayCounter dc = null,
                              VolatilityType type = VolatilityType.ShiftedLognormal, double shift = 0.0)
       {
+         settings_ = settings;
          isFloating_ = false;
          referenceDate_ = null;
          dc_ = dc;
@@ -65,12 +68,14 @@ namespace QLCore
       {
          if (isFloating_)
          {
-            referenceDate_ = Settings.Instance.evaluationDate();
+            referenceDate_ =  settings_.evaluationDate();
             initializeExerciseTime();
          }
       }
       public abstract double minStrike();
       public abstract double maxStrike();
+      public Settings settings() { return settings_; }
+      public void setSettings(Settings settings) { settings_ = settings; }
       public double variance(double strike) { return varianceImpl(strike); }
       public double volatility(double strike) { return volatilityImpl(strike); }
       public abstract double? atmLevel();
@@ -181,14 +186,15 @@ namespace QLCore
       private double exerciseTime_;
       private VolatilityType volatilityType_;
       private double shift_;
+      private Settings settings_;
    }
    public class SabrSmileSection : SmileSection
    {
       private double alpha_, beta_, nu_, rho_, forward_, shift_;
       private VolatilityType volatilityType_;
 
-      public SabrSmileSection(double timeToExpiry, double forward, List<double> sabrParams, VolatilityType volatilityType = VolatilityType.ShiftedLognormal, double shift = 0.0)
-         : base(timeToExpiry, null, volatilityType, shift)
+      public SabrSmileSection(Settings settings, double timeToExpiry, double forward, List<double> sabrParams, VolatilityType volatilityType = VolatilityType.ShiftedLognormal, double shift = 0.0)
+         : base(settings, timeToExpiry, null, volatilityType, shift)
       {
          forward_ = forward;
          shift_ = shift;
@@ -203,8 +209,8 @@ namespace QLCore
          Utils.validateSabrParameters(alpha_, beta_, nu_, rho_);
       }
 
-      public SabrSmileSection(Date d, double forward, List<double> sabrParams, DayCounter dc = null, VolatilityType volatilityType = VolatilityType.ShiftedLognormal, double shift = 0.0)
-         : base(d, dc ?? new Actual365Fixed(), null, volatilityType, shift)
+      public SabrSmileSection(Settings settings, Date d, double forward, List<double> sabrParams, DayCounter dc = null, VolatilityType volatilityType = VolatilityType.ShiftedLognormal, double shift = 0.0)
+         : base(settings, d, dc ?? new Actual365Fixed(), null, volatilityType, shift)
       {
          forward_ = forward;
          shift_ = shift;

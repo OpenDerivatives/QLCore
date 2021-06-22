@@ -40,8 +40,8 @@ namespace QLCore
       public new class Engine : GenericEngine<ContinuousFloatingLookbackOption.Arguments,
          ContinuousFloatingLookbackOption.Results>
       {}
-      public ContinuousFloatingLookbackOption(double minmax, TypePayoff payoff, Exercise exercise)
-         : base(payoff, exercise)
+      public ContinuousFloatingLookbackOption(Settings settings, double minmax, TypePayoff payoff, Exercise exercise)
+         : base(settings, payoff, exercise)
       {
          minmax_ = minmax;
       }
@@ -80,8 +80,8 @@ namespace QLCore
       public new class Engine : GenericEngine<ContinuousFixedLookbackOption.Arguments,
          ContinuousFixedLookbackOption.Results>
       {}
-      public ContinuousFixedLookbackOption(double minmax, StrikedTypePayoff payoff, Exercise exercise)
-         : base(payoff, exercise)
+      public ContinuousFixedLookbackOption(Settings settings, double minmax, StrikedTypePayoff payoff, Exercise exercise)
+         : base(settings, payoff, exercise)
       {
          minmax_ = minmax;
       }
@@ -147,9 +147,9 @@ namespace QLCore
          ContinuousPartialFloatingLookbackOption.Results>
       {}
 
-      public ContinuousPartialFloatingLookbackOption(double minmax, double lambda,
+      public ContinuousPartialFloatingLookbackOption(Settings settings, double minmax, double lambda,
                                                      Date lookbackPeriodEnd, TypePayoff payoff, Exercise exercise)
-         : base(minmax, payoff, exercise)
+         : base(settings, minmax, payoff, exercise)
       {
          lambda_ = lambda;
          lookbackPeriodEnd_ = lookbackPeriodEnd;
@@ -207,8 +207,8 @@ namespace QLCore
       public new class Engine : GenericEngine<ContinuousPartialFixedLookbackOption.Arguments,
          ContinuousPartialFixedLookbackOption.Results>
       {}
-      public ContinuousPartialFixedLookbackOption(Date lookbackPeriodStart, StrikedTypePayoff payoff, Exercise exercise)
-         : base(0, payoff, exercise)
+      public ContinuousPartialFixedLookbackOption(Settings settings, Date lookbackPeriodStart, StrikedTypePayoff payoff, Exercise exercise)
+         : base(settings, 0, payoff, exercise)
       {
          lookbackPeriodStart_ = lookbackPeriodStart;
       }

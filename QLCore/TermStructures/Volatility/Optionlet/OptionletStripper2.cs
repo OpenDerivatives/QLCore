@@ -150,7 +150,7 @@ namespace QLCore
             // at first operator()(Volatility x) call
             spreadQuote_ = new SimpleQuote(-1.0);
 
-            OptionletVolatilityStructure spreadedAdapter = new SpreadedOptionletVolatility(
+            OptionletVolatilityStructure spreadedAdapter = new SpreadedOptionletVolatility(adapter.settings(),
                new Handle<OptionletVolatilityStructure>(adapter), new Handle<Quote>(spreadQuote_));
 
             BlackCapFloorEngine engine = new BlackCapFloorEngine(optionletStripper1.iborIndex().forwardingTermStructure(),

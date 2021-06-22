@@ -23,36 +23,37 @@ namespace QLCore
    //! EU HICP index
    public class EUHICP : ZeroInflationIndex
    {
-      public EUHICP(bool interpolated)
-         : this(interpolated, new Handle<ZeroInflationTermStructure>()) { }
+      public EUHICP(bool interpolated,
+                    Settings settings)
+         : this(interpolated, settings, new Handle<ZeroInflationTermStructure>()) { }
 
-      public EUHICP(bool interpolated, Handle<ZeroInflationTermStructure> ts)
+      public EUHICP(bool interpolated, Settings settings, Handle<ZeroInflationTermStructure> ts)
          : base("HICP", new EURegion(), false, interpolated, Frequency.Monthly,
                 new Period(1, TimeUnit.Months), // availability
-                new EURCurrency(), ts) {}
+                new EURCurrency(), settings, ts) {}
    }
 
    //! Genuine year-on-year EU HICP (i.e. not a ratio of EU HICP)
    public class YYEUHICP : YoYInflationIndex
    {
-      public YYEUHICP(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) { }
+      public YYEUHICP(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
-      public YYEUHICP(bool interpolated, Handle<YoYInflationTermStructure> ts)
+      public YYEUHICP(bool interpolated, Settings settings, Handle<YoYInflationTermStructure> ts)
          : base("YY_HICP", new EURegion(), false, interpolated, false, Frequency.Monthly,
-                new Period(1, TimeUnit.Months), new EURCurrency(), ts) {}
+                new Period(1, TimeUnit.Months), new EURCurrency(), settings, ts) {}
    }
 
 
    //! Fake year-on-year EU HICP (i.e. a ratio of EU HICP)
    public class YYEUHICPr : YoYInflationIndex
    {
-      public YYEUHICPr(bool interpolated)
-         : this(interpolated, new Handle<YoYInflationTermStructure>()) { }
+      public YYEUHICPr(bool interpolated, Settings settings)
+         : this(interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
-      public YYEUHICPr(bool interpolated, Handle<YoYInflationTermStructure> ts)
+      public YYEUHICPr(bool interpolated, Settings settings, Handle<YoYInflationTermStructure> ts)
          : base("YYR_HICP", new EURegion(), false, interpolated, true, Frequency.Monthly,
-                new Period(1, TimeUnit.Months), new EURCurrency(), ts) {}
+                new Period(1, TimeUnit.Months), new EURCurrency(), settings, ts) {}
    }
 
 }

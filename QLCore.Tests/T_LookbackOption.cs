@@ -154,14 +154,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -187,7 +187,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticContinuousFloatingLookbackEngine(stochProcess);
 
-            ContinuousFloatingLookbackOption option = new ContinuousFloatingLookbackOption(values[i].minmax,
+            ContinuousFloatingLookbackOption option = new ContinuousFloatingLookbackOption(settings, values[i].minmax,
                                                                                            payoff,
                                                                                            exercise);
             option.setPricingEngine(engine);
@@ -256,14 +256,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -285,7 +285,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticContinuousFixedLookbackEngine(stochProcess);
 
-            ContinuousFixedLookbackOption option = new ContinuousFixedLookbackOption(values[i].minmax,
+            ContinuousFixedLookbackOption option = new ContinuousFixedLookbackOption(settings, values[i].minmax,
                                                                                      payoff, exercise);
             option.setPricingEngine(engine);
 
@@ -352,14 +352,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -382,7 +382,7 @@ namespace TestSuite
             IPricingEngine engine = new AnalyticContinuousPartialFloatingLookbackEngine(stochProcess);
 
             Date lookbackEnd = today + Convert.ToInt32(values[i].t1 * 360 + 0.5);
-            ContinuousPartialFloatingLookbackOption option = new ContinuousPartialFloatingLookbackOption(
+            ContinuousPartialFloatingLookbackOption option = new ContinuousPartialFloatingLookbackOption(settings, 
                values[i].minmax, values[i].l, lookbackEnd, payoff, exercise);
             option.setPricingEngine(engine);
 
@@ -448,14 +448,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -478,7 +478,7 @@ namespace TestSuite
             IPricingEngine engine = new AnalyticContinuousPartialFixedLookbackEngine(stochProcess);
 
             Date lookbackStart = today + Convert.ToInt32(values[i].t1 * 360 + 0.5);
-            ContinuousPartialFixedLookbackOption option = new ContinuousPartialFixedLookbackOption(lookbackStart,
+            ContinuousPartialFixedLookbackOption option = new ContinuousPartialFixedLookbackOption(settings, lookbackStart,
                   payoff, exercise);
             option.setPricingEngine(engine);
 
@@ -509,14 +509,14 @@ namespace TestSuite
 
          Date exDate = today + Convert.ToInt32(t * 360 + 0.5);
          Exercise exercise = new EuropeanExercise(exDate);
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          spot.setValue(100);
          qRate.setValue(0);
@@ -544,7 +544,7 @@ namespace TestSuite
 
             Date lookbackStart = today + Convert.ToInt32(t1 * 360 + 0.5);
             ContinuousPartialFixedLookbackOption partialFixedLookback 
-                  = new ContinuousPartialFixedLookbackOption(lookbackStart,
+                  = new ContinuousPartialFixedLookbackOption(settings, lookbackStart,
                                                                      payoff,
                                                                      exercise);
             IPricingEngine engine = 
@@ -580,7 +580,7 @@ namespace TestSuite
             double minMax = 100;
 
             ContinuousFixedLookbackOption fixedLookback 
-                  = new ContinuousFixedLookbackOption(minMax,
+                  = new ContinuousFixedLookbackOption(settings, minMax,
                                                       payoff,
                                                       exercise);
             IPricingEngine analyticalfixedengine = 
@@ -618,7 +618,7 @@ namespace TestSuite
             FloatingTypePayoff floatingPayoff = new FloatingTypePayoff(type);
 
             ContinuousPartialFloatingLookbackOption partialFloating 
-                     = new ContinuousPartialFloatingLookbackOption(minMax,
+                     = new ContinuousPartialFloatingLookbackOption(settings, minMax,
                                                                   lambda,
                                                                   lookbackEnd,
                                                                   floatingPayoff,
@@ -654,7 +654,7 @@ namespace TestSuite
             * **/
 
             ContinuousFloatingLookbackOption floating = 
-               new ContinuousFloatingLookbackOption(minMax,
+               new ContinuousFloatingLookbackOption(settings, minMax,
                                                       floatingPayoff,
                                                       exercise);
             IPricingEngine analyticalFloatingengine =

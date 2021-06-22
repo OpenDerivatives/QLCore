@@ -78,17 +78,17 @@ namespace TestSuite
       {
          // Testing analytic continuous geometric average-price Asians
          // data from "Option Pricing Formulas", Haug, pag.96-97
-
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
          SimpleQuote spot = new SimpleQuote(80.0);
          SimpleQuote qRate = new SimpleQuote(-0.03);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.05);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          BlackScholesMertonProcess stochProcess = new
          BlackScholesMertonProcess(new Handle<Quote>(spot),
@@ -111,7 +111,7 @@ namespace TestSuite
 
          Exercise exercise = new EuropeanExercise(exerciseDate);
 
-         ContinuousAveragingAsianOption option = new ContinuousAveragingAsianOption(averageType, payoff, exercise);
+         ContinuousAveragingAsianOption option = new ContinuousAveragingAsianOption(settings, averageType, payoff, exercise);
          option.setPricingEngine(engine);
 
          double calculated = option.NPV();
@@ -135,7 +135,7 @@ namespace TestSuite
          }
          IPricingEngine engine2 = new AnalyticDiscreteGeometricAveragePriceAsianEngine(stochProcess);
 
-         DiscreteAveragingAsianOption option2 = new DiscreteAveragingAsianOption(averageType, runningAccumulator,
+         DiscreteAveragingAsianOption option2 = new DiscreteAveragingAsianOption(settings, averageType, runningAccumulator,
                                                                                  pastFixings, fixingDates, payoff, exercise);
 
          option2.setPricingEngine(engine2);
@@ -156,7 +156,7 @@ namespace TestSuite
       public void testAnalyticContinuousGeometricAveragePriceGreeks()
       {
          // Testing analytic continuous geometric average-price Asian greeks
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Dictionary<string, double> calculated, expected, tolerance;
             calculated = new Dictionary<string, double>(6);
@@ -179,15 +179,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             BlackScholesMertonProcess process = new BlackScholesMertonProcess(new Handle<Quote>(spot), qTS, rTS, volTS);
 
@@ -203,7 +203,8 @@ namespace TestSuite
 
                      IPricingEngine engine = new AnalyticContinuousGeometricAveragePriceAsianEngine(process);
 
-                     ContinuousAveragingAsianOption option = new ContinuousAveragingAsianOption(Average.Type.Geometric,
+                     ContinuousAveragingAsianOption option = new ContinuousAveragingAsianOption(settings, 
+                                                                                                Average.Type.Geometric,
                                                                                                 payoff, maturity);
                      option.setPricingEngine(engine);
 
@@ -290,13 +291,13 @@ namespace TestSuite
 
                                     // perturb date and get theta
                                     double dT = dc.yearFraction(today - 1, today + 1);
-                                    Settings.Instance.setEvaluationDate(today - 1);
+                                    settings.setEvaluationDate(today - 1);
                                     option.update();
                                     value_m = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today + 1);
+                                    settings.setEvaluationDate(today + 1);
                                     option.update();
                                     value_p = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today);
+                                    settings.setEvaluationDate(today);
                                     option.update();
                                     expected["theta"] = (value_p - value_m) / dT;
 
@@ -335,17 +336,17 @@ namespace TestSuite
          // Testing analytic discrete geometric average-price Asians
          // data from "Implementing Derivatives Model",
          // Clewlow, Strickland, p.118-123
-
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.03);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.06);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          BlackScholesMertonProcess stochProcess = new
          BlackScholesMertonProcess(new Handle<Quote>(spot),
@@ -372,7 +373,7 @@ namespace TestSuite
          for (int j = 1; j < futureFixings; j++)
             fixingDates[j] = fixingDates[j - 1] + dt;
 
-         DiscreteAveragingAsianOption option = new DiscreteAveragingAsianOption(averageType, runningAccumulator,
+         DiscreteAveragingAsianOption option = new DiscreteAveragingAsianOption(settings, averageType, runningAccumulator,
                                                                                 pastFixings, fixingDates, payoff, exercise);
          option.setPricingEngine(engine);
 
@@ -392,17 +393,17 @@ namespace TestSuite
       public void testAnalyticDiscreteGeometricAverageStrike()
       {
          // Testing analytic discrete geometric average-strike Asians
-
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
          SimpleQuote spot  = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.03);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.06);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                 new Handle<YieldTermStructure>(qTS),
@@ -428,7 +429,7 @@ namespace TestSuite
          for (int j = 1; j < futureFixings; j++)
             fixingDates[j] = fixingDates[j - 1] + dt;
 
-         DiscreteAveragingAsianOption option = new DiscreteAveragingAsianOption(averageType, runningAccumulator,
+         DiscreteAveragingAsianOption option = new DiscreteAveragingAsianOption(settings, averageType, runningAccumulator,
                                                                                 pastFixings, fixingDates, payoff, exercise);
          option.setPricingEngine(engine);
 
@@ -451,17 +452,17 @@ namespace TestSuite
          // Testing Monte Carlo discrete geometric average-price Asians
          // data from "Implementing Derivatives Model",
          // Clewlow, Strickland, p.118-123
-
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.03);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.06);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          BlackScholesMertonProcess stochProcess =
             new BlackScholesMertonProcess(new Handle<Quote>(spot),
@@ -495,7 +496,7 @@ namespace TestSuite
             fixingDates[j] = fixingDates[j - 1] + dt;
 
          DiscreteAveragingAsianOption option =
-            new DiscreteAveragingAsianOption(averageType, runningAccumulator,
+            new DiscreteAveragingAsianOption(settings, averageType, runningAccumulator,
                                              pastFixings, fixingDates,
                                              payoff, exercise);
          option.setPricingEngine(engine);
@@ -520,7 +521,7 @@ namespace TestSuite
       {
          // Testing discrete-averaging geometric Asian greeks
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Dictionary<string, double> calculated, expected, tolerance;
             calculated = new Dictionary<string, double>(6);
@@ -543,15 +544,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             BlackScholesMertonProcess process = new BlackScholesMertonProcess(new Handle<Quote>(spot), qTS, rTS, volTS);
 
@@ -577,7 +578,7 @@ namespace TestSuite
 
                      IPricingEngine engine = new AnalyticDiscreteGeometricAveragePriceAsianEngine(process);
 
-                     DiscreteAveragingAsianOption option = new DiscreteAveragingAsianOption(Average.Type.Geometric,
+                     DiscreteAveragingAsianOption option = new DiscreteAveragingAsianOption(settings, Average.Type.Geometric,
                                                                                             runningAverage, pastFixings, fixingDates, payoff, maturity);
 
                      option.setPricingEngine(engine);
@@ -663,13 +664,13 @@ namespace TestSuite
 
                                     // perturb date and get theta
                                     double dT = dc.yearFraction(today - 1, today + 1);
-                                    Settings.Instance.setEvaluationDate(today - 1);
+                                    settings.setEvaluationDate(today - 1);
                                     option.update();
                                     value_m = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today + 1);
+                                    settings.setEvaluationDate(today + 1);
                                     option.update();
                                     value_p = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today);
+                                    settings.setEvaluationDate(today);
                                     option.update();
                                     expected["theta"] = (value_p - value_m) / dT;
 
@@ -707,13 +708,13 @@ namespace TestSuite
       public void testIssue115()
       {
          DateTime timer = DateTime.Now;
-
+         Settings settings = new Settings();
          // set up dates
          Calendar calendar = new TARGET();
          Date todaysDate = new Date(1, Month.January, 2017);
          Date settlementDate = new Date(1, Month.January, 2017);
          Date maturity = new Date(17, Month.May, 2018);
-         Settings.Instance.setEvaluationDate(todaysDate);
+         settings.setEvaluationDate(todaysDate);
 
          // our options
          Option.Type type = Option.Type.Call;
@@ -733,17 +734,17 @@ namespace TestSuite
 
          Handle<Quote> underlyingH = new Handle<Quote>(new SimpleQuote(underlying));
          // bootstrap the yield/dividend/vol curves
-         var flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, riskFreeRate, dayCounter));
-         var flatDividendTS = new Handle<YieldTermStructure>(new FlatForward(settlementDate, dividendYield, dayCounter));
-         var flatVolTS = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, volatility, dayCounter));
+         var flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settings, settlementDate, riskFreeRate, dayCounter));
+         var flatDividendTS = new Handle<YieldTermStructure>(new FlatForward(settings, settlementDate, dividendYield, dayCounter));
+         var flatVolTS = new Handle<BlackVolTermStructure>(new BlackConstantVol(settings, settlementDate, calendar, volatility, dayCounter));
          StrikedTypePayoff payoff = new PlainVanillaPayoff(type, strike);
          var bsmProcess = new BlackScholesMertonProcess(underlyingH, flatDividendTS, flatTermStructure, flatVolTS);
 
          // options
-         VanillaOption europeanOption = new VanillaOption(payoff, europeanExercise);
+         VanillaOption europeanOption = new VanillaOption(settings, payoff, europeanExercise);
          PlainVanillaPayoff callpayoff = new PlainVanillaPayoff(type, strike);
 
-         DiscreteAveragingAsianOption asianoption = new DiscreteAveragingAsianOption(
+         DiscreteAveragingAsianOption asianoption = new DiscreteAveragingAsianOption(settings, 
             Average.Type.Arithmetic,
             accumulator,
             pastfixingcount,
@@ -819,6 +820,7 @@ namespace TestSuite
          // data from "Asian Option", Levy, 1997
          // in "Exotic Options: The State of the Art",
          // edited by Clewlow, Strickland
+         Settings settings = new Settings();
 
          DiscreteAverageData[] cases4 = {
          new DiscreteAverageData(Option.Type.Put, 90.0, 87.0, 0.06, 0.025, 0.0,11.0/12.0, 2,0.13, true, 1.3942835683),
@@ -858,11 +860,11 @@ namespace TestSuite
 
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.03);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.06);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          Average.Type averageType = Average.Type.Arithmetic;
          double runningSum = 0.0;
@@ -907,7 +909,7 @@ namespace TestSuite
                      .withControlVariate(cases4[l].controlVariate)
                      .value();
             DiscreteAveragingAsianOption option=
-               new DiscreteAveragingAsianOption(averageType, runningSum,
+               new DiscreteAveragingAsianOption(settings, averageType, runningSum,
                                                 pastFixings, fixingDates,
                                                 payoff, exercise);
             option.setPricingEngine(engine);
@@ -998,14 +1000,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today ;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.03);
-         YieldTermStructure qTS =Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS =Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.06);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          Average.Type averageType = QLCore.Average.Type.Arithmetic;
          double runningSum = 0.0;
@@ -1044,7 +1046,7 @@ namespace TestSuite
                .value();
 
             DiscreteAveragingAsianOption option =
-               new DiscreteAveragingAsianOption(averageType, runningSum,
+               new DiscreteAveragingAsianOption(settings, averageType, runningSum,
                                                 pastFixings, fixingDates,
                                                 payoff, exercise);
             option.setPricingEngine(engine);
@@ -1067,14 +1069,14 @@ namespace TestSuite
          //Testing use of past fixings in Asian options...
          DayCounter dc = new Actual360();
          Date today = Date.Today ;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.03);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.06);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.20);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 100.0);
 
@@ -1094,7 +1096,7 @@ namespace TestSuite
             fixingDates1.Add(today + new Period(i,TimeUnit.Months));
 
          DiscreteAveragingAsianOption option1 =
-            new DiscreteAveragingAsianOption(Average.Type.Arithmetic, runningSum,
+            new DiscreteAveragingAsianOption(settings, Average.Type.Arithmetic, runningSum,
                                              pastFixings, fixingDates1,
                                              payoff, exercise);
 
@@ -1105,7 +1107,7 @@ namespace TestSuite
             fixingDates2.Add(today + new Period(i,TimeUnit.Months));
 
          DiscreteAveragingAsianOption option2 =
-            new DiscreteAveragingAsianOption(Average.Type.Arithmetic, runningSum,
+            new DiscreteAveragingAsianOption(settings, Average.Type.Arithmetic, runningSum,
                                              pastFixings, fixingDates2,
                                              payoff, exercise);
 
@@ -1150,7 +1152,7 @@ namespace TestSuite
          pastFixings = 0;
 
          DiscreteAveragingAsianOption option3 =
-            new DiscreteAveragingAsianOption(Average.Type.Geometric, runningProduct,
+            new DiscreteAveragingAsianOption(settings, Average.Type.Geometric, runningProduct,
                                              pastFixings, fixingDates1,
                                              payoff, exercise);
 
@@ -1158,7 +1160,7 @@ namespace TestSuite
          runningProduct = spot.value() * spot.value();
 
          DiscreteAveragingAsianOption option4 =
-            new DiscreteAveragingAsianOption(Average.Type.Geometric, runningProduct,
+            new DiscreteAveragingAsianOption(settings, Average.Type.Geometric, runningProduct,
                                              pastFixings, fixingDates2,
                                              payoff, exercise);
 

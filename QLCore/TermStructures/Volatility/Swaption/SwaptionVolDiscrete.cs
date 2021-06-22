@@ -37,13 +37,14 @@ namespace QLCore
       protected List<double> swapLengths_;
       protected Date evaluationDate_;
 
-      protected SwaptionVolatilityDiscrete(List<Period> optionTenors,
+      protected SwaptionVolatilityDiscrete(Settings settings, 
+                                           List<Period> optionTenors,
                                            List<Period> swapTenors,
                                            int settlementDays,
                                            Calendar cal,
                                            BusinessDayConvention bdc,
                                            DayCounter dc)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -63,16 +64,17 @@ namespace QLCore
          optionInterpolator_ = new LinearInterpolation(optionTimes_, optionTimes_.Count, optionDatesAsReal_);
          optionInterpolator_.update();
          optionInterpolator_.enableExtrapolation();
-         evaluationDate_ = Settings.Instance.evaluationDate();
+         evaluationDate_ = this.settings().evaluationDate();
       }
 
-      protected SwaptionVolatilityDiscrete(List<Period> optionTenors,
+      protected SwaptionVolatilityDiscrete(Settings settings, 
+                                           List<Period> optionTenors,
                                            List<Period> swapTenors,
                                            Date referenceDate,
                                            Calendar cal,
                                            BusinessDayConvention bdc,
                                            DayCounter dc)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -95,13 +97,14 @@ namespace QLCore
          optionInterpolator_.enableExtrapolation();
       }
 
-      protected SwaptionVolatilityDiscrete(List<Date> optionDates,
+      protected SwaptionVolatilityDiscrete(Settings settings, 
+                                           List<Date> optionDates,
                                            List<Period> swapTenors,
                                            Date referenceDate,
                                            Calendar cal,
                                            BusinessDayConvention bdc,
                                            DayCounter dc)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {
          nOptionTenors_ = optionDates.Count;
          optionTenors_ = new InitializedList<Period>(nOptionTenors_);
@@ -152,7 +155,7 @@ namespace QLCore
       {
          if (moving_)
          {
-            Date d = Settings.Instance.evaluationDate();
+            Date d = this.settings().evaluationDate();
             if (evaluationDate_ != d)
             {
                evaluationDate_ = d;

@@ -39,6 +39,7 @@ namespace QLCore
                              Date fixingDate,
                              Date paymentDate,
                              bool growthOnly = false)
+         : base(index.settings())
       {
          notional_ = notional;
          index_ = index;

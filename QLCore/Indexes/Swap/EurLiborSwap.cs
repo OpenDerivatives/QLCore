@@ -32,10 +32,10 @@ namespace QLCore
    */
    public class EurLiborSwapIsdaFixA : SwapIndex
    {
-      public EurLiborSwapIsdaFixA(Period tenor)
-         : this(tenor, new Handle<YieldTermStructure>()) {}
+      public EurLiborSwapIsdaFixA(Period tenor, Settings settings)
+         : this(tenor, settings, new Handle<YieldTermStructure>()) {}
 
-      public EurLiborSwapIsdaFixA(Period tenor, Handle<YieldTermStructure> h)
+      public EurLiborSwapIsdaFixA(Period tenor, Settings settings, Handle<YieldTermStructure> h)
          : base("EurLiborSwapIsdaFixA", // familyName
                 tenor,
                 2, // settlementDays
@@ -45,12 +45,14 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new EURLibor(new Period(6, TimeUnit.Months), h) :
-                new EURLibor(new Period(3, TimeUnit.Months), h)) {}
+                new EURLibor(new Period(6, TimeUnit.Months), settings, h) :
+                new EURLibor(new Period(3, TimeUnit.Months), settings, h),
+                settings) {}
 
       public EurLiborSwapIsdaFixA(Period tenor,
                                   Handle<YieldTermStructure> forwarding,
-                                  Handle<YieldTermStructure> discounting)
+                                  Handle<YieldTermStructure> discounting,
+                                  Settings settings = null)
          : base("EurLiborSwapIsdaFixA", // familyName
                 tenor,
                 2, // settlementDays
@@ -60,8 +62,9 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new EURLibor(new Period(6, TimeUnit.Months), forwarding) :
-                new EURLibor(new Period(3, TimeUnit.Months), forwarding),
+                new EURLibor(new Period(6, TimeUnit.Months), settings, forwarding) :
+                new EURLibor(new Period(3, TimeUnit.Months), settings, forwarding),
+                settings,
                 discounting) {}
    }
 
@@ -77,10 +80,10 @@ namespace QLCore
    */
    public class EurLiborSwapIsdaFixB : SwapIndex
    {
-      public EurLiborSwapIsdaFixB(Period tenor)
-         : this(tenor, new Handle<YieldTermStructure>()) {}
+      public EurLiborSwapIsdaFixB(Period tenor, Settings settings)
+         : this(tenor, settings, new Handle<YieldTermStructure>()) {}
 
-      public EurLiborSwapIsdaFixB(Period tenor, Handle<YieldTermStructure> h)
+      public EurLiborSwapIsdaFixB(Period tenor, Settings settings, Handle<YieldTermStructure> h)
          : base("EurLiborSwapIsdaFixB", // familyName
                 tenor,
                 2, // settlementDays
@@ -90,12 +93,14 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new EURLibor(new Period(6, TimeUnit.Months), h) :
-                new EURLibor(new Period(3, TimeUnit.Months), h)) {}
+                new EURLibor(new Period(6, TimeUnit.Months), settings, h) :
+                new EURLibor(new Period(3, TimeUnit.Months), settings, h),
+                settings) {}
 
       public EurLiborSwapIsdaFixB(Period tenor,
                                   Handle<YieldTermStructure> forwarding,
-                                  Handle<YieldTermStructure> discounting)
+                                  Handle<YieldTermStructure> discounting,
+                                  Settings settings = null)
          : base("EurLiborSwapIsdaFixB", // familyName
                 tenor,
                 2, // settlementDays
@@ -105,8 +110,9 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new EURLibor(new Period(6, TimeUnit.Months), forwarding) :
-                new EURLibor(new Period(3, TimeUnit.Months), forwarding),
+                new EURLibor(new Period(6, TimeUnit.Months), settings, forwarding) :
+                new EURLibor(new Period(3, TimeUnit.Months), settings, forwarding),
+                settings,
                 discounting) {}
    }
 
@@ -119,10 +125,10 @@ namespace QLCore
    */
    public class EurLiborSwapIfrFix : SwapIndex
    {
-      public EurLiborSwapIfrFix(Period tenor)
-         : this(tenor, new Handle<YieldTermStructure>()) {}
+      public EurLiborSwapIfrFix(Period tenor, Settings settings)
+         : this(tenor, settings, new Handle<YieldTermStructure>()) {}
 
-      public EurLiborSwapIfrFix(Period tenor, Handle<YieldTermStructure> h)
+      public EurLiborSwapIfrFix(Period tenor, Settings settings, Handle<YieldTermStructure> h)
          : base("EurLiborSwapIfrFix", // familyName
                 tenor,
                 2, // settlementDays
@@ -132,13 +138,15 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new EURLibor(new Period(6, TimeUnit.Months), h) :
-                new EURLibor(new Period(3, TimeUnit.Months), h)) {}
+                new EURLibor(new Period(6, TimeUnit.Months), settings, h) :
+                new EURLibor(new Period(3, TimeUnit.Months), settings, h),
+                settings) {}
 
 
       public EurLiborSwapIfrFix(Period tenor,
                                 Handle<YieldTermStructure> forwarding,
-                                Handle<YieldTermStructure> discounting)
+                                Handle<YieldTermStructure> discounting,
+                                Settings settings = null)
          : base("EurLiborSwapIfrFix", // familyName
                 tenor,
                 2, // settlementDays
@@ -148,8 +156,9 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Thirty360(Thirty360.Thirty360Convention.BondBasis), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new EURLibor(new Period(6, TimeUnit.Months), forwarding) :
-                new EURLibor(new Period(3, TimeUnit.Months), forwarding),
+                new EURLibor(new Period(6, TimeUnit.Months), settings, forwarding) :
+                new EURLibor(new Period(3, TimeUnit.Months), settings, forwarding),
+                settings,
                 discounting) {}
 
    }

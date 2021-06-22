@@ -65,7 +65,6 @@ namespace QLCore
 
          public Type type { get; set; }
          public double? nominal { get; set; }
-
       }
 
       public new class Results : Swap.Results
@@ -103,7 +102,7 @@ namespace QLCore
                      ZeroInflationIndex fixedIndex,
                      InterpolationType observationInterpolation = InterpolationType.AsIndex,
                      double? inflationNominal = null)
-      : base(2)
+      : base(floatSchedule.settings(), 2)
       {
          type_ = type;
          nominal_ = nominal;
@@ -161,7 +160,7 @@ namespace QLCore
             }
 
             double floatAmount = subtractInflationNominal_ ? nominal_ - inflationNominal_ : nominal_;
-            CashFlow nf = new SimpleCashFlow(floatAmount, payNotional);
+            CashFlow nf = new SimpleCashFlow(settings(), floatAmount, payNotional);
             floatingLeg.Add(nf);
          }
 

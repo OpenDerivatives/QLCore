@@ -31,12 +31,12 @@ namespace QLCore
    */
    public class JPYLibor : Libor
    {
-      public JPYLibor(Period tenor)
-         : base("JPYLibor", tenor, 2, new JPYCurrency(), new Japan(), new Actual360(), new Handle<YieldTermStructure>())
+      public JPYLibor(Period tenor, Settings settings)
+         : base("JPYLibor", tenor, 2, new JPYCurrency(), new Japan(), new Actual360(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public JPYLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("JPYLibor", tenor, 2, new JPYCurrency(), new Japan(), new Actual360(), h)
+      public JPYLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("JPYLibor", tenor, 2, new JPYCurrency(), new Japan(), new Actual360(), settings, h)
       {}
 
    }
@@ -44,11 +44,11 @@ namespace QLCore
    //! base class for the one day deposit ICE %JPY %LIBOR indexes
    public class DailyTenorJPYLibor : DailyTenorLibor
    {
-      public DailyTenorJPYLibor(int settlementDays) : this(settlementDays, new Handle<YieldTermStructure>())
+      public DailyTenorJPYLibor(int settlementDays, Settings settings) : this(settlementDays, settings, new Handle<YieldTermStructure>())
       {}
 
-      public DailyTenorJPYLibor(int settlementDays, Handle<YieldTermStructure> h)
-         : base("JPYLibor", settlementDays, new JPYCurrency(), new Japan(), new Actual360(), h)
+      public DailyTenorJPYLibor(int settlementDays, Settings settings, Handle<YieldTermStructure> h)
+         : base("JPYLibor", settlementDays, new JPYCurrency(), new Japan(), new Actual360(), settings, h)
       {}
    }
 }

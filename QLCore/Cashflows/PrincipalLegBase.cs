@@ -32,23 +32,25 @@ namespace QLCore
       public static implicit operator List<CashFlow>(PrincipalLegBase o) { return o.value(); }
       public abstract List<CashFlow> value();
 
-
       // initializers
       public PrincipalLegBase withNotionals(double notional)
       {
          notionals_ = new List<double>() { notional };
          return this;
       }
+
       public PrincipalLegBase withNotionals(List<double> notionals)
       {
          notionals_ = notionals;
          return this;
       }
+
       public PrincipalLegBase withPaymentAdjustment(BusinessDayConvention convention)
       {
          paymentAdjustment_ = convention;
          return this;
       }
+
       public PrincipalLegBase withPaymentDayCounter(DayCounter dayCounter)
       {
          dayCounter_ = dayCounter;
@@ -60,7 +62,6 @@ namespace QLCore
          sign_ = sign;
          return this;
       }
-
    }
 
    //! helper class building a Bullet Principal leg
@@ -88,12 +89,12 @@ namespace QLCore
          double nominal = notionals_[0];
          double quota = nominal / (schedule_.Count - 1);
 
-         leg.Add(new Principal(nominal * sign_, nominal, paymentDate, start, end, dayCounter_,  start, end));
+         leg.Add(new Principal(schedule_.settings(), nominal * sign_, nominal, paymentDate, start, end, dayCounter_,  start, end));
 
          if (schedule_.Count == 2)
          {
             paymentDate = calendar.adjust(end, paymentAdjustment_);
-            leg.Add(new Principal(nominal * sign_ * -1, 0, paymentDate, start, end, dayCounter_, start, end));
+            leg.Add(new Principal(schedule_.settings(), nominal * sign_ * -1, 0, paymentDate, start, end, dayCounter_, start, end));
          }
          else
          {
@@ -105,7 +106,7 @@ namespace QLCore
                paymentDate = calendar.adjust(start, paymentAdjustment_);
                nominal -= quota;
 
-               leg.Add(new Principal(quota * sign_ * -1, nominal, paymentDate, start, end, dayCounter_, start, end));
+               leg.Add(new Principal(schedule_.settings(), quota * sign_ * -1, nominal, paymentDate, start, end, dayCounter_, start, end));
             }
          }
 
@@ -136,10 +137,10 @@ namespace QLCore
          Date paymentDate = calendar.adjust(start, paymentAdjustment_);
          double nominal = notionals_[0];
 
-         leg.Add(new Principal(nominal, nominal, paymentDate, start, end, dayCounter_, start, end));
+         leg.Add(new Principal(schedule_.settings(), nominal, nominal, paymentDate, start, end, dayCounter_, start, end));
 
          paymentDate = calendar.adjust(end, paymentAdjustment_);
-         leg.Add(new Principal(nominal * -1, 0, paymentDate, start, end, dayCounter_, start, end));
+         leg.Add(new Principal(schedule_.settings(), nominal * -1, 0, paymentDate, start, end, dayCounter_, start, end));
 
          return leg;
       }

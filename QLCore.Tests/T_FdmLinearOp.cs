@@ -683,15 +683,15 @@ namespace TestSuite
       [Fact]
       public void testCrankNicolsonWithDamping()
       {
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
          SimpleQuote spot = new SimpleQuote(100.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, 0.06, dc);
-         YieldTermStructure rTS = Utilities.flatRate(today, 0.06, dc);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, 0.35, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, 0.06, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, 0.06, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, 0.35, dc);
 
          StrikedTypePayoff payoff =
             new CashOrNothingPayoff(Option.Type.Put, 100, 10.0);
@@ -708,7 +708,7 @@ namespace TestSuite
          IPricingEngine engine =
             new AnalyticEuropeanEngine(process);
 
-         VanillaOption opt = new VanillaOption(payoff, exercise);
+         VanillaOption opt = new VanillaOption(settings, payoff, exercise);
          opt.setPricingEngine(engine);
          double expectedPV = opt.NPV();
          double expectedGamma = opt.gamma();

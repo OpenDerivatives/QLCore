@@ -23,9 +23,9 @@ namespace QLCore
    //! %Eonia (Euro Overnight Index Average) rate fixed by the ECB.
    public class Eonia : OvernightIndex
    {
-      public Eonia() : this(new Handle<YieldTermStructure>()) { }
+      public Eonia(Settings settings) : this(settings, new Handle<YieldTermStructure>()) { }
 
-      public Eonia(Handle<YieldTermStructure> h)
-         : base("Eonia", 0, new EURCurrency(), new TARGET(), new Actual360(), h) {}
+      public Eonia(Settings settings, Handle<YieldTermStructure> h)
+         : base("Eonia", 0, new EURCurrency(), new TARGET(), new Actual360(), settings, h) {}
    }
 }

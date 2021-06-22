@@ -31,9 +31,9 @@ namespace QLCore
    */
    public class BMAIndex : InterestRateIndex
    {
-      public BMAIndex(Handle<YieldTermStructure> h = null)
+      public BMAIndex(Handle<YieldTermStructure> h = null, Settings settings = null)
          : base("BMA", new Period(1, TimeUnit.Weeks), 1, new USDCurrency(),
-                new UnitedStates(UnitedStates.Market.NYSE), new ActualActual(ActualActual.Convention.ISDA))
+                new UnitedStates(UnitedStates.Market.NYSE), new ActualActual(ActualActual.Convention.ISDA), settings)
       {
          termStructure_ = h ?? new Handle<YieldTermStructure>();
       }
@@ -68,7 +68,7 @@ namespace QLCore
       // This method returns a schedule of fixing dates between start and end.
       public Schedule fixingSchedule(Date start, Date end)
       {
-         return new MakeSchedule().from(Utils.previousWednesday(start))
+         return new MakeSchedule(settings()).from(Utils.previousWednesday(start))
                 .to(Utils.nextWednesday(end))
                 .withFrequency(Frequency.Weekly)
                 .withCalendar(fixingCalendar())

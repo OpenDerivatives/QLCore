@@ -28,7 +28,7 @@ namespace QLCore
                            Period tenor, // swap maturity
                            Handle<Quote> fixedRate,
                            OvernightIndex overnightIndex)
-         : base(fixedRate)
+         : base(overnightIndex.settings(), fixedRate)
       {
          settlementDays_ = settlementDays;
          tenor_ = tenor;
@@ -45,7 +45,7 @@ namespace QLCore
                            OvernightIndex overnightIndex,
                            Frequency fixedFrequency,
                            Frequency oisFrequency)
-         : base(fixedRate)
+         : base(overnightIndex.settings(), fixedRate)
       {
          settlementDays_ = settlementDays;
          tenor_ = tenor;
@@ -66,7 +66,7 @@ namespace QLCore
          IborIndex clonedIborIndex = overnightIndex_.clone(termStructureHandle_);
          OvernightIndex clonedOvernightIndex = clonedIborIndex as OvernightIndex;
 
-         swap_ = new MakeOIS(tenor_, clonedOvernightIndex, 0.0)
+         swap_ = new MakeOIS(settings(), tenor_, clonedOvernightIndex, 0.0)
          .withPaymentFrequency(fixedFrequency_)
          .withReceiveFrequency(oisFrequency_)
          .withSettlementDays(settlementDays_)
@@ -111,14 +111,14 @@ namespace QLCore
                                 Handle<Quote> fixedRate,
                                 OvernightIndex overnightIndex)
 
-         : base(fixedRate)
+         : base(overnightIndex.settings(), fixedRate)
       {
          // dummy OvernightIndex with curve/swap arguments
          // review here
          IborIndex clonedIborIndex = overnightIndex.clone(termStructureHandle_);
          OvernightIndex clonedOvernightIndex = clonedIborIndex as OvernightIndex;
 
-         swap_ = new MakeOIS(new Period(), clonedOvernightIndex, 0.0)
+         swap_ = new MakeOIS(settings(), new Period(), clonedOvernightIndex, 0.0)
          .withEffectiveDate(startDate)
          .withTerminationDate(endDate)
          .withDiscountingTermStructure(termStructureHandle_);

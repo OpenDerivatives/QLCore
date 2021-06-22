@@ -82,7 +82,7 @@ namespace QLCore
                                   FixedRateBond fixedCouponBond,
                                   Handle<YieldTermStructure> discountCurve,
                                   Handle<YieldTermStructure> incomeDiscountCurve)
-         : base(dayCounter, calendar, businessDayConvention, settlementDays, new ForwardTypePayoff(type, strike),
+         : base(fixedCouponBond.settings(), dayCounter, calendar, businessDayConvention, settlementDays, new ForwardTypePayoff(type, strike),
                 valueDate, maturityDate, discountCurve)
       {
          fixedCouponBond_ = fixedCouponBond;

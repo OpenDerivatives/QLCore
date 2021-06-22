@@ -40,16 +40,16 @@ namespace QLCore
    {
       #region Constructors
 
-      protected HazardRateStructure(DayCounter dc = null, List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(dc, jumps, jumpDates) {}
+      protected HazardRateStructure(Settings settings, DayCounter dc = null, List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
+         : base(settings, dc, jumps, jumpDates) {}
 
-      protected HazardRateStructure(Date referenceDate, Calendar cal = null, DayCounter dc = null,
+      protected HazardRateStructure(Settings settings, Date referenceDate, Calendar cal = null, DayCounter dc = null,
                                     List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(referenceDate, cal, dc, jumps, jumpDates) { }
+         : base(settings, referenceDate, cal, dc, jumps, jumpDates) { }
 
-      protected HazardRateStructure(int settlementDays, Calendar cal, DayCounter dc = null,
+      protected HazardRateStructure(Settings settings, int settlementDays, Calendar cal, DayCounter dc = null,
                                     List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(settlementDays, cal, dc, jumps, jumpDates) { }
+         : base(settings, settlementDays, cal, dc, jumps, jumpDates) { }
 
       #endregion
 

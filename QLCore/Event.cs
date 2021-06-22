@@ -25,9 +25,17 @@ namespace QLCore
    public abstract class Event
    {
       #region Event interface
+      
+      public Event(Settings settings)
+      {
+         settings_ = settings;
+      }
 
       //! returns the date at which the event occurs
       public abstract Date date();
+
+      public virtual Settings settings() { return settings_; }
+      public virtual void setSettings(Settings s) { settings_ = s; }
 
       //! returns true if an event has already occurred before a date
       /*! If includeRefDate is true, then an event has not occurred if its
@@ -36,8 +44,8 @@ namespace QLCore
       */
       public virtual bool hasOccurred(Date d = null, bool? includeRefDate = null)
       {
-         Date refDate = d ?? Settings.Instance.evaluationDate();
-         bool includeRefDateEvent = includeRefDate ?? Settings.Instance.includeReferenceDateEvents;
+         Date refDate = d ?? settings_.evaluationDate();
+         bool includeRefDateEvent = includeRefDate ?? settings_.includeReferenceDateEvents;
          if (includeRefDateEvent)
             return date() < refDate;
          else
@@ -57,19 +65,22 @@ namespace QLCore
       }
 
       #endregion
+
+      protected Settings settings_;
    }
 
    // used to create an Event instance.
    // to be replaced with specific events as soon as we find out which.
    public class simple_event : Event
    {
-      public simple_event(Date date)
+      public simple_event(Settings settings, Date date)
+      : base(settings)
       {
          date_ = date;
       }
+
       public override Date date() { return date_; }
 
       private Date date_;
-
    }
 }

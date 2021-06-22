@@ -36,7 +36,6 @@ namespace QLCore
    /// </summary>
    public class CallableBond : Bond
    {
-
       /// <summary>
       /// Return the bond's put/call schedule
       /// </summary>
@@ -232,7 +231,7 @@ namespace QLCore
                              DayCounter paymentDayCounter,
                              Date issueDate = null,
                              CallabilitySchedule putCallSchedule = null)
-         : base(settlementDays, schedule.calendar(), issueDate)
+         : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          paymentDayCounter_ = paymentDayCounter;
          putCallSchedule_ = putCallSchedule ?? new CallabilitySchedule();
@@ -495,7 +494,7 @@ namespace QLCore
          // used for impliedVolatility() calculation
          SimpleQuote dummyVolQuote = new SimpleQuote(0.0);
          blackVolQuote_.linkTo(dummyVolQuote);
-         blackEngine_ = new BlackCallableFixedRateBondEngine(blackVolQuote_, blackDiscountCurve_);
+         blackEngine_ = new BlackCallableFixedRateBondEngine(schedule.settings(), blackVolQuote_, blackDiscountCurve_);
       }
 
       public override void setupArguments(IPricingEngineArguments args)
@@ -595,7 +594,8 @@ namespace QLCore
    /// </summary>
    public class CallableZeroCouponBond : CallableFixedRateBond
    {
-      public CallableZeroCouponBond(int settlementDays,
+      public CallableZeroCouponBond(Settings settings,
+                                    int settlementDays,
                                     double faceAmount,
                                     Calendar calendar,
                                     Date maturityDate,
@@ -604,7 +604,8 @@ namespace QLCore
                                     double redemption = 100.0,
                                     Date issueDate = null,
                                     CallabilitySchedule putCallSchedule = null)
-         : base(settlementDays, faceAmount, new Schedule(issueDate, maturityDate,
+         : base(settlementDays, faceAmount, new Schedule(settings, 
+                                                         issueDate, maturityDate,
                                                          new Period(Frequency.Once),
                                                          calendar,
                                                          paymentConvention,

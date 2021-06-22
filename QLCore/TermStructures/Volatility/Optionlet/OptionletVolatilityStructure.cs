@@ -33,17 +33,17 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected OptionletVolatilityStructure(BusinessDayConvention bdc = BusinessDayConvention.Following,
+      protected OptionletVolatilityStructure(Settings settings, BusinessDayConvention bdc = BusinessDayConvention.Following,
                                              DayCounter dc = null)
-         : base(bdc, dc) {}
+         : base(settings, bdc, dc) {}
 
       //! initialize with a fixed reference date
-      protected OptionletVolatilityStructure(Date referenceDate, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(referenceDate, cal, bdc, dc) {}
+      protected OptionletVolatilityStructure(Settings settings, Date referenceDate, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, referenceDate, cal, bdc, dc) {}
 
       //! calculate the reference date based on the global evaluation date
-      protected OptionletVolatilityStructure(int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc) {}
+      protected OptionletVolatilityStructure(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, settlementDays, cal, bdc, dc) {}
 
       #endregion
 

@@ -35,6 +35,7 @@ namespace QLCore
             barrier = null;
             rebate = null;
          }
+
          public Barrier.Type barrierType { get; set; }
          public double? barrier { get; set; }
          public double? rebate { get; set; }
@@ -78,7 +79,8 @@ namespace QLCore
             }
          }
       }
-      public BarrierOption(Barrier.Type barrierType, double barrier, double rebate, StrikedTypePayoff payoff, Exercise exercise) : base(payoff, exercise)
+
+      public BarrierOption(Settings settings, Barrier.Type barrierType, double barrier, double rebate, StrikedTypePayoff payoff, Exercise exercise) : base(settings, payoff, exercise)
       {
          barrierType_ = barrierType;
          barrier_ = barrier;
@@ -95,6 +97,7 @@ namespace QLCore
          moreArgs.barrierType = barrierType_;
          moreArgs.barrier = barrier_;
          moreArgs.rebate = rebate_;
+         moreArgs.settings = settings_;
       }
       //        ! \warning see VanillaOption for notes on implied-volatility
       //                     calculation.

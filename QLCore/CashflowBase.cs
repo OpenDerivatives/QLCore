@@ -26,10 +26,10 @@ namespace QLCore
    public abstract class CashFlow : Event, IComparable<CashFlow>
    {
       #region Event interface
+      public CashFlow(Settings settings) : base(settings) {}
 
       public override bool hasOccurred(Date refDate = null, bool? includeRefDate = null)
       {
-
          // easy and quick handling of most cases
          if (refDate != null)
          {
@@ -40,16 +40,15 @@ namespace QLCore
                return true;
          }
 
-         if (refDate == null ||  refDate == Settings.Instance.evaluationDate())
+         if (refDate == null ||  refDate == settings().evaluationDate())
          {
             // today's date; we override the bool with the one
             // specified in the settings (if any)
-            bool? includeToday = Settings.Instance.includeTodaysCashFlows;
+            bool? includeToday = settings().includeTodaysCashFlows;
             if (includeToday.HasValue)
                includeRefDate = includeToday;
          }
          return base.hasOccurred(refDate, includeRefDate);
-
       }
 
       #endregion
@@ -68,7 +67,7 @@ namespace QLCore
          if (ecd == null)
             return false;
 
-         Date ref_ = refDate ?? Settings.Instance.evaluationDate();
+         Date ref_ = refDate ?? settings().evaluationDate();
 
          return ecd <= ref_;
       }
@@ -100,22 +99,27 @@ namespace QLCore
          }
          return left.Equals(right);
       }
+
       public static bool operator >(CashFlow left, CashFlow right)
       {
          return left.date() > right.date() ;
       }
+
       public static bool operator >=(CashFlow left, CashFlow right)
       {
          return left.date() >= right.date();
       }
+
       public static bool operator <(CashFlow left, CashFlow right)
       {
          return left.date() < right.date() ;
       }
+
       public static bool operator <=(CashFlow left, CashFlow right)
       {
          return left.date() <= right.date();
       }
+
       public static bool operator !=(CashFlow left, CashFlow right)
       {
          return !(left == right);

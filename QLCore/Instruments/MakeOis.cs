@@ -46,10 +46,10 @@ namespace QLCore
 
       private double overnightSpread_;
       private DayCounter fixedDayCount_;
-
+      private Settings settings_;
       private IPricingEngine engine_;
 
-      public MakeOIS(Period swapTenor, OvernightIndex overnightIndex, double? fixedRate = null, Period fwdStart = null)
+      public MakeOIS(Settings settings, Period swapTenor, OvernightIndex overnightIndex, double? fixedRate = null, Period fwdStart = null)
       {
          swapTenor_ = swapTenor;
          overnightIndex_ = overnightIndex;
@@ -66,6 +66,7 @@ namespace QLCore
          nominal_ = 1.0;
          overnightSpread_ = 0.0;
          fixedDayCount_ = overnightIndex.dayCounter();
+         settings_ = settings;
       }
 
       public MakeOIS receiveFixed(bool flag = true)
@@ -166,6 +167,12 @@ namespace QLCore
          return this;
       }
 
+      public MakeOIS withSettings(Settings s)
+      {
+         settings_ = s;
+         return this;
+      }
+
       // OIswap creator
       public static implicit operator OvernightIndexedSwap(MakeOIS o) { return o.value(); }
 
@@ -177,7 +184,7 @@ namespace QLCore
             startDate = effectiveDate_;
          else
          {
-            Date refDate = Settings.Instance.evaluationDate();
+            Date refDate = settings_.evaluationDate();
             // if the evaluation date is not a business day
             // then move to the next business day
             refDate = calendar_.adjust(refDate);
@@ -205,7 +212,8 @@ namespace QLCore
 
 
 
-         Schedule paymentSchedule = new Schedule(startDate, endDate,
+         Schedule paymentSchedule = new Schedule(settings_,
+                                          startDate, endDate,
                                           new Period(paymentFrequency_),
                                           calendar_,
                                           BusinessDayConvention.ModifiedFollowing,
@@ -213,7 +221,8 @@ namespace QLCore
                                           rule_,
                                           usedEndOfMonth);
 
-         Schedule receiveSchedule = new Schedule(startDate, endDate,
+         Schedule receiveSchedule = new Schedule(settings_,
+                                          startDate, endDate,
                                           new Period(receiveFrequency_),
                                           calendar_,
                                           BusinessDayConvention.ModifiedFollowing,

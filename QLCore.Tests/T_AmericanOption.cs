@@ -188,16 +188,17 @@ namespace TestSuite
             new AmericanOptionData(Option.Type.Put,  100.00, 100.00, 0.00, 0.00, 0.50, 0.15,  4.22949)
          };
 
+         Settings settings = new Settings();
          Date today = Date.Today;
          DayCounter dc = new Actual360();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
 
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          double tolerance = 3.0e-3;
 
@@ -224,7 +225,7 @@ namespace TestSuite
 
             IPricingEngine engine = new BaroneAdesiWhaleyApproximationEngine(stochProcess);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -242,7 +243,7 @@ namespace TestSuite
       public void testBjerksundStenslandValues()
       {
          // ("Testing Bjerksund and Stensland approximation for American options...");
-
+         Settings settings = new Settings();
          AmericanOptionData[] values = new AmericanOptionData[]
          {
             //      type, strike,   spot,    q,    r,    t,  vol,   value, tol
@@ -267,12 +268,12 @@ namespace TestSuite
          DayCounter dc = new Actual360();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
 
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          double tolerance = 5.0e-5;
 
@@ -299,7 +300,7 @@ namespace TestSuite
 
             IPricingEngine engine = new BjerksundStenslandApproximationEngine(stochProcess);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -318,17 +319,17 @@ namespace TestSuite
       {
 
          // ("Testing Ju approximation for American options...");
-
+         Settings settings = new Settings();
          Date today = Date.Today;
          DayCounter dc = new Actual360();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
 
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          double tolerance = 1.0e-3;
 
@@ -355,7 +356,7 @@ namespace TestSuite
 
             IPricingEngine engine = new JuQuadraticApproximationEngine(stochProcess);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -374,17 +375,17 @@ namespace TestSuite
       {
 
          //("Testing finite-difference engine for American options...");
-
+         Settings settings = new Settings();
          Date today = Date.Today;
          DayCounter dc = new Actual360();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
 
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          double tolerance = 8.0e-2;
 
@@ -411,7 +412,7 @@ namespace TestSuite
 
             IPricingEngine engine = new FDAmericanEngine(stochProcess, 100, 100);
 
-            VanillaOption option = new VanillaOption(payoff, exercise);
+            VanillaOption option = new VanillaOption(settings, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -427,9 +428,8 @@ namespace TestSuite
    
       protected void testFdGreeks<Engine>() where Engine : IFDEngine, new ()
       {
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
-
             Dictionary<string, double> calculated = new Dictionary<string, double>(),
             expected = new Dictionary<string, double>(),
             tolerance = new Dictionary<string, double>();
@@ -447,17 +447,17 @@ namespace TestSuite
             double[] vols = { 0.11, 0.50, 1.20 };
 
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             DayCounter dc = new Actual360();
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+            YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
 
             SimpleQuote rRate = new SimpleQuote(0.0);
-            YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+            YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
             SimpleQuote vol = new SimpleQuote(0.0);
-            BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+            BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -475,7 +475,7 @@ namespace TestSuite
 
                      IPricingEngine engine = FastActivator<Engine>.Create().factory(stochProcess);
 
-                     VanillaOption option = new VanillaOption(payoff, exercise);
+                     VanillaOption option = new VanillaOption(settings, payoff, exercise);
                      option.setPricingEngine(engine);
 
                      for (int l = 0; l < underlyings.Length; l++)
@@ -592,24 +592,25 @@ namespace TestSuite
       [Fact]
       public void testFdImpliedVol()
       {
+         Settings settings = new Settings();
          var settlementDate = new Date(26, 2, 2015);
-         Settings.Instance.setEvaluationDate(settlementDate);
+         settings.setEvaluationDate(settlementDate);
 
          var calendar = new TARGET();
          var dayCounter = new Actual365Fixed();
 
          const double volatility = 0.5;
          var underlyingQuote = new Handle<Quote>(new SimpleQuote(3227));
-         var flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, 0.05, dayCounter));
-         var flatDividendYield = new Handle<YieldTermStructure>(new FlatForward(settlementDate, 0, dayCounter));
-         var flatVolatility = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, volatility, dayCounter));
+         var flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settings, settlementDate, 0.05, dayCounter));
+         var flatDividendYield = new Handle<YieldTermStructure>(new FlatForward(settings, settlementDate, 0, dayCounter));
+         var flatVolatility = new Handle<BlackVolTermStructure>(new BlackConstantVol(settings, settlementDate, calendar, volatility, dayCounter));
          var process = new BlackScholesMertonProcess(underlyingQuote, flatDividendYield, flatTermStructure, flatVolatility);
          var exercise = new AmericanExercise(new Date(1, 12, 2015));
          var pricingEngine = new FDDividendAmericanEngine(process);
          var payoff = new PlainVanillaPayoff(Option.Type.Put, 3200);
          var dividendDates = new[] { new Date(1, 3, 2015) };
          var dividendAmounts = new[] {10d};
-         var option = new DividendVanillaOption(payoff, exercise, dividendDates.ToList(), dividendAmounts.ToList());
+         var option = new DividendVanillaOption(settings, payoff, exercise, dividendDates.ToList(), dividendAmounts.ToList());
          option.setPricingEngine(pricingEngine);
 
          var npv = option.NPV();
@@ -639,9 +640,10 @@ namespace TestSuite
 
             NPV = 124.37658
          */
+         Settings settings = new Settings();
          var result = 124.37658;
          var settlementDate = new Date(20, 7, 2018);
-         Settings.Instance.setEvaluationDate(settlementDate);
+         settings.setEvaluationDate(settlementDate);
 
          var calendar = new TARGET();
          var dayCounter = new Actual365Fixed();
@@ -651,16 +653,16 @@ namespace TestSuite
          var rRate = new Handle<Quote>(new SimpleQuote(0.0));
          var vol = new Handle<Quote>(new SimpleQuote(0.2));
 
-         var flatDividendYield = new Handle<YieldTermStructure>(new FlatForward(settlementDate, qRate, dayCounter));
-         var flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settlementDate, rRate, dayCounter));
-         var flatVolatility = new Handle<BlackVolTermStructure>(new BlackConstantVol(settlementDate, calendar, vol, dayCounter));
+         var flatDividendYield = new Handle<YieldTermStructure>(new FlatForward(settings, settlementDate, qRate, dayCounter));
+         var flatTermStructure = new Handle<YieldTermStructure>(new FlatForward(settings, settlementDate, rRate, dayCounter));
+         var flatVolatility = new Handle<BlackVolTermStructure>(new BlackConstantVol(settings, settlementDate, calendar, vol, dayCounter));
          var process = new BlackScholesMertonProcess(spot, flatDividendYield, flatTermStructure, flatVolatility);
          var exercise = new AmericanExercise(new Date(17, 8, 2018));
          var pricingEngine = new FDDividendAmericanEngine(process);
          var payoff = new PlainVanillaPayoff(Option.Type.Call, 2800);
          var dividendDates = new[] { new Date(16, 8, 2018) };
          var dividendAmounts = new[] { 40d };
-         var option = new DividendVanillaOption(payoff, exercise, dividendDates.ToList(), dividendAmounts.ToList());
+         var option = new DividendVanillaOption(settings, payoff, exercise, dividendDates.ToList(), dividendAmounts.ToList());
          option.setPricingEngine(pricingEngine);
 
          var npv = option.NPV();
@@ -671,7 +673,5 @@ namespace TestSuite
             QAssert.Fail(string.Format("NPV calculation failed. Expected {0}. Actual {1}", result, npv));
 
       }
-
-
    }
 }

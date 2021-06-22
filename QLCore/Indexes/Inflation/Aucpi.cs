@@ -25,12 +25,14 @@ namespace QLCore
    {
       public AUCPI(Frequency frequency,
                    bool revised,
-                   bool interpolated)
-         : this(frequency, revised, interpolated, new Handle<ZeroInflationTermStructure>()) {}
+                   bool interpolated,
+                   Settings settings)
+         : this(frequency, revised, interpolated, settings, new Handle<ZeroInflationTermStructure>()) {}
 
       public AUCPI(Frequency frequency,
                    bool revised,
                    bool interpolated,
+                   Settings settings,
                    Handle<ZeroInflationTermStructure> ts)
          : base("CPI",
                 new AustraliaRegion(),
@@ -39,6 +41,7 @@ namespace QLCore
                 frequency,
                 new Period(2, TimeUnit.Months),
                 new AUDCurrency(),
+                settings,
                 ts) {}
 
    }
@@ -48,12 +51,14 @@ namespace QLCore
    {
       public YYAUCPI(Frequency frequency,
                      bool revised,
-                     bool interpolated)
-         : this(frequency, revised, interpolated, new Handle<YoYInflationTermStructure>()) {}
+                     bool interpolated,
+                     Settings settings)
+         : this(frequency, revised, interpolated, settings, new Handle<YoYInflationTermStructure>()) {}
 
       public YYAUCPI(Frequency frequency,
                      bool revised,
                      bool interpolated,
+                     Settings settings,
                      Handle<YoYInflationTermStructure> ts)
          : base("YY_CPI",
                 new AustraliaRegion(),
@@ -63,6 +68,7 @@ namespace QLCore
                 frequency,
                 new Period(2, TimeUnit.Months),
                 new AUDCurrency(),
+                settings,
                 ts) {}
    }
 
@@ -72,12 +78,14 @@ namespace QLCore
    {
       public YYAUCPIr(Frequency frequency,
                       bool revised,
-                      bool interpolated)
-         : this(frequency, revised, interpolated, new Handle<YoYInflationTermStructure>()) { }
+                      bool interpolated,
+                     Settings settings)
+         : this(frequency, revised, interpolated, settings, new Handle<YoYInflationTermStructure>()) { }
 
       public YYAUCPIr(Frequency frequency,
                       bool revised,
                       bool interpolated,
+                     Settings settings,
                       Handle<YoYInflationTermStructure> ts)
          : base("YYR_CPI",
                 new AustraliaRegion(),
@@ -87,6 +95,7 @@ namespace QLCore
                 frequency,
                 new Period(2, TimeUnit.Months),
                 new AUDCurrency(),
+                settings,
                 ts) {}
    }
 }

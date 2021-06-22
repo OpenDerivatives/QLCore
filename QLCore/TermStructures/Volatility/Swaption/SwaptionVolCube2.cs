@@ -44,9 +44,10 @@ namespace QLCore
                               List<List<Handle<Quote> > > volSpreads,
                               SwapIndex swapIndexBase,
                               SwapIndex shortSwapIndexBase,
-                              bool vegaWeightedSmileFit)
+                              bool vegaWeightedSmileFit,
+                              Settings settings = null)
          : base(atmVolStructure, optionTenors, swapTenors, strikeSpreads, volSpreads, swapIndexBase,
-                shortSwapIndexBase, vegaWeightedSmileFit)
+                shortSwapIndexBase, vegaWeightedSmileFit, settings)
       {
          volSpreadsInterpolator_ = new List<Interpolation2D>();
          volSpreadsMatrix_ = new List<Matrix>(nStrikes_);
@@ -94,8 +95,8 @@ namespace QLCore
             stdDevs.Add(exerciseTimeSqrt * (atmVol + volSpreadsInterpolator_[i].value(length, optionTime)));
          }
          double shift = atmVol_.link.shift(optionTime, length);
-         return new InterpolatedSmileSection<Linear>(optionTime, strikes, stdDevs, atmForward, new Linear(),
-                                                     new Actual365Fixed(), volatilityType(), shift);
+         return new InterpolatedSmileSection<Linear>(this.settings(), optionTime, strikes, stdDevs, atmForward, 
+                                                     new Linear(), new Actual365Fixed(), volatilityType(), shift);
       }
 
       protected override SmileSection smileSectionImpl(double optionTime, double swapLength)

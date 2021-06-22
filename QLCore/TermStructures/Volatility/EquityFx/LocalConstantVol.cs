@@ -32,29 +32,29 @@ namespace QLCore
       Handle<Quote> volatility_;
       DayCounter dayCounter_;
 
-      public LocalConstantVol(Date referenceDate, double volatility, DayCounter dc)
-         : base(referenceDate)
+      public LocalConstantVol(Settings settings, Date referenceDate, double volatility, DayCounter dc)
+         : base(settings, referenceDate, null, BusinessDayConvention.Following, null)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
          dayCounter_ = dc;
       }
 
-      public LocalConstantVol(Date referenceDate, Handle<Quote> volatility, DayCounter dc)
-         : base(referenceDate)
+      public LocalConstantVol(Settings settings, Date referenceDate, Handle<Quote> volatility, DayCounter dc)
+         : base(settings, referenceDate, null, BusinessDayConvention.Following, null)
       {
          volatility_ = volatility;
          dayCounter_ = dc;
       }
 
-      public LocalConstantVol(int settlementDays, Calendar calendar, double volatility, DayCounter dayCounter)
-         : base(settlementDays, calendar)
+      public LocalConstantVol(Settings settings, int settlementDays, Calendar calendar, double volatility, DayCounter dayCounter)
+         : base(settings, settlementDays, calendar, BusinessDayConvention.Following, null)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
          dayCounter_ = dayCounter;
       }
 
-      public LocalConstantVol(int settlementDays, Calendar calendar, Handle<Quote> volatility, DayCounter dayCounter)
-         : base(settlementDays, calendar)
+      public LocalConstantVol(Settings settings, int settlementDays, Calendar calendar, Handle<Quote> volatility, DayCounter dayCounter)
+         : base(settings, settlementDays, calendar, BusinessDayConvention.Following, null)
       {
          volatility_ = volatility;
          dayCounter_ = dayCounter;

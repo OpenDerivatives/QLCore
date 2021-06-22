@@ -25,8 +25,8 @@ namespace QLCore
    /// </summary>
    public class SpreadOption : MultiAssetOption
    {
-      public SpreadOption(PlainVanillaPayoff payoff, Exercise exercise)
-         : base(payoff, exercise)
+      public SpreadOption(Settings settings, PlainVanillaPayoff payoff, Exercise exercise)
+         : base(settings, payoff, exercise)
       {}
 
       /// <summary>

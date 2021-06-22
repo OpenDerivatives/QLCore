@@ -72,7 +72,7 @@ namespace QLCore
          double R_H = arguments_.rebate.GetValueOrDefault();
 
          //european option
-         EuropeanOption europeanOption = new EuropeanOption(payoff, arguments_.exercise);
+         EuropeanOption europeanOption = new EuropeanOption(arguments_.settings, payoff, arguments_.exercise);
          IPricingEngine analyticEuropeanEngine = new AnalyticEuropeanEngine(process_);
          europeanOption.setPricingEngine(analyticEuropeanEngine);
          double european = europeanOption.NPV();

@@ -23,7 +23,7 @@ namespace QLCore
    public class SpreadedSwaptionVolatility : SwaptionVolatilityStructure
    {
       public SpreadedSwaptionVolatility(Handle<SwaptionVolatilityStructure> baseVol, Handle<Quote> spread)
-         : base(baseVol.link.businessDayConvention(), baseVol.link.dayCounter())
+         : base(baseVol.link.settings(), baseVol.link.businessDayConvention(), baseVol.link.dayCounter())
       {
          baseVol_ = baseVol;
          spread_ = spread;

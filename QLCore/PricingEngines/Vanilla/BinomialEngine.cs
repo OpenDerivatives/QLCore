@@ -64,9 +64,9 @@ namespace QLCore
          Date referenceDate = process_.riskFreeRate().link.referenceDate();
 
          // binomial trees with constant coefficient
-         var flatRiskFree = new Handle<YieldTermStructure>(new FlatForward(referenceDate, r, rfdc));
-         var flatDividends = new Handle<YieldTermStructure>(new FlatForward(referenceDate, q, divdc));
-         var flatVol = new Handle<BlackVolTermStructure>(new BlackConstantVol(referenceDate, volcal, v, voldc));
+         var flatRiskFree = new Handle<YieldTermStructure>(new FlatForward(arguments_.settings, referenceDate, r, rfdc));
+         var flatDividends = new Handle<YieldTermStructure>(new FlatForward(arguments_.settings, referenceDate, q, divdc));
+         var flatVol = new Handle<BlackVolTermStructure>(new BlackConstantVol(arguments_.settings, referenceDate, volcal, v, voldc));
 
          PlainVanillaPayoff payoff = arguments_.payoff as PlainVanillaPayoff;
          Utils.QL_REQUIRE(payoff != null, () => "non-plain payoff given");

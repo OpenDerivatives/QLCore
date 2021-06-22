@@ -25,7 +25,8 @@ namespace QLCore
 {
    public class MBSFixedRateBond : AmortizingFixedRateBond
    {
-      public MBSFixedRateBond(int settlementDays,
+      public MBSFixedRateBond(Settings settings,
+                              int settlementDays,
                               Calendar calendar,
                               double faceAmount,
                               Date startDate,
@@ -38,7 +39,7 @@ namespace QLCore
                               IPrepayModel prepayModel,
                               BusinessDayConvention paymentConvention = BusinessDayConvention.Following,
                               Date issueDate = null)
-         : base(settlementDays, calendar, faceAmount, startDate, bondTenor, sinkingFrequency, WACRate, accrualDayCounter, paymentConvention, issueDate)
+         : base(settings, settlementDays, calendar, faceAmount, startDate, bondTenor, sinkingFrequency, WACRate, accrualDayCounter, paymentConvention, issueDate)
       {
          prepayModel_ = prepayModel;
          originalLength_ = originalLength;
@@ -66,9 +67,9 @@ namespace QLCore
             notionals[i + 1] = currentNotional - actualamort - prepay;
 
             // ADD
-            CashFlow c1 = new VoluntaryPrepay(prepay, schedule_[i + 1]);
-            CashFlow c2 = new AmortizingPayment(actualamort, schedule_[i + 1]);
-            CashFlow c3 = new FixedRateCoupon(schedule_[i + 1], currentNotional, new InterestRate(PassThroughRate_, dCounter_, Compounding.Simple, Frequency.Annual), schedule_[i], schedule_[i + 1]);
+            CashFlow c1 = new VoluntaryPrepay(settings(), prepay, schedule_[i + 1]);
+            CashFlow c2 = new AmortizingPayment(settings(), actualamort, schedule_[i + 1]);
+            CashFlow c3 = new FixedRateCoupon(settings(), schedule_[i + 1], currentNotional, new InterestRate(PassThroughRate_, dCounter_, Compounding.Simple, Frequency.Annual), schedule_[i], schedule_[i + 1]);
             expectedcashflows.Add(c1);
             expectedcashflows.Add(c2);
             expectedcashflows.Add(c3);
@@ -95,7 +96,7 @@ namespace QLCore
          solver.setMaxEvaluations(100);
          List<CashFlow> cf = expectedCashflows();
 
-         MonthlyYieldFinder objective = new MonthlyYieldFinder(notional(settlementDate()), cf, settlementDate());
+         MonthlyYieldFinder objective = new MonthlyYieldFinder(settings(), notional(settlementDate()), cf, settlementDate());
          return solver.solve(objective, 1.0e-10, 0.02, 0.0, 1.0) / 100 ;
       }
 
@@ -132,24 +133,26 @@ namespace QLCore
       private double faceAmount_;
       private List<CashFlow> cashflows_;
       private Date settlement_;
+      private Settings settings_;
 
-      public MonthlyYieldFinder(double faceAmount, List<CashFlow> cashflows, Date settlement)
+      public MonthlyYieldFinder(Settings settings, double faceAmount, List<CashFlow> cashflows, Date settlement)
       {
          faceAmount_ = faceAmount;
          cashflows_ = cashflows;
          settlement_ = settlement;
+         settings_ = settings;
       }
 
       public override double value(double yield)
       {
-         return Utils.PVDifference(faceAmount_, cashflows_, yield, settlement_);
+         return Utils.PVDifference(settings_, faceAmount_, cashflows_, yield, settlement_);
       }
    }
 
 
    public partial class Utils
    {
-      public static double PVDifference(double faceAmount, List<CashFlow> cashflows, double yield, Date settlement)
+      public static double PVDifference(Settings settings, double faceAmount, List<CashFlow> cashflows, double yield, Date settlement)
       {
          double price = 0.0;
          Date actualDate = new Date(1, 1, 1970) ;

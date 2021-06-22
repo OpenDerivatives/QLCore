@@ -527,7 +527,7 @@ namespace QLCore
       public override double capletPrice(double effectiveCap)
       {
          // caplet is equivalent to call option on fixing
-         Date today = Settings.Instance.evaluationDate();
+         Date today = coupon_.settings().evaluationDate();
          if (fixingDate_ <= today)
          {
             // the fixing is determined
@@ -556,7 +556,7 @@ namespace QLCore
       public override double floorletPrice(double effectiveFloor)
       {
          // floorlet is equivalent to put option on fixing
-         Date today = Settings.Instance.evaluationDate();
+         Date today = coupon_.settings().evaluationDate();
          if (fixingDate_ <= today)
          {
             // the fixing is determined
@@ -616,7 +616,7 @@ namespace QLCore
          SwapIndex swapIndex = coupon_.swapIndex();
          rateCurve_ = swapIndex.forwardingTermStructure().link;
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = coupon_.settings().evaluationDate();
 
          if (paymentDate_ > today)
             discount_ = rateCurve_.discount(paymentDate_);
@@ -796,7 +796,7 @@ namespace QLCore
 
       public override double swapletPrice()
       {
-         Date today = Settings.Instance.evaluationDate();
+         Date today = coupon_.settings().evaluationDate();
          if (fixingDate_ <= today)
          {
             // the fixing is determined
@@ -981,7 +981,7 @@ namespace QLCore
       //Hagan 3.4c
       public override double swapletPrice()
       {
-         Date today = Settings.Instance.evaluationDate();
+         Date today = coupon_.settings().evaluationDate();
          if (fixingDate_ <= today)
          {
             // the fixing is determined

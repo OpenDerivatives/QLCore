@@ -279,14 +279,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -306,7 +306,7 @@ namespace TestSuite
                new Handle<YieldTermStructure>(rTS),
                new Handle<BlackVolTermStructure>(volTS));
 
-            DoubleBarrierOption opt = new DoubleBarrierOption(values[i].barrierType, values[i].barrierlo,
+            DoubleBarrierOption opt = new DoubleBarrierOption(settings, values[i].barrierType, values[i].barrierlo,
                                                               values[i].barrierhi, 0,  // no rebate
                                                               payoff, exercise);
 
@@ -347,7 +347,7 @@ namespace TestSuite
       public void testVannaVolgaDoubleBarrierValues()
       {
          // Testing double-barrier FX options against Vanna/Volga values
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          DoubleBarrierFxOptionData[] values =
          {
@@ -380,13 +380,13 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = new Date(05, Month.Mar, 2013);
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol25Put = new SimpleQuote(0.0);
          SimpleQuote volAtm = new SimpleQuote(0.0);
          SimpleQuote vol25Call = new SimpleQuote(0.0);
@@ -422,7 +422,7 @@ namespace TestSuite
                Handle<DeltaVolQuote> vol25CallQuote = new Handle<DeltaVolQuote>(new DeltaVolQuote(0.25,
                                                                                 new Handle<Quote>(vol25Call), values[i].t, DeltaVolQuote.DeltaType.Fwd));
 
-               DoubleBarrierOption doubleBarrierOption = new DoubleBarrierOption(barrierType,
+               DoubleBarrierOption doubleBarrierOption = new DoubleBarrierOption(settings, barrierType,
                                                                                  values[i].barrier1, values[i].barrier2, values[i].rebate, payoff, exercise);
 
                double bsVanillaPrice = Utils.blackFormula(values[i].type, values[i].strike,

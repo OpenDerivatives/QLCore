@@ -122,7 +122,7 @@ namespace QLCore
       public new class Engine : GenericEngine<BasketOption.Arguments, BasketOption.Results>
       {}
 
-      public BasketOption(BasketPayoff payoff, Exercise exercise) : base(payoff, exercise)
+      public BasketOption(Settings settings, BasketPayoff payoff, Exercise exercise) : base(settings, payoff, exercise)
       {}
    }
 }

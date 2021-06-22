@@ -25,8 +25,8 @@ namespace QLCore
    //! Vanilla option (no discrete dividends, no barriers) on a single asset
    public class VanillaOption : OneAssetOption
    {
-      public VanillaOption(StrikedTypePayoff payoff, Exercise exercise)
-         : base(payoff, exercise) {}
+      public VanillaOption(Settings settings, StrikedTypePayoff payoff, Exercise exercise)
+         : base(settings, payoff, exercise) {}
 
       /*! \warning currently, this method returns the Black-Scholes
                implied volatility using analytic formulas for

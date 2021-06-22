@@ -43,8 +43,10 @@ namespace TestSuite
       [Fact]
       public void testCalibration()
       {
+         Settings settings = new Settings();
+
          // Set evaluation date
-         Settings.Instance.setEvaluationDate(Date.Today);
+         settings.setEvaluationDate(Date.Today);
 
          double forward = 0.03;
          double tau = 1.0;
@@ -73,7 +75,7 @@ namespace TestSuite
 
          List<double> vols = new InitializedList<double>(strikes.Count, 0.20); //dummy vols (we do not calibrate here)
 
-         SviInterpolation svi = new SviInterpolation(strikes, strikes.Count, vols, tau,
+         SviInterpolation svi = new SviInterpolation(settings, strikes, strikes.Count, vols, tau,
                                                      forward, a, b, sigma, rho, m, true, true, true,
                                                      true, true);
 
@@ -83,7 +85,7 @@ namespace TestSuite
          for (int i = 0; i < strikes.Count; ++i)
             sviVols[i] = svi.value(strikes[i]);
 
-         SviInterpolation svi2 = new SviInterpolation(strikes, strikes.Count, sviVols, tau,
+         SviInterpolation svi2 = new SviInterpolation(settings, strikes, strikes.Count, sviVols, tau,
                                                       forward, null, null, null,
                                                       null, null, false, false, false,
                                                       false, false, false, null,

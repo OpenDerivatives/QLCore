@@ -45,7 +45,7 @@ namespace QLCore
                                 Date refPeriodEnd = null,
                                 DayCounter dayCounter = null,
                                 bool isInArrears = false)
-         : base(paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd)
+         : base(index.settings(), paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd)
       {
          index_ = index;
          dayCounter_ = dayCounter ?? new DayCounter() ;
@@ -62,7 +62,7 @@ namespace QLCore
       }
 
       // need by CashFlowVectors
-      public FloatingRateCoupon() { }
+      public FloatingRateCoupon(Settings settings) : base(settings) { }
 
       public virtual void setPricer(FloatingRateCouponPricer pricer)
       {

@@ -38,7 +38,7 @@ namespace QLCore
          Utils.QL_REQUIRE(!discountCurve_.empty(), () => "no discount term structure set");
          Utils.QL_REQUIRE(!probability_.empty(), () => "no probability term structure set");
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = discountCurve_.currentLink().settings().evaluationDate();
          Date settlementDate = discountCurve_.link.referenceDate();
 
          // Upfront Flow NPV. Either we are on-the-run (no flow)

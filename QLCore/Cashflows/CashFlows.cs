@@ -79,7 +79,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -120,7 +120,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -254,7 +254,7 @@ namespace QLCore
             npvDate_ = npvDate;
 
             if (settlementDate == null)
-               settlementDate_ = Settings.Instance.evaluationDate();
+               settlementDate_ = leg.First().settings().evaluationDate();
 
             if (npvDate == null)
                npvDate_ = settlementDate_;
@@ -315,14 +315,15 @@ namespace QLCore
             leg_ = leg;
             npv_ = npv;
             zSpread_ = new SimpleQuote(0.0);
-            curve_ = new ZeroSpreadedTermStructure(new Handle<YieldTermStructure>(discountCurve),
+            curve_ = new ZeroSpreadedTermStructure(leg_.First().settings(),
+                                                   new Handle<YieldTermStructure>(discountCurve),
                                                    new Handle<Quote>(zSpread_), comp, freq, dc);
             includeSettlementDateFlows_ = includeSettlementDateFlows;
             settlementDate_ = settlementDate;
             npvDate_ = npvDate;
 
             if (settlementDate == null)
-               settlementDate_ = Settings.Instance.evaluationDate();
+               settlementDate_ = discountCurve.settings().evaluationDate();
 
             if (npvDate == null)
                npvDate_ = settlementDate_;
@@ -418,7 +419,7 @@ namespace QLCore
             return true;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          for (int i = leg.Count; i > 0; --i)
             if (!leg[i - 1].hasOccurred(settlementDate, includeSettlementDateFlows))
@@ -434,7 +435,7 @@ namespace QLCore
          if (leg.empty())
             return null;
 
-         Date d = (settlementDate ?? Settings.Instance.evaluationDate());
+         Date d = (settlementDate ?? leg.First().settings().evaluationDate());
          return  leg.LastOrDefault(x => x.hasOccurred(d, includeSettlementDateFlows));
       }
       //! the first cashflow paying after the given date
@@ -443,7 +444,7 @@ namespace QLCore
          if (leg.empty())
             return null;
 
-         Date d = (settlementDate ?? Settings.Instance.evaluationDate());
+         Date d = (settlementDate ?? leg.First().settings().evaluationDate());
 
          // the first coupon paying after d is the one we're after
          return leg.FirstOrDefault(x => !x.hasOccurred(d, includeSettlementDateFlows));
@@ -476,7 +477,6 @@ namespace QLCore
          double? result = 0.0;
          result = leg.Where(cf1 => cf1.date() == paymentDate).Sum(cf1 => cf1.amount());
          return result;
-
       }
       public static double? nextCashFlowAmount(Leg leg, bool includeSettlementDateFlows, Date settlementDate = null)
       {
@@ -615,7 +615,7 @@ namespace QLCore
       public static double accruedPeriod(Leg leg, bool includeSettlementDateFlows, Date settlementDate = null)
       {
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          CashFlow cf = nextCashFlow(leg, includeSettlementDateFlows,  settlementDate);
          if (cf == null)
@@ -633,7 +633,7 @@ namespace QLCore
       public static int accruedDays(Leg leg, bool includeSettlementDateFlows, Date settlementDate = null)
       {
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          CashFlow cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
          if (cf == null)
@@ -651,7 +651,7 @@ namespace QLCore
       public static double accruedAmount(Leg leg, bool includeSettlementDateFlows, Date settlementDate = null)
       {
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          CashFlow cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
          if (cf == null)
@@ -681,7 +681,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -705,7 +705,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -757,7 +757,7 @@ namespace QLCore
       {
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -804,7 +804,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -855,12 +855,12 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
 
-         FlatForward flatRate = new FlatForward(settlementDate, yield.rate(), yield.dayCounter(),
+         FlatForward flatRate = new FlatForward(leg.First().settings(), settlementDate, yield.rate(), yield.dayCounter(),
                                                 yield.compounding(), yield.frequency());
          return bps(leg, flatRate, includeSettlementDateFlows, settlementDate, npvDate);
       }
@@ -882,7 +882,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = cashflow.settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -902,7 +902,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = cashflows.First().settings().evaluationDate();
 
          double totalCASH = cashflows.Where(x => !x.hasOccurred(settlementDate + exDividendDays)).
                             Sum(c => c.amount());
@@ -935,7 +935,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -971,7 +971,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -1050,7 +1050,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -1087,7 +1087,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -1124,7 +1124,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;
@@ -1132,7 +1132,7 @@ namespace QLCore
          Handle<YieldTermStructure> discountCurveHandle = new Handle<YieldTermStructure>(discountCurve);
          Handle<Quote> zSpreadQuoteHandle = new Handle<Quote>(new SimpleQuote(zSpread));
 
-         ZeroSpreadedTermStructure spreadedCurve = new ZeroSpreadedTermStructure(discountCurveHandle, zSpreadQuoteHandle,
+         ZeroSpreadedTermStructure spreadedCurve = new ZeroSpreadedTermStructure(leg.First().settings(), discountCurveHandle, zSpreadQuoteHandle,
                                                                                  comp, freq, dc);
 
          spreadedCurve.enableExtrapolation(discountCurveHandle.link.allowsExtrapolation());
@@ -1145,7 +1145,7 @@ namespace QLCore
                                    Date npvDate = null, double accuracy = 1.0e-10, int maxIterations = 100, double guess = 0.0)
       {
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = leg.First().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;

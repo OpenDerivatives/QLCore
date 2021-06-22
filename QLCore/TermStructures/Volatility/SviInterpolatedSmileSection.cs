@@ -30,6 +30,7 @@ namespace QLCore
       //@{
       //! all market data are quotes
       public SviInterpolatedSmileSection(
+         Settings settings, 
          Date optionDate,
          Handle<Quote> forward,
          List<double> strikes,
@@ -42,7 +43,7 @@ namespace QLCore
          EndCriteria endCriteria = null,
          OptimizationMethod method = null,
          DayCounter dc = null)
-         : base(optionDate, dc)
+         : base(settings, optionDate, dc)
       {
          forward_  = forward;
          atmVolatility_ = atmVolatility;
@@ -66,6 +67,7 @@ namespace QLCore
       }
 
       public SviInterpolatedSmileSection(
+         Settings settings, 
          Date optionDate,
          double forward,
          List<double> strikes,
@@ -78,7 +80,7 @@ namespace QLCore
          EndCriteria endCriteria = null,
          OptimizationMethod method = null,
          DayCounter dc = null)
-         : base(optionDate, dc)
+         : base(settings, optionDate, dc)
       {
          forward_ = new Handle<Quote>(new SimpleQuote(forward));
          atmVolatility_ = new Handle<Quote>(new SimpleQuote(atmVolatility));
@@ -137,7 +139,8 @@ namespace QLCore
 
       protected void createInterpolation()
       {
-         SviInterpolation tmp = new SviInterpolation(actualStrikes_.Where(x => actualStrikes_.First().IsEqual(x)).ToList(),
+         SviInterpolation tmp = new SviInterpolation(this.settings(),
+                                                     actualStrikes_.Where(x => actualStrikes_.First().IsEqual(x)).ToList(),
                                                      actualStrikes_.Count,
                                                      vols_.Where(x => vols_.First().IsEqual(x)).ToList(),
                                                      exerciseTime(), forwardValue_, a_, b_, sigma_, rho_, m_, isAFixed_,

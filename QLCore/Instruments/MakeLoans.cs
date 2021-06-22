@@ -33,6 +33,7 @@ namespace QLCore
       private Loan.Amortising amortising_;
       private DateGeneration.Rule rule_;
       private bool endOfMonth_;
+      private Settings settings_;
 
       public MakeFixedLoan(Date startDate, Date endDate, double fixedRate, Frequency frequency)
       {
@@ -49,6 +50,7 @@ namespace QLCore
          dayCounter_ = new Actual365Fixed();
          rule_ = DateGeneration.Rule.Forward;
          endOfMonth_ = false;
+         settings_ = new Settings();
       }
 
       public MakeFixedLoan withType(Loan.Type type)
@@ -99,20 +101,26 @@ namespace QLCore
          return this;
       }
 
+      public MakeFixedLoan withSettings(Settings s)
+      {
+         settings_ = s;
+         return this;
+      }
+
       // Loan creator
       public static implicit operator FixedLoan(MakeFixedLoan o) { return o.value(); }
 
       public FixedLoan value()
       {
 
-         Schedule fixedSchedule = new Schedule(startDate_, endDate_, new Period(frequency_),
+         Schedule fixedSchedule = new Schedule(settings_, startDate_, endDate_, new Period(frequency_),
                                                calendar_, convention_, convention_, rule_, endOfMonth_);
 
          Period principalPeriod = amortising_ == Loan.Amortising.Bullet ?
                                   new Period(Frequency.Once) :
                                   new Period(frequency_);
 
-         Schedule principalSchedule = new Schedule(startDate_, endDate_, principalPeriod,
+         Schedule principalSchedule = new Schedule(settings_, startDate_, endDate_, principalPeriod,
                                                    calendar_, convention_, convention_, rule_, endOfMonth_);
 
          FixedLoan fl = new FixedLoan(type_, nominal_, fixedSchedule, fixedRate_, dayCounter_,
@@ -137,6 +145,7 @@ namespace QLCore
       private DateGeneration.Rule rule_;
       private bool endOfMonth_;
       private IborIndex index_;
+      private Settings settings_;
 
       public MakeFloatingLoan(Date startDate, Date endDate, double spread, Frequency frequency)
       {
@@ -154,6 +163,7 @@ namespace QLCore
          rule_ = DateGeneration.Rule.Forward;
          endOfMonth_ = false;
          index_ = new IborIndex();
+         settings_ = new Settings();
       }
 
       public MakeFloatingLoan withType(Loan.Type type)
@@ -210,20 +220,26 @@ namespace QLCore
          return this;
       }
 
+      public MakeFloatingLoan withSettings(Settings s)
+      {
+         settings_ = s;
+         return this;
+      }
+
       // Loan creator
       public static implicit operator FloatingLoan(MakeFloatingLoan o) { return o.value(); }
 
       public FloatingLoan value()
       {
 
-         Schedule floatingSchedule = new Schedule(startDate_, endDate_, new Period(frequency_),
+         Schedule floatingSchedule = new Schedule(settings_, startDate_, endDate_, new Period(frequency_),
                                                   calendar_, convention_, convention_, rule_, endOfMonth_);
 
          Period principalPeriod = amortising_ == Loan.Amortising.Bullet ?
                                   new Period(Frequency.Once) :
                                   new Period(frequency_);
 
-         Schedule principalSchedule = new Schedule(startDate_, endDate_, principalPeriod,
+         Schedule principalSchedule = new Schedule(settings_, startDate_, endDate_, principalPeriod,
                                                    calendar_, convention_, convention_, rule_, endOfMonth_);
 
          FloatingLoan fl = new FloatingLoan(type_, nominal_, floatingSchedule, spread_, dayCounter_,
@@ -247,6 +263,7 @@ namespace QLCore
       private Loan.Amortising amortising_;
       private DateGeneration.Rule rule_;
       private bool endOfMonth_;
+      private Settings settings_;
 
       public MakeCommercialPaper(Date startDate, Date endDate, double fixedRate, Frequency frequency)
       {
@@ -263,6 +280,7 @@ namespace QLCore
          dayCounter_ = new Actual365Fixed();
          rule_ = DateGeneration.Rule.Forward;
          endOfMonth_ = false;
+         settings_ = new Settings();
       }
 
       public MakeCommercialPaper withType(Loan.Type type)
@@ -313,20 +331,26 @@ namespace QLCore
          return this;
       }
 
+      public MakeCommercialPaper withSettings(Settings s)
+      {
+         settings_ = s;
+         return this;
+      }
+
       // Loan creator
       public static implicit operator CommercialPaper(MakeCommercialPaper o) { return o.value(); }
 
       public CommercialPaper value()
       {
 
-         Schedule fixedSchedule = new Schedule(startDate_, endDate_, new Period(frequency_),
+         Schedule fixedSchedule = new Schedule(settings_, startDate_, endDate_, new Period(frequency_),
                                                calendar_, convention_, convention_, rule_, endOfMonth_);
 
          Period principalPeriod = amortising_ == Loan.Amortising.Bullet ?
                                   new Period(Frequency.Once) :
                                   new Period(frequency_);
 
-         Schedule principalSchedule = new Schedule(startDate_, endDate_, principalPeriod,
+         Schedule principalSchedule = new Schedule(settings_, startDate_, endDate_, principalPeriod,
                                                    calendar_, convention_, convention_, rule_, endOfMonth_);
 
          CommercialPaper fl = new CommercialPaper(type_, nominal_, fixedSchedule, fixedRate_, dayCounter_,
@@ -334,7 +358,6 @@ namespace QLCore
          return fl;
 
       }
-
    }
 
    public class MakeCash
@@ -349,6 +372,7 @@ namespace QLCore
       private Loan.Amortising amortising_;
       private DateGeneration.Rule rule_;
       private bool endOfMonth_;
+      private Settings settings_;
 
       public MakeCash(Date startDate, Date endDate, double nominal)
       {
@@ -364,6 +388,7 @@ namespace QLCore
          dayCounter_ = new Actual365Fixed();
          rule_ = DateGeneration.Rule.Forward;
          endOfMonth_ = false;
+         settings_ = new Settings();
       }
 
       public MakeCash withType(Loan.Type type)
@@ -408,6 +433,12 @@ namespace QLCore
          return this;
       }
 
+      public MakeCash withSettings(Settings s)
+      {
+         settings_ = s;
+         return this;
+      }
+
       // Loan creator
       public static implicit operator Cash(MakeCash o) { return o.value(); }
 
@@ -418,7 +449,7 @@ namespace QLCore
                                   new Period(Frequency.Once) :
                                   new Period(frequency_);
 
-         Schedule principalSchedule = new Schedule(startDate_, endDate_, principalPeriod,
+         Schedule principalSchedule = new Schedule(settings_, startDate_, endDate_, principalPeriod,
                                                    calendar_, convention_, convention_, rule_, endOfMonth_);
 
          Cash c = new Cash(type_, nominal_, principalSchedule, convention_);

@@ -31,17 +31,18 @@ namespace QLCore
    */
    public class CCTEU : FloatingRateBond
    {
-      public CCTEU(Date maturityDate, double spread, Handle<YieldTermStructure> fwdCurve = null,
+      public CCTEU(Settings settings, Date maturityDate, double spread, Handle<YieldTermStructure> fwdCurve = null,
                    Date startDate = null, Date issueDate = null)
          : base(2, 100.0,
-                new Schedule(startDate,
+                new Schedule(settings, 
+                             startDate,
                              maturityDate, new Period(6, TimeUnit.Months),
                              new NullCalendar(), BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                              DateGeneration.Rule.Backward, true),
-                new Euribor6M(fwdCurve ?? new Handle<YieldTermStructure>()),
+                new Euribor6M(settings, fwdCurve ?? new Handle<YieldTermStructure>()),
                 new Actual360(),
                 BusinessDayConvention.Following,
-                new Euribor6M().fixingDays(),
+                new Euribor6M(settings).fixingDays(),
                 new List<double> {1.0}, // gearing
       new List<double> {spread},
       new List < double? >(), // caps
@@ -70,8 +71,8 @@ namespace QLCore
    */
    public class BTP : FixedRateBond
    {
-      public BTP(Date maturityDate, double fixedRate, Date startDate = null, Date issueDate = null)
-         : base(2, 100.0, new Schedule(startDate,
+      public BTP(Settings settings, Date maturityDate, double fixedRate, Date startDate = null, Date issueDate = null)
+         : base(2, 100.0, new Schedule(settings, startDate,
                                        maturityDate, new Period(6, TimeUnit.Months),
                                        new NullCalendar(), BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                        DateGeneration.Rule.Backward, true),
@@ -82,8 +83,8 @@ namespace QLCore
       /*! constructor needed for legacy non-par redemption BTPs.
           As of today the only remaining one is IT123456789012
           that will redeem 99.999 on xx-may-2037 */
-      public BTP(Date maturityDate, double fixedRate, double redemption, Date startDate = null, Date issueDate = null)
-         : base(2, 100.0, new Schedule(startDate,
+      public BTP(Settings settings, Date maturityDate, double fixedRate, double redemption, Date startDate = null, Date issueDate = null)
+         : base(2, 100.0, new Schedule(settings, startDate,
                                        maturityDate, new Period(6, TimeUnit.Months),
                                        new NullCalendar(), BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                        DateGeneration.Rule.Backward, true),
@@ -115,7 +116,6 @@ namespace QLCore
 
    public class RendistatoBasket
    {
-
       public RendistatoBasket(List<BTP> btps, List<double> outstandings, List<Handle<Quote>> cleanPriceQuotes)
       {
          btps_ = btps;

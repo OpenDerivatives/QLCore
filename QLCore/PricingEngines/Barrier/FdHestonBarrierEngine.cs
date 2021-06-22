@@ -172,7 +172,7 @@ namespace QLCore
 
                 // Calculate the vanilla option
                 DividendVanillaOption vanillaOption =
-                   new DividendVanillaOption(castedPayoff, arguments_.exercise,
+                   new DividendVanillaOption(arguments_.settings, castedPayoff, arguments_.exercise,
                       dividendCondition.dividendDates(),
                       dividendCondition.dividends());
 
@@ -184,7 +184,8 @@ namespace QLCore
 
                 // Calculate the rebate value
                 DividendBarrierOption rebateOption =
-                   new DividendBarrierOption(arguments_.barrierType,
+                   new DividendBarrierOption(arguments_.settings, 
+                      arguments_.barrierType,
                       arguments_.barrier.Value,
                       arguments_.rebate.Value,
                       castedPayoff, arguments_.exercise,

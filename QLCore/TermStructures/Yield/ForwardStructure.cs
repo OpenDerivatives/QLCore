@@ -37,17 +37,17 @@ namespace QLCore
    {
       #region Constructors
 
-      protected ForwardRateStructure(DayCounter dc = null,
+      protected ForwardRateStructure(Settings settings, DayCounter dc = null,
                                      List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-         : base(dc, jumps, jumpDates) {}
+         : base(settings, dc, jumps, jumpDates) {}
 
-      protected ForwardRateStructure(Date refDate, Calendar cal = null, DayCounter dc = null,
+      protected ForwardRateStructure(Settings settings, Date refDate, Calendar cal = null, DayCounter dc = null,
                                      List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-         : base(refDate, cal, dc, jumps, jumpDates) {}
+         : base(settings, refDate, cal, dc, jumps, jumpDates) {}
 
-      protected ForwardRateStructure(int settlDays, Calendar cal, DayCounter dc = null,
+      protected ForwardRateStructure(Settings settings, int settlDays, Calendar cal, DayCounter dc = null,
                                      List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-         : base(settlDays, cal, dc, jumps, jumpDates) {}
+         : base(settings, settlDays, cal, dc, jumps, jumpDates) {}
 
       #endregion
 

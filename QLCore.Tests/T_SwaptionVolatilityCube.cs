@@ -38,9 +38,10 @@ namespace TestSuite
          public RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
          public SwapIndex swapIndexBase, shortSwapIndexBase;
          public bool vegaWeighedSmileFit;
+         public Settings settings;
 
          // cleanup
-         //public SavedSettings backup = new SavedSettings();
+         //public Settings settings = new Settings();
 
          // utilities
          public void makeAtmVolTest(SwaptionVolatilityCube volCube, double tolerance)
@@ -100,22 +101,23 @@ namespace TestSuite
 
          public CommonVars()
          {
-            Settings.Instance.setEvaluationDate(new Date(16, Month.September, 2015));
+            settings = new Settings();
+            settings.setEvaluationDate(new Date(16, Month.September, 2015));
             conventions.setConventions();
 
             // ATM swaptionvolmatrix
             atm.setMarketData();
 
             atmVolMatrix = new RelinkableHandle<SwaptionVolatilityStructure>(
-               new SwaptionVolatilityMatrix(conventions.calendar, conventions.optionBdc, atm.tenors.options,
+               new SwaptionVolatilityMatrix(settings, conventions.calendar, conventions.optionBdc, atm.tenors.options,
                                             atm.tenors.swaps, atm.volsHandle, conventions.dayCounter));
             // Swaptionvolcube
             cube.setMarketData();
 
-            termStructure.linkTo(Utilities.flatRate(0.05, new Actual365Fixed()));
+            termStructure.linkTo(Utilities.flatRate(settings, 0.05, new Actual365Fixed()));
 
-            swapIndexBase = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), termStructure);
-            shortSwapIndexBase = new EuriborSwapIsdaFixA(new Period(1, TimeUnit.Years), termStructure);
+            swapIndexBase = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), settings, termStructure);
+            shortSwapIndexBase = new EuriborSwapIsdaFixA(new Period(1, TimeUnit.Years), settings, termStructure);
 
             vegaWeighedSmileFit = false;
          }
@@ -293,8 +295,8 @@ namespace TestSuite
                                             isParameterFixed,
                                             true);
 
-         Date referenceDate = Settings.Instance.evaluationDate();
-         Settings.Instance.setEvaluationDate(vars.conventions.calendar.advance(referenceDate, new Period(1, TimeUnit.Days),
+         Date referenceDate = vars.settings.evaluationDate();
+         vars.settings.setEvaluationDate(vars.conventions.calendar.advance(referenceDate, new Period(1, TimeUnit.Days),
                                                                       vars.conventions.optionBdc));
 
          // VolCube created after change of reference date
@@ -335,7 +337,7 @@ namespace TestSuite
             }
          }
 
-         Settings.Instance.setEvaluationDate(referenceDate);
+         vars.settings.setEvaluationDate(referenceDate);
 
          SwaptionVolCube2 volCube2_0, volCube2_1;
          // VolCube created before change of reference date
@@ -347,7 +349,7 @@ namespace TestSuite
                                            vars.swapIndexBase,
                                            vars.shortSwapIndexBase,
                                            vars.vegaWeighedSmileFit);
-         Settings.Instance.setEvaluationDate(vars.conventions.calendar.advance(referenceDate, new Period(1, TimeUnit.Days),
+         vars.settings.setEvaluationDate(vars.conventions.calendar.advance(referenceDate, new Period(1, TimeUnit.Days),
                                                                       vars.conventions.optionBdc));
 
          // VolCube created after change of reference date
@@ -385,7 +387,7 @@ namespace TestSuite
             }
          }
 
-         Settings.Instance.setEvaluationDate(referenceDate);
+         vars.settings.setEvaluationDate(referenceDate);
       }
    }
 }

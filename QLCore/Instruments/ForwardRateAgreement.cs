@@ -75,9 +75,9 @@ namespace QLCore
       protected double notionalAmount_;
       protected IborIndex index_;
 
-      public ForwardRateAgreement(Date valueDate, Date maturityDate, Position.Type type, double strikeForwardRate,
+      public ForwardRateAgreement(Settings settings, Date valueDate, Date maturityDate, Position.Type type, double strikeForwardRate,
                                   double notionalAmount, IborIndex index, Handle<YieldTermStructure> discountCurve)
-         : base(
+         : base(settings, 
               index.dayCounter(), index.fixingCalendar(), index.businessDayConvention(), index.fixingDays(), new Payoff(),
               valueDate, maturityDate, discountCurve)
       {
@@ -102,14 +102,14 @@ namespace QLCore
       // Calculations
       public override Date settlementDate()
       {
-         return calendar_.advance(Settings.Instance.evaluationDate(), settlementDays_, TimeUnit.Days);
+         return calendar_.advance(settings().evaluationDate(), settlementDays_, TimeUnit.Days);
       }
 
       /*! A FRA expires/settles on the valueDate */
 
       public override bool isExpired()
       {
-         return new simple_event(valueDate_).hasOccurred(settlementDate());
+         return new simple_event(settings(), valueDate_).hasOccurred(settlementDate());
       }
 
       /*!  Income is zero for a FRA */

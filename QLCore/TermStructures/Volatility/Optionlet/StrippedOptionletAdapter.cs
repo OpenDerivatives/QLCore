@@ -30,7 +30,7 @@ namespace QLCore
        OptionletVolatilityStructure.
       */
       public StrippedOptionletAdapter(StrippedOptionletBase s)
-         : base(s.settlementDays(), s.calendar(), s.businessDayConvention(), s.dayCounter())
+         : base(s.settings(), s.settlementDays(), s.calendar(), s.businessDayConvention(), s.dayCounter())
       {
          optionletStripper_ = s;
          nInterpolations_ = s.optionletMaturities();
@@ -70,7 +70,6 @@ namespace QLCore
       }
 
       // OptionletVolatilityStructure interface
-
       protected override SmileSection smileSectionImpl(double t)
       {
          List<double> optionletStrikes = new List<double>(optionletStripper_.optionletStrikes(0)); // strikes are the same for all times ?!
@@ -81,7 +80,7 @@ namespace QLCore
          }
          // Extrapolation may be a problem with splines, but since minStrike() and maxStrike() are set, we assume that no one will use stddevs for strikes outside these strikes
          CubicInterpolation.BoundaryCondition bc = optionletStrikes.Count >= 4 ? CubicInterpolation.BoundaryCondition.Lagrange : CubicInterpolation.BoundaryCondition.SecondDerivative;
-         return new InterpolatedSmileSection<Cubic>(t, optionletStrikes, stddevs, 0,
+         return new InterpolatedSmileSection<Cubic>(optionletStripper_.settings(), t, optionletStrikes, stddevs, 0,
                                                     new Cubic(CubicInterpolation.DerivativeApprox.Spline, false, bc, 0.0, bc, 0.0));
       }
       protected override double volatilityImpl(double length, double strike)

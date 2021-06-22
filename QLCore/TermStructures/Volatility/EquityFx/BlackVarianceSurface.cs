@@ -77,9 +77,10 @@ namespace QLCore
       public virtual Matrix variances() { return variances_; }
 
       // required for Handle
-      public BlackVarianceSurface() { }
+      public BlackVarianceSurface() : base(new Settings()) { }
 
-      public BlackVarianceSurface(Date referenceDate,
+      public BlackVarianceSurface(Settings settings,
+                                  Date referenceDate,
                                   Calendar calendar,
                                   List<Date> dates,
                                   List<double> strikes,
@@ -87,7 +88,7 @@ namespace QLCore
                                   DayCounter dayCounter,
                                   Extrapolation lowerExtrapolation = Extrapolation.InterpolatorDefaultExtrapolation,
                                   Extrapolation upperExtrapolation = Extrapolation.InterpolatorDefaultExtrapolation)
-         : base(referenceDate, calendar)
+         : base(settings, referenceDate, calendar, BusinessDayConvention.Following, null)
       {
          dayCounter_ = dayCounter;
          maxDate_ = dates.Last();

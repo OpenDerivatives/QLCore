@@ -58,7 +58,7 @@ namespace QLCore
                                             List<Period> cfMaturities,
                                             Matrix cPrice,
                                             Matrix fPrice)
-         : base(0, cal, baseRate, observationLag, zii.link.frequency(), zii.link.interpolated(), yts, dc)
+         : base(zii.link.settings(), 0, cal, baseRate, observationLag, zii.link.frequency(), zii.link.interpolated(), yts, dc)
       {
          zii_ = zii;
          cStrikes_ = cStrikes;

@@ -85,7 +85,7 @@ namespace QLCore
 
             IPricingEngine engine = new AnalyticEuropeanEngine(process_);
 
-            VanillaOption opt = new VanillaOption(payoff, exercise);
+            VanillaOption opt = new VanillaOption(arguments_.settings, payoff, exercise);
             opt.setPricingEngine(engine);
             results_.value = opt.NPV();
             results_.delta = opt.delta();

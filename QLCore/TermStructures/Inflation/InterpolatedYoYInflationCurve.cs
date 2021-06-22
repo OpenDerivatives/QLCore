@@ -30,7 +30,8 @@ namespace QLCore
    public class InterpolatedYoYInflationCurve<Interpolator> : YoYInflationTermStructure, InterpolatedCurve
       where Interpolator : class, IInterpolationFactory, new ()
    {
-      public InterpolatedYoYInflationCurve(Date referenceDate,
+      public InterpolatedYoYInflationCurve(Settings settings, 
+                                           Date referenceDate,
                                            Calendar calendar,
                                            DayCounter dayCounter,
                                            Period lag,
@@ -39,9 +40,11 @@ namespace QLCore
                                            Handle<YieldTermStructure> yTS,
                                            List<Date> dates,
                                            List<double> rates)
-         : this(referenceDate, calendar, dayCounter, lag, frequency, indexIsInterpolated, yTS, dates, rates, FastActivator<Interpolator>.Create()) { }
+         : this(settings, referenceDate, calendar, dayCounter, lag, frequency, indexIsInterpolated, yTS, 
+                dates, rates, FastActivator<Interpolator>.Create()) { }
 
-      public InterpolatedYoYInflationCurve(Date referenceDate,
+      public InterpolatedYoYInflationCurve(Settings settings, 
+                                           Date referenceDate,
                                            Calendar calendar,
                                            DayCounter dayCounter,
                                            Period lag,
@@ -51,7 +54,7 @@ namespace QLCore
                                            List<Date> dates,
                                            List<double> rates,
                                            Interpolator interpolator)
-         : base(referenceDate, calendar, dayCounter, rates[0], lag, frequency, indexIsInterpolated, yTS)
+         : base(settings, referenceDate, calendar, dayCounter, rates[0], lag, frequency, indexIsInterpolated, yTS)
       {
          times_ = new List<double>();
          dates_ = dates;
@@ -164,7 +167,8 @@ namespace QLCore
           (or can't) provide the points for interpolation on
           construction.
       */
-      protected internal InterpolatedYoYInflationCurve(Date referenceDate,
+      protected internal InterpolatedYoYInflationCurve(Settings settings,
+                                     Date referenceDate,
                                      Calendar calendar,
                                      DayCounter dayCounter,
                                      Period lag,
@@ -173,7 +177,7 @@ namespace QLCore
                                      double baseZeroRate,
                                      Handle<YieldTermStructure> yTS,
                                      Interpolator interpolator = default(Interpolator))
-         : base( referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, yTS )
+         : base(settings, referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, yTS)
       {
          interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
       }

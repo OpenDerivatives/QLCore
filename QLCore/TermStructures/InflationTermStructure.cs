@@ -89,18 +89,18 @@ namespace QLCore
    //! \ingroup inflationtermstructures
    public abstract class InflationTermStructure : TermStructure
    {
-      protected InflationTermStructure()
-      {}
+      public InflationTermStructure() : base(new Settings()) {}
 
       // Constructors
-      protected InflationTermStructure(double baseRate,
+      protected InflationTermStructure(Settings settings,
+                                       double baseRate,
                                        Period observationLag,
                                        Frequency frequency,
                                        bool indexIsInterpolated,
                                        Handle<YieldTermStructure> yTS,
                                        DayCounter dayCounter = null,
                                        Seasonality seasonality = null)
-         : base(dayCounter)
+         : base(settings, dayCounter)
       {
          nominalTermStructure_ = yTS;
          observationLag_ = observationLag;
@@ -110,7 +110,8 @@ namespace QLCore
          setSeasonality(seasonality);
       }
 
-      protected InflationTermStructure(Date referenceDate,
+      protected InflationTermStructure(Settings settings,
+                                       Date referenceDate,
                                        double baseRate,
                                        Period observationLag,
                                        Frequency frequency,
@@ -119,7 +120,7 @@ namespace QLCore
                                        Calendar calendar,
                                        DayCounter dayCounter = null,
                                        Seasonality seasonality = null)
-         : base(referenceDate, calendar, dayCounter)
+         : base(settings, referenceDate, calendar, dayCounter)
       {
          nominalTermStructure_ = yTS;
          observationLag_ = observationLag;
@@ -129,7 +130,8 @@ namespace QLCore
          setSeasonality(seasonality);
       }
 
-      protected InflationTermStructure(int settlementDays,
+      protected InflationTermStructure(Settings settings,
+                                       int settlementDays,
                                        Calendar calendar,
                                        double baseRate,
                                        Period observationLag,
@@ -138,7 +140,7 @@ namespace QLCore
                                        Handle<YieldTermStructure> yTS,
                                        DayCounter dayCounter = null,
                                        Seasonality seasonality = null)
-         : base(settlementDays, calendar, dayCounter)
+         : base(settings, settlementDays, calendar, dayCounter)
       {
          nominalTermStructure_ = yTS;
          observationLag_ = observationLag;
@@ -248,23 +250,10 @@ namespace QLCore
    // general users.
    public abstract class ZeroInflationTermStructure : InflationTermStructure
    {
-      protected ZeroInflationTermStructure()
-      {}
+      public ZeroInflationTermStructure() : base() {}
 
       // Constructors
-      protected ZeroInflationTermStructure(DayCounter dayCounter,
-                                           double baseZeroRate,
-                                           Period observationLag,
-                                           Frequency frequency,
-                                           bool indexIsInterpolated,
-                                           Handle<YieldTermStructure> yTS,
-                                           Seasonality seasonality = null)
-         : base(baseZeroRate, observationLag, frequency, indexIsInterpolated,
-                yTS, dayCounter, seasonality)
-      {}
-
-      protected ZeroInflationTermStructure(Date referenceDate,
-                                           Calendar calendar,
+      protected ZeroInflationTermStructure(Settings settings,
                                            DayCounter dayCounter,
                                            double baseZeroRate,
                                            Period observationLag,
@@ -272,21 +261,36 @@ namespace QLCore
                                            bool indexIsInterpolated,
                                            Handle<YieldTermStructure> yTS,
                                            Seasonality seasonality = null)
-         : base(referenceDate, baseZeroRate, observationLag, frequency, indexIsInterpolated,
-                yTS, calendar, dayCounter, seasonality)
-      {}
-
-      protected ZeroInflationTermStructure(int settlementDays,
-                                           Calendar calendar,
-                                           DayCounter dayCounter,
-                                           double baseZeroRate,
-                                           Period observationLag,
-                                           Frequency frequency,
-                                           bool indexIsInterpolated,
-                                           Handle<YieldTermStructure> yTS,
-                                           Seasonality seasonality = null)
-         : base(settlementDays, calendar, baseZeroRate, observationLag, frequency,
+         : base(settings, baseZeroRate, observationLag, frequency, 
                 indexIsInterpolated, yTS, dayCounter, seasonality)
+      {}
+
+      protected ZeroInflationTermStructure(Settings settings,
+                                           Date referenceDate,
+                                           Calendar calendar,
+                                           DayCounter dayCounter,
+                                           double baseZeroRate,
+                                           Period observationLag,
+                                           Frequency frequency,
+                                           bool indexIsInterpolated,
+                                           Handle<YieldTermStructure> yTS,
+                                           Seasonality seasonality = null)
+         : base(settings, referenceDate, baseZeroRate, observationLag, frequency, 
+                indexIsInterpolated, yTS, calendar, dayCounter, seasonality)
+      {}
+
+      protected ZeroInflationTermStructure(Settings settings,
+                                           int settlementDays,
+                                           Calendar calendar,
+                                           DayCounter dayCounter,
+                                           double baseZeroRate,
+                                           Period observationLag,
+                                           Frequency frequency,
+                                           bool indexIsInterpolated,
+                                           Handle<YieldTermStructure> yTS,
+                                           Seasonality seasonality = null)
+         : base(settings, settlementDays, calendar, baseZeroRate, observationLag, 
+                frequency, indexIsInterpolated, yTS, dayCounter, seasonality)
       {}
 
       // Inspectors
@@ -375,22 +379,23 @@ namespace QLCore
    //! Base class for year-on-year inflation term structures.
    public abstract class YoYInflationTermStructure : InflationTermStructure
    {
-      protected YoYInflationTermStructure()
-      {}
+      public YoYInflationTermStructure() : base() {}
 
       // Constructors
-      protected YoYInflationTermStructure(DayCounter dayCounter,
+      protected YoYInflationTermStructure(Settings settings,
+                                          DayCounter dayCounter,
                                           double baseYoYRate,
                                           Period observationLag,
                                           Frequency frequency,
                                           bool indexIsInterpolated,
                                           Handle<YieldTermStructure> yTS,
                                           Seasonality seasonality = null)
-         : base(baseYoYRate, observationLag, frequency, indexIsInterpolated,
+         : base(settings, baseYoYRate, observationLag, frequency, indexIsInterpolated,
                 yTS, dayCounter, seasonality)
       {}
 
-      protected YoYInflationTermStructure(Date referenceDate,
+      protected YoYInflationTermStructure(Settings settings,
+                                          Date referenceDate,
                                           Calendar calendar,
                                           DayCounter dayCounter,
                                           double baseYoYRate,
@@ -399,11 +404,12 @@ namespace QLCore
                                           bool indexIsInterpolated,
                                           Handle<YieldTermStructure> yTS,
                                           Seasonality seasonality = null)
-         : base(referenceDate, baseYoYRate, observationLag, frequency, indexIsInterpolated,
-                yTS, calendar, dayCounter, seasonality)
+         : base(settings, referenceDate, baseYoYRate, observationLag, frequency, 
+                indexIsInterpolated, yTS, calendar, dayCounter, seasonality)
       {}
 
-      protected YoYInflationTermStructure(int settlementDays,
+      protected YoYInflationTermStructure(Settings settings,
+                                          int settlementDays,
                                           Calendar calendar,
                                           DayCounter dayCounter,
                                           double baseYoYRate,
@@ -412,9 +418,8 @@ namespace QLCore
                                           bool indexIsInterpolated,
                                           Handle<YieldTermStructure> yTS,
                                           Seasonality seasonality = null)
-         : base(settlementDays, calendar, baseYoYRate, observationLag,
-                frequency, indexIsInterpolated,
-                yTS, dayCounter, seasonality)
+         : base(settings, settlementDays, calendar, baseYoYRate, observationLag,
+                frequency, indexIsInterpolated, yTS, dayCounter, seasonality)
       {}
 
       // Inspectors

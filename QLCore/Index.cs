@@ -108,6 +108,10 @@ namespace QLCore
                           "native fixings not allowed for " + name() + "; refer to underlying indices instead");
       }
 
+      public Settings settings() { return settings_; }
+      public void setSettings(Settings s) { settings_ = s; }
+
       protected TimeSeries<double?> data_ = new TimeSeries<double?>();
+      protected Settings settings_;
    }
 }

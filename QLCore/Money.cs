@@ -59,23 +59,28 @@ namespace QLCore
 
       private double value_;
       private Currency currency_;
+      private static Settings settings_;
 
       #endregion
 
       #region Constructor
 
-      public Money()
+      public Money(Settings settings)
       {
          value_ = 0.0;
+         settings_ = settings;
       }
 
-      public Money(Currency currency, double value)
+      public Money(Settings settings, Currency currency, double value)
       {
          value_ = value;
          currency_ = currency;
+         settings_ = settings;
       }
 
-      public Money(double value, Currency currency) : this(currency, value) { }
+      public Money(Settings settings, double value, Currency currency) : this(settings, currency, value) { }
+
+      public Settings settings() { return settings_; }
 
       #endregion
 
@@ -104,7 +109,7 @@ namespace QLCore
       {
          if (m.currency != target)
          {
-            ExchangeRate rate = ExchangeRateManager.Instance.lookup(m.currency, target);
+            ExchangeRate rate = ExchangeRateManager.Instance.lookup(settings_, m.currency, target);
             m = rate.exchange(m).rounded();
          }
       }
@@ -115,7 +120,7 @@ namespace QLCore
       }
       public Money rounded()
       {
-         return new Money(currency_.rounding.Round(value_), currency_);
+         return new Money(settings_, currency_.rounding.Round(value_), currency_);
       }
       public override String ToString()
       {
@@ -127,7 +132,7 @@ namespace QLCore
 
       public static Money operator * (Money m, double x)
       {
-         return new Money(m.value_ * x, m.currency);
+         return new Money(settings_, m.value_ * x, m.currency);
       }
       public static Money operator *(double x, Money m)
       {
@@ -135,12 +140,12 @@ namespace QLCore
       }
       public static Money operator / (Money m, double x)
       {
-         return new Money(m.value_ / x, m.currency);
+         return new Money(settings_, m.value_ / x, m.currency);
       }
 
       public static Money operator+(Money m1, Money m2)
       {
-         Money m = new Money(m1.currency, m1.value);
+         Money m = new Money(settings_, m1.currency, m1.value);
 
          if (m1.currency_ == m2.currency_)
          {
@@ -168,7 +173,7 @@ namespace QLCore
       }
       public static Money operator-(Money m1, Money m2)
       {
-         Money m = new Money(m1.currency, m1.value);
+         Money m = new Money(settings_, m1.currency, m1.value);
 
          if (m.currency_ == m2.currency_)
          {

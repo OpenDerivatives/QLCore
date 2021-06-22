@@ -27,10 +27,10 @@ namespace QLCore
    */
    public class Nzocr : OvernightIndex
    {
-      public Nzocr(Handle<YieldTermStructure> h = null)
+      public Nzocr(Settings settings, Handle<YieldTermStructure> h = null)
          : base("Nzocr", 0, new NZDCurrency(),
                 new NewZealand(),
-                new Actual365Fixed(), h ?? new Handle<YieldTermStructure>())
+                new Actual365Fixed(), settings, h ?? new Handle<YieldTermStructure>())
       {}
    }
 }

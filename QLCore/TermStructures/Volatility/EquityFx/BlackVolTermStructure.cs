@@ -38,20 +38,20 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected BlackVolTermStructure(BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(bdc, dc)
+      protected BlackVolTermStructure(Settings settings, BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
+         : base(settings, bdc, dc)
       {}
 
       //! initialize with a fixed reference date
-      protected BlackVolTermStructure(Date referenceDate, Calendar cal = null,
+      protected BlackVolTermStructure(Settings settings, Date referenceDate, Calendar cal = null,
                                       BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {}
 
       //! calculate the reference date based on the global evaluation date
-      protected BlackVolTermStructure(int settlementDays, Calendar cal, BusinessDayConvention bdc = BusinessDayConvention.Following,
+      protected BlackVolTermStructure(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc = BusinessDayConvention.Following,
                                       DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {}
 
       #endregion
@@ -199,21 +199,21 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected BlackVolatilityTermStructure(BusinessDayConvention bdc = BusinessDayConvention.Following,
+      protected BlackVolatilityTermStructure(Settings settings, BusinessDayConvention bdc = BusinessDayConvention.Following,
                                              DayCounter dc = null)
-         : base(bdc, dc)
+         : base(settings, bdc, dc)
       {}
 
       //! initialize with a fixed reference date
-      protected BlackVolatilityTermStructure(Date referenceDate, Calendar cal = null,
+      protected BlackVolatilityTermStructure(Settings settings, Date referenceDate, Calendar cal = null,
                                              BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {}
 
       //! calculate the reference date based on the global evaluation date
-      protected BlackVolatilityTermStructure(int settlementDays, Calendar cal,
+      protected BlackVolatilityTermStructure(Settings settings, int settlementDays, Calendar cal,
                                              BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {}
 
       #endregion
@@ -247,21 +247,21 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected BlackVarianceTermStructure(BusinessDayConvention bdc = BusinessDayConvention.Following,
+      protected BlackVarianceTermStructure(Settings settings, BusinessDayConvention bdc = BusinessDayConvention.Following,
                                            DayCounter dc = null)
-         : base(bdc, dc)
+         : base(settings, bdc, dc)
       {}
 
       //! initialize with a fixed reference date
-      protected BlackVarianceTermStructure(Date referenceDate, Calendar cal = null,
+      protected BlackVarianceTermStructure(Settings settings, Date referenceDate, Calendar cal = null,
                                            BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {}
 
       //! calculate the reference date based on the global evaluation date
-      protected BlackVarianceTermStructure(int settlementDays, Calendar cal,
+      protected BlackVarianceTermStructure(Settings settings, int settlementDays, Calendar cal,
                                            BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {}
 
       #endregion

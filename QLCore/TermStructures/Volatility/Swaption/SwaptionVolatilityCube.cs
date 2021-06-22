@@ -31,9 +31,10 @@ namespace QLCore
                                        List<List<Handle<Quote> > > volSpreads,
                                        SwapIndex swapIndexBase,
                                        SwapIndex shortSwapIndexBase,
-                                       bool vegaWeightedSmileFit)
-         : base(optionTenors, swapTenors, 0, atmVol.link.calendar(), atmVol.link.businessDayConvention(),
-                atmVol.link.dayCounter())
+                                       bool vegaWeightedSmileFit,
+                                       Settings settings = null)
+         : base(atmVol.currentLink().settings(), optionTenors, swapTenors, 0, atmVol.link.calendar(), 
+                atmVol.link.businessDayConvention(), atmVol.link.dayCounter())
       {
          atmVol_ = atmVol;
          nStrikes_ = strikeSpreads.Count;
@@ -71,7 +72,7 @@ namespace QLCore
                           ") is not less than index tenor (" +
                           swapIndexBase_.tenor() + ")");
 
-         evaluationDate_ = Settings.Instance.evaluationDate();
+         evaluationDate_ = this.settings().evaluationDate();
       }
       // TermStructure interface
       public new DayCounter dayCounter() { return atmVol_.link.dayCounter(); }
@@ -109,6 +110,7 @@ namespace QLCore
                                     swapIndexBase_.fixedLegConvention(),
                                     swapIndexBase_.dayCounter(),
                                     swapIndexBase_.iborIndex(),
+                                    swapIndexBase_.settings(),
                                     swapIndexBase_.discountingTermStructure()).fixing(optionDate);
             }
             else
@@ -121,7 +123,8 @@ namespace QLCore
                                     swapIndexBase_.fixedLegTenor(),
                                     swapIndexBase_.fixedLegConvention(),
                                     swapIndexBase_.dayCounter(),
-                                    swapIndexBase_.iborIndex()).fixing(optionDate);
+                                    swapIndexBase_.iborIndex(),
+                                    swapIndexBase_.settings()).fixing(optionDate);
             }
          }
          else
@@ -137,6 +140,7 @@ namespace QLCore
                                     shortSwapIndexBase_.fixedLegConvention(),
                                     shortSwapIndexBase_.dayCounter(),
                                     shortSwapIndexBase_.iborIndex(),
+                                    shortSwapIndexBase_.settings(),
                                     shortSwapIndexBase_.discountingTermStructure()).fixing(optionDate);
             }
             else
@@ -149,7 +153,8 @@ namespace QLCore
                                     shortSwapIndexBase_.fixedLegTenor(),
                                     shortSwapIndexBase_.fixedLegConvention(),
                                     shortSwapIndexBase_.dayCounter(),
-                                    shortSwapIndexBase_.iborIndex()).fixing(optionDate);
+                                    shortSwapIndexBase_.iborIndex(),
+                                    shortSwapIndexBase_.settings()).fixing(optionDate);
             }
          }
       }

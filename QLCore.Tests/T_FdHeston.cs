@@ -98,11 +98,12 @@ namespace TestSuite
 
         public class ParableLocalVolatility : LocalVolTermStructure
         {
-            public ParableLocalVolatility(Date referenceDate,
+            public ParableLocalVolatility(Settings settings,
+                                          Date referenceDate,
                                           double s0,
                                           double alpha,
                                           DayCounter dayCounter)
-                : base(referenceDate, null, BusinessDayConvention.Following, dayCounter)
+                : base(settings, referenceDate, null, BusinessDayConvention.Following, dayCounter)
             {
                 s0_ = s0;
                 alpha_ = alpha;
@@ -124,15 +125,14 @@ namespace TestSuite
         public void testFdmHestonVarianceMesher()
         {
             //Testing FDM Heston variance mesher...
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
-
                 Date today = new Date(22, 2, 2018);
                 DayCounter dc = new Actual365Fixed();
-                Settings.Instance.setEvaluationDate(today);
+                settings.setEvaluationDate(today);
 
-                HestonProcess process = new HestonProcess(new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dc)),
-                                                          new Handle<YieldTermStructure>(Utilities.flatRate(0.02, dc)),
+                HestonProcess process = new HestonProcess(new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dc)),
+                                                          new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.02, dc)),
                                                           new Handle<Quote>(new SimpleQuote(100.0)),
                                                           0.09, 1.0, 0.09, 0.2, -0.5);
 
@@ -157,7 +157,7 @@ namespace TestSuite
                     }
                 }
 
-                LocalVolTermStructure lVol = new LocalConstantVol(today, 2.5, dc);
+                LocalVolTermStructure lVol = new LocalConstantVol(settings, today, 2.5, dc);
                 FdmHestonLocalVolatilityVarianceMesher constSlvMesher = new FdmHestonLocalVolatilityVarianceMesher(5, process, lVol, 1.0);
 
                 double expectedVol = 2.5 * mesher.volaEstimate();
@@ -174,7 +174,7 @@ namespace TestSuite
                 }
 
                 double alpha = 0.01;
-                LocalVolTermStructure leverageFct = new ParableLocalVolatility(today, 100.0, alpha, dc);
+                LocalVolTermStructure leverageFct = new ParableLocalVolatility(settings, today, 100.0, alpha, dc);
 
                 FdmHestonLocalVolatilityVarianceMesher slvMesher
                     = new FdmHestonLocalVolatilityVarianceMesher(5, process, leverageFct, 0.5, 1, 0.01);
@@ -211,7 +211,7 @@ namespace TestSuite
         public void testFdmHestonBarrierVsBlackScholes()
         {
             //Testing FDM with barrier option in Heston model...
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
                 NewBarrierOptionData[] values = new NewBarrierOptionData[] {
                 /* The data below are from
@@ -302,15 +302,15 @@ namespace TestSuite
                 DayCounter dc = new Actual365Fixed();
                 Date todaysDate = new Date(28, 3, 2004);
                 Date exerciseDate = new Date(28, 3, 2005);
-                Settings.Instance.setEvaluationDate(todaysDate);
+                settings.setEvaluationDate(todaysDate);
 
                 Handle<Quote> spot = new Handle<Quote>(new SimpleQuote(0.0));
                 SimpleQuote qRate = new SimpleQuote(0.0);
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
                 SimpleQuote rRate = new SimpleQuote(0.0);
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
                 SimpleQuote vol = new SimpleQuote(0.0);
-                Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+                Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
                 BlackScholesMertonProcess bsProcess = new BlackScholesMertonProcess(spot, qTS, rTS, volTS);
 
@@ -328,7 +328,7 @@ namespace TestSuite
 
                     StrikedTypePayoff payoff = new PlainVanillaPayoff(values[i].type, values[i].strike);
 
-                    BarrierOption barrierOption = new BarrierOption(values[i].barrierType, values[i].barrier,
+                    BarrierOption barrierOption = new BarrierOption(settings, values[i].barrierType, values[i].barrier,
                                                                     values[i].rebate, payoff, exercise);
 
                     double v0 = vol.value() * vol.value();
@@ -358,13 +358,13 @@ namespace TestSuite
         public void testFdmHestonBarrier()
         {
             //Testing FDM with barrier option for Heston model vs Black-Scholes model...
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
+                settings.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, new Actual365Fixed()));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual365Fixed()));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.05, new Actual365Fixed()));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, new Actual365Fixed()));
 
                 HestonProcess hestonProcess =
                         new HestonProcess(rTS, qTS, s0, 0.04, 2.5, 0.04, 0.66, -0.8);
@@ -374,7 +374,7 @@ namespace TestSuite
                 Exercise exercise = new EuropeanExercise(exerciseDate);
                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, 100);
 
-                BarrierOption barrierOption = new BarrierOption(Barrier.Type.UpOut, 135, 0.0, payoff, exercise);
+                BarrierOption barrierOption = new BarrierOption(settings, Barrier.Type.UpOut, 135, 0.0, payoff, exercise);
                 barrierOption.setPricingEngine(new FdHestonBarrierEngine(new HestonModel(hestonProcess), 50, 400, 100));
 
                 double tol = 0.01;
@@ -411,13 +411,13 @@ namespace TestSuite
         {
             //Testing FDM with American option in Heston model...
 
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
+                settings.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, new Actual365Fixed()));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual365Fixed()));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.05, new Actual365Fixed()));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, new Actual365Fixed()));
 
                 HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.04, 2.5, 0.04, 0.66, -0.8);
                 Date exerciseDate = new Date(28, 3, 2005);
@@ -425,7 +425,7 @@ namespace TestSuite
                 Exercise exercise = new AmericanExercise(exerciseDate);
                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 100);
 
-                VanillaOption option = new VanillaOption(payoff, exercise);
+                VanillaOption option = new VanillaOption(settings, payoff, exercise);
                 IPricingEngine engine = new FdHestonVanillaEngine(new HestonModel(hestonProcess), 200, 100, 50);
                 option.setPricingEngine(engine);
 
@@ -469,16 +469,16 @@ namespace TestSuite
                stochastic volatility, Samuli Ikonen, Jari Toivanen, 
                http://users.jyu.fi/~tene/papers/reportB12-05.pdf
             */
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.10, new Actual360()));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual360()));
+                settings.setEvaluationDate(new Date(28, 3, 2004));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.10, new Actual360()));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, new Actual360()));
 
                 Date exerciseDate = new Date(26, 6, 2004);
                 Exercise exercise = new AmericanExercise(exerciseDate);
                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 10);
-                VanillaOption option = new VanillaOption(payoff, exercise);
+                VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
                 double[] strikes = new double[] { 8, 9, 10, 11, 12 };
                 double[] expected = new double[] { 2.00000, 1.10763, 0.520038, 0.213681, 0.082046 };
@@ -508,18 +508,18 @@ namespace TestSuite
         public void testFdmHestonBlackScholes()
         {
             //Testing FDM Heston with Black Scholes model...
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
+                settings.setEvaluationDate(new Date(28, 3, 2004));
                 Date exerciseDate = new Date(26, 6, 2004);
 
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.10, new Actual360()));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual360()));
-                Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(rTS.currentLink().referenceDate(), 0.25, rTS.currentLink().dayCounter()));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.10, new Actual360()));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, new Actual360()));
+                Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, rTS.currentLink().referenceDate(), 0.25, rTS.currentLink().dayCounter()));
 
                 Exercise exercise = new EuropeanExercise(exerciseDate);
                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Put, 10);
-                VanillaOption option = new VanillaOption(payoff, exercise);
+                VanillaOption option = new VanillaOption(settings, payoff, exercise);
 
                 double[] strikes = new double[] { 8, 9, 10, 11, 12 };
                 double tol = 0.0001;
@@ -570,13 +570,13 @@ namespace TestSuite
         public void testFdmHestonEuropeanWithDividends()
         {
             //Testing FDM with European option with dividends in Heston model...
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
-                Settings.Instance.setEvaluationDate(new Date(28, 3, 2004));
+                settings.setEvaluationDate(new Date(28, 3, 2004));
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(100.0));
 
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.05, new Actual365Fixed()));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(0.0, new Actual365Fixed()));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.05, new Actual365Fixed()));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, 0.0, new Actual365Fixed()));
 
                 HestonProcess hestonProcess = new HestonProcess(rTS, qTS, s0, 0.04, 2.5, 0.04, 0.66, -0.8);
 
@@ -587,7 +587,7 @@ namespace TestSuite
                 List<double> dividends = new InitializedList<double>(1, 5);
                 List<Date> dividendDates = new InitializedList<Date>(1, new Date(28, 9, 2004));
 
-                DividendVanillaOption option = new DividendVanillaOption(payoff, exercise, dividendDates, dividends);
+                DividendVanillaOption option = new DividendVanillaOption(settings, payoff, exercise, dividendDates, dividends);
                 IPricingEngine engine = new FdHestonVanillaEngine(new HestonModel(hestonProcess), 50, 100, 50);
                 option.setPricingEngine(engine);
 
@@ -632,7 +632,7 @@ namespace TestSuite
 
             //Testing FDM Heston convergence...
 
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
 
                 HestonTestData[] values = new HestonTestData[] {
@@ -655,7 +655,7 @@ namespace TestSuite
                 double[] v0 = new double[] { 0.04 };
 
                 Date todaysDate = new Date(28, 3, 2004);
-                Settings.Instance.setEvaluationDate(todaysDate);
+                settings.setEvaluationDate(todaysDate);
 
                 Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(75.0));
 
@@ -668,9 +668,9 @@ namespace TestSuite
                             for (int k = 0; k < v0.Length; ++k)
                             {
                                 Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(
-                                    Utilities.flatRate(values[i].r, new Actual365Fixed()));
+                                    Utilities.flatRate(settings, values[i].r, new Actual365Fixed()));
                                 Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(
-                                    Utilities.flatRate(values[i].q, new Actual365Fixed()));
+                                    Utilities.flatRate(settings, values[i].q, new Actual365Fixed()));
 
                                 HestonProcess hestonProcess =
                                     new HestonProcess(rTS, qTS, s0,
@@ -686,7 +686,7 @@ namespace TestSuite
                                 Exercise exercise = new EuropeanExercise(exerciseDate);
                                 StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, values[i].K);
 
-                                VanillaOption option = new VanillaOption(payoff, exercise);
+                                VanillaOption option = new VanillaOption(settings, payoff, exercise);
                                 IPricingEngine engine =
                                      new FdHestonVanillaEngine(
                                          new HestonModel(hestonProcess),
@@ -723,16 +723,16 @@ namespace TestSuite
         {
             //Testing method of lines to solve Heston PDEs...
 
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
                 DayCounter dc = new Actual365Fixed();
                 Date today = new Date(21, 2, 2018);
 
-                Settings.Instance.setEvaluationDate(today);
+                settings.setEvaluationDate(today);
 
                 Handle<Quote> spot = new Handle<Quote>(new SimpleQuote(100.0));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.0, dc));
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.0, dc));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.0, dc));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.0, dc));
 
                 double v0 = 0.09;
                 double kappa = 1.0;
@@ -759,7 +759,7 @@ namespace TestSuite
                 PlainVanillaPayoff payoff =
                     new PlainVanillaPayoff(Option.Type.Put, spot.currentLink().value());
 
-                VanillaOption option = new VanillaOption(payoff, new AmericanExercise(maturity));
+                VanillaOption option = new VanillaOption(settings, payoff, new AmericanExercise(maturity));
 
                 option.setPricingEngine(fdmMol);
                 double calculatedMoL = option.NPV();
@@ -796,7 +796,7 @@ namespace TestSuite
                 }
 
                 BarrierOption barrierOption =
-                    new BarrierOption(Barrier.Type.DownOut, 85.0, 10.0,
+                    new BarrierOption(settings, Barrier.Type.DownOut, 85.0, 10.0,
                                       payoff, new EuropeanExercise(maturity));
 
                 barrierOption.setPricingEngine(new FdHestonBarrierEngine(model, 100, 31, 11));
@@ -839,16 +839,16 @@ namespace TestSuite
         public void testSpuriousOscillations()
         {
             //Testing for spurious oscillations when solving the Heston PDEs...
-            using (SavedSettings backup = new SavedSettings())
+            using (Settings settings = new Settings())
             {
                 DayCounter dc = new Actual365Fixed();
                 Date today = new Date(7, 6, 2018);
 
-                Settings.Instance.setEvaluationDate(today);
+                settings.setEvaluationDate(today);
 
                 Handle<Quote> spot = new Handle<Quote>(new SimpleQuote(100.0));
-                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.1, dc));
-                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, 0.0, dc));
+                Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.1, dc));
+                Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, 0.0, dc));
 
                 double v0 = 0.005;
                 double kappa = 1.0;
@@ -869,7 +869,7 @@ namespace TestSuite
                     new FdHestonVanillaEngine(
                         model, 6, 200, 13, 0, new FdmSchemeDesc().TrBDF2());
 
-                VanillaOption option = new VanillaOption(new PlainVanillaPayoff(Option.Type.Call, spot.currentLink().value()),
+                VanillaOption option = new VanillaOption(settings, new PlainVanillaPayoff(Option.Type.Call, spot.currentLink().value()),
                                                          new EuropeanExercise(maturity));
 
                 option.setupArguments(hestonEngine.getArguments());

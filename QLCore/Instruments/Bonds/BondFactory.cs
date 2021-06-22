@@ -22,7 +22,8 @@ namespace QLCore
 {
    public class BondFactory
    {
-      public static AmortizingBond makeAmortizingBond(double FaceValue,
+      public static AmortizingBond makeAmortizingBond(Settings settings,
+                                                      double FaceValue,
                                                       double MarketValue,
                                                       double CouponRate,
                                                       Date IssueDate,
@@ -33,7 +34,8 @@ namespace QLCore
                                                       AmortizingMethod Method,
                                                       double gYield = 0)
       {
-         return new AmortizingBond(FaceValue,
+         return new AmortizingBond(settings,
+                                   FaceValue,
                                    MarketValue,
                                    CouponRate,
                                    IssueDate,
@@ -46,18 +48,20 @@ namespace QLCore
       }
 
 
-      public static AmortizingFixedRateBond makeAmortizingFixedBond(Date startDate,
+      public static AmortizingFixedRateBond makeAmortizingFixedBond(Settings settings,
+                                                                    Date startDate,
                                                                     Period bondLength,
                                                                     DayCounter dCounter,
                                                                     Frequency payFrequency,
                                                                     double amount,
                                                                     double rate)
       {
-         return makeAmortizingFixedBond(startDate, bondLength, dCounter, payFrequency, amount, rate, new TARGET());
+         return makeAmortizingFixedBond(settings, startDate, bondLength, dCounter, payFrequency, amount, rate, new TARGET());
       }
 
 
-      public static AmortizingFixedRateBond makeAmortizingFixedBond(Date startDate,
+      public static AmortizingFixedRateBond makeAmortizingFixedBond(Settings settings,
+                                                                    Date startDate,
                                                                     Period bondLength,
                                                                     DayCounter dCounter,
                                                                     Frequency payFrequency,
@@ -68,16 +72,17 @@ namespace QLCore
          AmortizingFixedRateBond bond;
          Date endDate = calendar.advance(startDate, bondLength);
 
-         Schedule schedule = new Schedule(startDate, endDate, bondLength, calendar, BusinessDayConvention.Unadjusted,
+         Schedule schedule = new Schedule(settings, startDate, endDate, bondLength, calendar, BusinessDayConvention.Unadjusted,
                                           BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false);
 
-         bond = new AmortizingFixedRateBond(0, calendar, amount, startDate, bondLength, payFrequency, rate, dCounter);
+         bond = new AmortizingFixedRateBond(settings, 0, calendar, amount, startDate, bondLength, payFrequency, rate, dCounter);
 
          return bond;
 
       }
 
-      public static MBSFixedRateBond makeMBSFixedBond(Date startDate,
+      public static MBSFixedRateBond makeMBSFixedBond(Settings settings,
+                                                      Date startDate,
                                                       Period bondLength,
                                                       Period originalLength,
                                                       DayCounter dCounter,
@@ -87,11 +92,12 @@ namespace QLCore
                                                       double PassThroughRate,
                                                       PSACurve psaCurve)
       {
-         return makeMBSFixedBond(startDate, bondLength, originalLength, dCounter, payFrequency, amount, WACRate, PassThroughRate, psaCurve, new TARGET());
+         return makeMBSFixedBond(settings, startDate, bondLength, originalLength, dCounter, payFrequency, amount, WACRate, PassThroughRate, psaCurve, new TARGET());
       }
 
 
-      public static MBSFixedRateBond makeMBSFixedBond(Date startDate,
+      public static MBSFixedRateBond makeMBSFixedBond(Settings settings,
+                                                      Date startDate,
                                                       Period bondLength,
                                                       Period originalLength,
                                                       DayCounter dCounter,
@@ -105,10 +111,10 @@ namespace QLCore
          MBSFixedRateBond bond;
          Date endDate = calendar.advance(startDate, bondLength);
 
-         Schedule schedule = new Schedule(startDate, endDate, bondLength, calendar, BusinessDayConvention.Unadjusted,
+         Schedule schedule = new Schedule(settings, startDate, endDate, bondLength, calendar, BusinessDayConvention.Unadjusted,
                                           BusinessDayConvention.Unadjusted, DateGeneration.Rule.Backward, false);
 
-         bond = new MBSFixedRateBond(0, calendar, amount, startDate, bondLength, originalLength, payFrequency, WACrate, PassThroughRate, dCounter, psaCurve);
+         bond = new MBSFixedRateBond(settings, 0, calendar, amount, startDate, bondLength, originalLength, payFrequency, WACrate, PassThroughRate, dCounter, psaCurve);
 
          return bond;
 

@@ -48,10 +48,10 @@ namespace TestSuite
       public void testDailySchedule()
       {
          // Testing schedule with daily frequency
-
+         Settings settings = new Settings();
          Date startDate = new Date(17, Month.January, 2012);
 
-         Schedule s = new MakeSchedule().from(startDate).to(startDate + 7)
+         Schedule s = new MakeSchedule(settings).from(startDate).to(startDate + 7)
          .withCalendar(new TARGET())
          .withConvention(BusinessDayConvention.Preceding)
          .withFrequency(Frequency.Daily).value();
@@ -74,8 +74,8 @@ namespace TestSuite
       public void testEndDateWithEomAdjustment()
       {
          // Testing end date for schedule with end-of-month adjustment
-
-         Schedule s = new MakeSchedule().from(new Date(30, Month.September, 2009))
+         Settings settings = new Settings();
+         Schedule s = new MakeSchedule(settings).from(new Date(30, Month.September, 2009))
          .to(new Date(15, Month.June, 2012))
          .withCalendar(new Japan())
          .withTenor(new Period(6, TimeUnit.Months))
@@ -98,7 +98,7 @@ namespace TestSuite
          check_dates(s, expected);
 
          // now with unadjusted termination date...
-         s = new MakeSchedule().from(new Date(30, Month.September, 2009))
+         s = new MakeSchedule(settings).from(new Date(30, Month.September, 2009))
          .to(new Date(15, Month.June, 2012))
          .withCalendar(new Japan())
          .withTenor(new Period(6, TimeUnit.Months))
@@ -115,8 +115,8 @@ namespace TestSuite
       [Fact]
       public void testDatesPastEndDateWithEomAdjustment()
       {
-
-         Schedule s = new MakeSchedule().from(new Date(28, Month.March, 2013))
+         Settings settings = new Settings();
+         Schedule s = new MakeSchedule(settings).from(new Date(28, Month.March, 2013))
          .to(new Date(30, Month.March, 2015))
          .withCalendar(new TARGET())
          .withTenor(new Period(1, TimeUnit.Years))
@@ -139,8 +139,8 @@ namespace TestSuite
       public void testDatesSameAsEndDateWithEomAdjustment()
       {
          // Testing that next-to-last date same as end date is removed...
-
-         Schedule s = new MakeSchedule().from(new Date(28, Month.March, 2013))
+         Settings settings = new Settings();
+         Schedule s = new MakeSchedule(settings).from(new Date(28, Month.March, 2013))
          .to(new Date(31, Month.March, 2015))
          .withCalendar(new TARGET())
          .withTenor(new Period(1, TimeUnit.Years))
@@ -169,8 +169,8 @@ namespace TestSuite
       public void testForwardDatesWithEomAdjustment()
       {
          // Testing that the last date is not adjusted for EOM when termination date convention is unadjusted
-
-         Schedule s = new MakeSchedule().from(new Date(31, Month.August, 1996))
+         Settings settings = new Settings();
+         Schedule s = new MakeSchedule(settings).from(new Date(31, Month.August, 1996))
          .to(new Date(15, Month.September, 1997))
          .withCalendar(new UnitedStates(UnitedStates.Market.GovernmentBond))
          .withTenor(new Period(6, TimeUnit.Months))
@@ -192,8 +192,8 @@ namespace TestSuite
       public void testBackwardDatesWithEomAdjustment()
       {
          // Testing that the first date is not adjusted for EOM going backward when termination date convention is unadjusted
-
-         Schedule s = new MakeSchedule().from(new Date(22, Month.August, 1996))
+         Settings settings = new Settings();
+         Schedule s = new MakeSchedule(settings).from(new Date(22, Month.August, 1996))
          .to(new Date(31, Month.August, 1997))
          .withCalendar(new UnitedStates(UnitedStates.Market.GovernmentBond))
          .withTenor(new Period(6, TimeUnit.Months))
@@ -215,8 +215,8 @@ namespace TestSuite
       public void testDoubleFirstDateWithEomAdjustment()
       {
          // Testing that the first date is not duplicated due to EOM convention when going backwards
-
-         Schedule s = new MakeSchedule().from(new Date(22, Month.August, 1996))
+         Settings settings = new Settings();
+         Schedule s = new MakeSchedule(settings).from(new Date(22, Month.August, 1996))
          .to(new Date(31, Month.August, 1997))
          .withCalendar(new UnitedStates(UnitedStates.Market.GovernmentBond))
          .withTenor(new Period(6, TimeUnit.Months))
@@ -239,7 +239,8 @@ namespace TestSuite
          // Testing CDS2015 semi-annual rolling convention
          //From September 20th 2016 to March 19th 2017 of the next Year,
          //end date is December 20th 2021 for a 5 year Swap
-         Schedule s1 = new  MakeSchedule().from(new Date(12, Month.December, 2016))
+         Settings settings = new Settings();
+         Schedule s1 = new  MakeSchedule(settings).from(new Date(12, Month.December, 2016))
          .to(new Date(12, Month.December, 2016) + new Period(5, TimeUnit.Years))
          .withCalendar(new WeekendsOnly())
          .withTenor(new Period(3, TimeUnit.Months))
@@ -248,7 +249,7 @@ namespace TestSuite
          .withRule(DateGeneration.Rule.CDS2015).value();
          QAssert.IsTrue(s1.startDate() == new Date(20, Month.September, 2016));
          QAssert.IsTrue(s1.endDate() == new Date(20, Month.December, 2021));
-         Schedule s2 = new MakeSchedule().from(new Date(1, Month.March, 2017))
+         Schedule s2 = new MakeSchedule(settings).from(new Date(1, Month.March, 2017))
          .to(new Date(1, Month.March, 2017) + new Period(5, TimeUnit.Years))
          .withCalendar(new WeekendsOnly())
          .withTenor(new Period(3, TimeUnit.Months))
@@ -259,7 +260,7 @@ namespace TestSuite
          QAssert.IsTrue(s2.endDate() == new Date(20, Month.December, 2021));
          //From March 20th 2017 to September 19th 2017
          //end date is June 20th 2022 for a 5 year Swap
-         Schedule s3 = new MakeSchedule().from(new Date(20, Month.March, 2017))
+         Schedule s3 = new MakeSchedule(settings).from(new Date(20, Month.March, 2017))
          .to(new Date(20, Month.March, 2017) + new Period(5, TimeUnit.Years))
          .withCalendar(new WeekendsOnly())
          .withTenor(new Period(3, TimeUnit.Months))
@@ -275,6 +276,7 @@ namespace TestSuite
       public void testDateConstructor()
       {
          // Testing the constructor taking a vector of dates and possibly additional meta information
+         Settings settings = new Settings();
 
          List<Date> dates = new List<Date>();
          dates.Add(new Date(16, Month.May, 2015));
@@ -283,7 +285,7 @@ namespace TestSuite
          dates.Add(new Date(31, Month.December, 2017));
 
          // schedule without any additional information
-         Schedule schedule1 = new Schedule(dates);
+         Schedule schedule1 = new Schedule(settings, dates);
          if (schedule1.Count != dates.Count)
             QAssert.Fail("schedule1 has size " + schedule1.Count + ", expected " + dates.Count);
          for (int i = 0; i < dates.Count; ++i)
@@ -300,7 +302,7 @@ namespace TestSuite
          regular.Add(true);
          regular.Add(false);
 
-         Schedule schedule2 = new Schedule(dates, new TARGET(), BusinessDayConvention.Following, BusinessDayConvention.ModifiedPreceding, new Period(1, TimeUnit.Years),
+         Schedule schedule2 = new Schedule(settings, dates, new TARGET(), BusinessDayConvention.Following, BusinessDayConvention.ModifiedPreceding, new Period(1, TimeUnit.Years),
                                            DateGeneration.Rule.Backward, true, regular);
          for (int i = 1; i < dates.Count; ++i)
             if (schedule2.isRegular(i) != regular[i - 1])

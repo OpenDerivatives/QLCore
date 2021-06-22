@@ -71,7 +71,7 @@ namespace QLCore
                          Schedule fixedSchedule, double fixedRate, DayCounter fixedDayCount,
                          Schedule floatSchedule, IborIndex iborIndex, double spread, DayCounter floatingDayCount,
                          BusinessDayConvention ? paymentConvention = null) :
-      base(2)
+      base(fixedSchedule.settings(), 2)
       {
          type_ = type;
          nominal_ = nominal;

@@ -38,6 +38,7 @@ namespace QLCore
    public static class ITraitsYieldTermStructure
     {
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                               Settings settings,
                                                                DayCounter dayCounter,
                                                                List<Handle<Quote>> jumps = null,
                                                                List<Date> jumpDates = null,
@@ -45,16 +46,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ZeroYield)))
-                return new InterpolatedZeroCurve<Interpolator>(dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedZeroCurve<Interpolator>(settings, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                               Settings settings,
                                                                Date referenceDate,
                                                                DayCounter dayCounter,
                                                                List<Handle<Quote>> jumps = null,
@@ -63,16 +65,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ZeroYield)))
-                return new InterpolatedZeroCurve<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedZeroCurve<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(referenceDate, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, referenceDate, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                               Settings settings,
                                                                int settlementDays,
                                                                Calendar calendar,
                                                                DayCounter dayCounter,
@@ -82,16 +85,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ZeroYield)))
-                return new InterpolatedZeroCurve<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedZeroCurve<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, settlementDays, calendar, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                               Settings settings,
                                                                List<Date> dates,
                                                                List<double> discounts,
                                                                DayCounter dayCounter,
@@ -102,16 +106,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(dates, discounts, dayCounter, calendar, jumps, jumpDates, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, dates, discounts, dayCounter, calendar, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ZeroYield)))
-                return new InterpolatedZeroCurve<Interpolator>(dates, discounts, dayCounter, calendar, jumps, jumpDates, interpolator);
+                return new InterpolatedZeroCurve<Interpolator>(settings, dates, discounts, dayCounter, calendar, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(dates, discounts, dayCounter, calendar, jumps, jumpDates, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, dates, discounts, dayCounter, calendar, jumps, jumpDates, interpolator);
             else
                 return null;
         }
 
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                               Settings settings,
                                                                List<Date> dates,
                                                                List<double> discounts,
                                                                DayCounter dayCounter,
@@ -120,16 +125,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(dates, discounts, dayCounter, calendar, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, dates, discounts, dayCounter, calendar, interpolator);
             else if (self.GetType().Equals(typeof(ZeroYield)))
-                return new InterpolatedZeroCurve<Interpolator>(dates, discounts, dayCounter, calendar, interpolator);
+                return new InterpolatedZeroCurve<Interpolator>(settings, dates, discounts, dayCounter, calendar, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(dates, discounts, dayCounter, calendar, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, dates, discounts, dayCounter, calendar, interpolator);
             else
                 return null;
         }
 
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                               Settings settings,
                                                                List<Date> dates,
                                                                List<double> discounts,
                                                                DayCounter dayCounter,
@@ -137,16 +143,17 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(dates, discounts, dayCounter, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, dates, discounts, dayCounter, interpolator);
             else if (self.GetType().Equals(typeof(ZeroYield)))
-                return new InterpolatedZeroCurve<Interpolator>(dates, discounts, dayCounter, interpolator);
+                return new InterpolatedZeroCurve<Interpolator>(settings, dates, discounts, dayCounter, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(dates, discounts, dayCounter, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, dates, discounts, dayCounter, interpolator);
             else
                 return null;
         }
 
         public static YieldTermStructure factory<Interpolator>(this ITraits<YieldTermStructure> self,
+                                                                Settings settings,
                                                                 List<Date> dates,
                                                                 List<double> discounts,
                                                                 DayCounter dayCounter,
@@ -156,9 +163,9 @@ namespace QLCore
             where Interpolator : class, IInterpolationFactory, new()
         {
             if (self.GetType().Equals(typeof(Discount)))
-                return new InterpolatedDiscountCurve<Interpolator>(dates, discounts, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedDiscountCurve<Interpolator>(settings, dates, discounts, dayCounter, jumps, jumpDates, interpolator);
             else if (self.GetType().Equals(typeof(ForwardRate)))
-                return new InterpolatedForwardCurve<Interpolator>(dates, discounts, dayCounter, jumps, jumpDates, interpolator);
+                return new InterpolatedForwardCurve<Interpolator>(settings, dates, discounts, dayCounter, jumps, jumpDates, interpolator);
             else
                 return null;
         }

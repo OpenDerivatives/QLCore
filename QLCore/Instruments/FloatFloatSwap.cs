@@ -50,7 +50,7 @@ namespace QLCore
                             double? flooredRate2 = null,
                             BusinessDayConvention? paymentConvention1 = null,
                             BusinessDayConvention? paymentConvention2 = null)
-      : base(2)
+      : base(schedule1.settings(), 2)
       {
          type_ = type;
          nominal1_ = new InitializedList<double> (schedule1.size()  - 1, nominal1);
@@ -95,7 +95,7 @@ namespace QLCore
                             List < double? > flooredRate2 = null,
                             BusinessDayConvention? paymentConvention1 = null,
                             BusinessDayConvention? paymentConvention2 = null)
-      : base(2)
+      : base(schedule1.settings(), 2)
       {
          type_ = type;
          nominal1_ = nominal1;
@@ -512,7 +512,7 @@ namespace QLCore
                double cap = nominal1_[i] - nominal1_[i + 1];
                if (!Utils.close(cap, 0.0))
                {
-                  legs_[0].Insert(i + 1, new Redemption(cap, legs_[0][i].date()));
+                  legs_[0].Insert(i + 1, new Redemption(settings(), cap, legs_[0][i].date()));
                   nominal1_.Insert(i + 1, nominal1_[i]);
                   i++;
                }
@@ -522,7 +522,7 @@ namespace QLCore
                double cap = nominal2_[i] - nominal2_[i + 1];
                if (!Utils.close(cap, 0.0))
                {
-                  legs_[1].Insert(i + 1, new Redemption(cap, legs_[1][i].date()));
+                  legs_[1].Insert(i + 1, new Redemption(settings(), cap, legs_[1][i].date()));
                   nominal2_.Insert(i + 1, nominal2_[i]);
                   i++;
                }
@@ -531,9 +531,9 @@ namespace QLCore
 
          if (finalCapitalExchange_)
          {
-            legs_[0].Add(new Redemption(nominal1_.Last(), legs_[0].Last().date()));
+            legs_[0].Add(new Redemption(settings(), nominal1_.Last(), legs_[0].Last().date()));
             nominal1_.Add(nominal1_.Last());
-            legs_[1].Add(new Redemption(nominal2_.Last(), legs_[1].Last().date()));
+            legs_[1].Add(new Redemption(settings(), nominal2_.Last(), legs_[1].Last().date()));
             nominal2_.Add(nominal2_.Last());
          }
 

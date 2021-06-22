@@ -497,86 +497,103 @@ namespace QLCore
          paymentAdjustment_ = BusinessDayConvention.Following;
          observationConvention_ = BusinessDayConvention.ModifiedFollowing;
       }
+
       public RangeAccrualLeg withNotionals(double notional)
       {
          notionals_ = new InitializedList<double>(1, notional);
          return this;
       }
+
       public RangeAccrualLeg withNotionals(List<double> notionals)
       {
          notionals_ = notionals;
          return this;
       }
+
       public RangeAccrualLeg withPaymentDayCounter(DayCounter dayCounter)
       {
          paymentDayCounter_ = dayCounter;
          return this;
       }
+
       public RangeAccrualLeg withPaymentAdjustment(BusinessDayConvention convention)
       {
          paymentAdjustment_ = convention;
          return this;
       }
+
       public RangeAccrualLeg withFixingDays(int fixingDays)
       {
          fixingDays_ = new InitializedList<int>(1, fixingDays);
          return this;
       }
+
       public RangeAccrualLeg withFixingDays(List<int> fixingDays)
       {
          fixingDays_ = fixingDays;
          return this;
       }
+
       public RangeAccrualLeg withGearings(double gearing)
       {
          gearings_ = new InitializedList<double>(1, gearing);
          return this;
       }
+
       public RangeAccrualLeg withGearings(List<double> gearings)
       {
          gearings_ = gearings;
          return this;
       }
+
       public RangeAccrualLeg withSpreads(double spread)
       {
          spreads_ = new InitializedList<double>(1, spread);
          return this;
       }
+
       public RangeAccrualLeg withSpreads(List<double> spreads)
       {
          spreads_ = spreads;
          return this;
       }
+
       public RangeAccrualLeg withLowerTriggers(double trigger)
       {
          lowerTriggers_ = new InitializedList<double>(1, trigger);
          return this;
       }
+
       public RangeAccrualLeg withLowerTriggers(List<double> triggers)
       {
          lowerTriggers_ = triggers;
          return this;
       }
+
       public RangeAccrualLeg withUpperTriggers(double trigger)
       {
          upperTriggers_ = new InitializedList<double>(1, trigger);
          return this;
       }
+
       public RangeAccrualLeg withUpperTriggers(List<double> triggers)
       {
          upperTriggers_ = triggers;
          return this;
       }
+
       public RangeAccrualLeg withObservationTenor(Period tenor)
       {
          observationTenor_ = tenor;
          return this;
       }
+
       public RangeAccrualLeg withObservationConvention(BusinessDayConvention convention)
       {
          observationConvention_ = convention;
          return this;
       }
+
       public List<CashFlow> Leg()
       {
          Utils.QL_REQUIRE(!notionals_.empty(), () => "no notional given");
@@ -623,7 +640,8 @@ namespace QLCore
             if (Utils.Get(gearings_, i, 1.0).IsEqual(0.0))
             {
                // fixed coupon
-               leg.Add(new FixedRateCoupon(paymentDate,
+               leg.Add(new FixedRateCoupon(schedule_.settings(),  
+                                           paymentDate,
                                            Utils.Get(notionals_, i),
                                            Utils.Get(spreads_, i, 0.0),
                                            paymentDayCounter_,
@@ -632,7 +650,8 @@ namespace QLCore
             else
             {
                // floating coupon
-               observationsSchedules.Add(new Schedule(start, end,
+               observationsSchedules.Add(new Schedule(schedule_.settings(),
+                                                      start, end,
                                                       observationTenor_, calendar,
                                                       observationConvention_,
                                                       observationConvention_,
@@ -653,9 +672,7 @@ namespace QLCore
             }
          }
          return leg;
-
       }
-
 
       private Schedule schedule_;
       private IborIndex index_;

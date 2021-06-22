@@ -208,19 +208,19 @@ namespace QLCore
 
       # endregion
 
-      public PiecewiseYoYInflationCurve(DayCounter dayCounter, double baseZeroRate, Period observationLag, Frequency frequency,
+      public PiecewiseYoYInflationCurve(Settings settings, DayCounter dayCounter, double baseZeroRate, Period observationLag, Frequency frequency,
                                         bool indexIsInterpolated, Handle<YieldTermStructure> yTS)
-         : base(dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
+         : base(settings, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
 
-      public PiecewiseYoYInflationCurve(Date referenceDate, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
+      public PiecewiseYoYInflationCurve(Settings settings, Date referenceDate, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
                                         Period observationLag, Frequency frequency, bool indexIsInterpolated,
                                         Handle<YieldTermStructure> yTS)
-         : base(referenceDate, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
+         : base(settings, referenceDate, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
 
-      public PiecewiseYoYInflationCurve(int settlementDays, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
+      public PiecewiseYoYInflationCurve(Settings settings, int settlementDays, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
                                         Period observationLag, Frequency frequency, bool indexIsInterpolated,
                                         Handle<YieldTermStructure> yTS)
-         : base(settlementDays, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
+         : base(settings, settlementDays, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
 
       public PiecewiseYoYInflationCurve()
          : base()
@@ -234,7 +234,8 @@ namespace QLCore
       where Bootstrap : IBootStrap<PiecewiseYoYInflationCurve>, new()
    {
 
-      public PiecewiseYoYInflationCurve(Date referenceDate,
+      public PiecewiseYoYInflationCurve(Settings settings, 
+                                        Date referenceDate,
                                         Calendar calendar,
                                         DayCounter dayCounter,
                                         Period lag,
@@ -246,13 +247,13 @@ namespace QLCore
                                         double accuracy = 1.0e-12,
                                         Interpolator i = default(Interpolator),
                                         Bootstrap bootstrap = default(Bootstrap))
-         : base(referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, nominalTS)
+         : base(settings, referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, nominalTS)
       {
          _instruments_ = instruments;
 			accuracy_ = accuracy;
-            _traits_ = FastActivator<Traits>.Create();
-            base_curve = _traits_.factory(referenceDate, calendar, dayCounter, lag, frequency,
-                                           indexIsInterpolated, baseZeroRate, nominalTS, i);
+         _traits_ = FastActivator<Traits>.Create();
+         base_curve = _traits_.factory(settings, referenceDate, calendar, dayCounter, lag, frequency,
+                                       indexIsInterpolated, baseZeroRate, nominalTS, i);
 
 			if ( bootstrap == null )
 				bootstrap_ = FastActivator<Bootstrap>.Create();
@@ -286,7 +287,8 @@ namespace QLCore
    public class PiecewiseYoYInflationCurve<Interpolator> : PiecewiseYoYInflationCurve<Interpolator, IterativeBootstrapForYoYInflation, YoYInflationTraits>
       where Interpolator : class, IInterpolationFactory, new()
    {
-      public PiecewiseYoYInflationCurve(Date referenceDate,
+      public PiecewiseYoYInflationCurve(Settings settings, 
+                                        Date referenceDate,
                                         Calendar calendar,
                                         DayCounter dayCounter,
                                         Period lag,
@@ -297,8 +299,8 @@ namespace QLCore
                                         List<BootstrapHelper<YoYInflationTermStructure>> instruments,
                                         double accuracy = 1.0e-12,
                                         Interpolator i = default(Interpolator))
-         : base(referenceDate, calendar, dayCounter, lag, frequency, indexIsInterpolated, baseZeroRate, nominalTS,
-                instruments, accuracy, i) { }
+         : base(settings, referenceDate, calendar, dayCounter, lag, frequency, indexIsInterpolated, baseZeroRate, 
+                nominalTS, instruments, accuracy, i) { }
 
    }
 }

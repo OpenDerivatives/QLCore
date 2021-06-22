@@ -26,16 +26,17 @@ namespace QLCore
    /*! \ingroup instruments */
    public class DividendBarrierOption : BarrierOption
    {
-      public DividendBarrierOption(Barrier.Type barrierType,
+      public DividendBarrierOption(Settings settings,
+                                   Barrier.Type barrierType,
                                    double barrier,
                                    double rebate,
                                    StrikedTypePayoff payoff,
                                    Exercise exercise,
                                    List<Date> dividendDates,
                                    List<double> dividends)
-         : base(barrierType, barrier, rebate, payoff, exercise)
+         : base(settings, barrierType, barrier, rebate, payoff, exercise)
       {
-         cashFlow_ = Utils.DividendVector(dividendDates, dividends);
+         cashFlow_ = Utils.DividendVector(settings, dividendDates, dividends);
       }
 
       public override void setupArguments(IPricingEngineArguments args)

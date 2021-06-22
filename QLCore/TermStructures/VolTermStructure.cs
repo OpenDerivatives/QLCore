@@ -36,20 +36,20 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected VolatilityTermStructure(BusinessDayConvention bdc, DayCounter dc = null)
-         : base(dc)
+      protected VolatilityTermStructure(Settings settings, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, dc)
       {
          bdc_ = bdc;
       }
       //! initialize with a fixed reference date
-      protected VolatilityTermStructure(Date referenceDate, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(referenceDate, cal, dc)
+      protected VolatilityTermStructure(Settings settings, Date referenceDate, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, referenceDate, cal, dc)
       {
          bdc_ = bdc;
       }
       //! calculate the reference date based on the global evaluation date
-      protected VolatilityTermStructure(int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
-         : base(settlementDays, cal, dc)
+      protected VolatilityTermStructure(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc, DayCounter dc = null)
+         : base(settings, settlementDays, cal, dc)
       {
          bdc_ = bdc;
       }

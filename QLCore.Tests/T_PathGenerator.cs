@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_PathGenerator : IDisposable
+   public class T_PathGenerator
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_PathGenerator()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       protected void testSingle(StochasticProcess1D process,
                              string tag,
                              bool brownianBridge,
@@ -182,13 +163,14 @@ namespace TestSuite
       [Fact]
       public void testPathGenerator()
       {
+         Settings settings = new Settings();
          // Testing 1-D path generation against cached values
-         Settings.Instance.setEvaluationDate(new Date(26, 4, 2005));
+         settings.setEvaluationDate(new Date(26, 4, 2005));
 
          Handle<Quote> x0 = new Handle<Quote> (new SimpleQuote(100.0));
-         Handle<YieldTermStructure> r = new Handle<YieldTermStructure> (Utilities.flatRate(0.05, new Actual360()));
-         Handle<YieldTermStructure> q = new Handle<YieldTermStructure> (Utilities.flatRate(0.02, new Actual360()));
-         Handle<BlackVolTermStructure> sigma = new Handle<BlackVolTermStructure>(Utilities.flatVol(0.20, new Actual360()));
+         Handle<YieldTermStructure> r = new Handle<YieldTermStructure> (Utilities.flatRate(settings, 0.05, new Actual360()));
+         Handle<YieldTermStructure> q = new Handle<YieldTermStructure> (Utilities.flatRate(settings, 0.02, new Actual360()));
+         Handle<BlackVolTermStructure> sigma = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, 0.20, new Actual360()));
          // commented values must be used when Halley's correction is enabled
          testSingle(new BlackScholesMertonProcess(x0, q, r, sigma),
                     "Black-Scholes", false, 26.13784357783, 467.2928561411);
@@ -212,13 +194,14 @@ namespace TestSuite
       [Fact]
       public void testMultiPathGenerator()
       {
+         Settings settings = new Settings();
          // Testing n-D path generation against cached values
-         Settings.Instance.setEvaluationDate(new Date(26, 4, 2005));
+         settings.setEvaluationDate(new Date(26, 4, 2005));
 
          Handle<Quote> x0 = new Handle<Quote> (new SimpleQuote(100.0));
-         Handle<YieldTermStructure> r = new Handle<YieldTermStructure> (Utilities.flatRate(0.05, new Actual360()));
-         Handle<YieldTermStructure> q = new Handle<YieldTermStructure> (Utilities.flatRate(0.02, new Actual360()));
-         Handle<BlackVolTermStructure> sigma = new Handle<BlackVolTermStructure> (Utilities.flatVol(0.20, new Actual360()));
+         Handle<YieldTermStructure> r = new Handle<YieldTermStructure> (Utilities.flatRate(settings, 0.05, new Actual360()));
+         Handle<YieldTermStructure> q = new Handle<YieldTermStructure> (Utilities.flatRate(settings, 0.02, new Actual360()));
+         Handle<BlackVolTermStructure> sigma = new Handle<BlackVolTermStructure> (Utilities.flatVol(settings, 0.20, new Actual360()));
 
          Matrix correlation = new Matrix(3, 3);
          correlation[0, 0] = 1.0; correlation[0, 1] = 0.9; correlation[0, 2] = 0.7;

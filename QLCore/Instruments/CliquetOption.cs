@@ -36,8 +36,8 @@ namespace QLCore
    */
    public class CliquetOption : OneAssetOption
    {
-      public CliquetOption(PercentageStrikePayoff payoff, EuropeanExercise maturity, List<Date> resetDates)
-         : base(payoff, maturity)
+      public CliquetOption(Settings settings, PercentageStrikePayoff payoff, EuropeanExercise maturity, List<Date> resetDates)
+         : base(settings, payoff, maturity)
       {
          resetDates_ = new List<Date>(resetDates);
       }
@@ -48,6 +48,7 @@ namespace QLCore
          CliquetOption.Arguments moreArgs = args as CliquetOption.Arguments;
          Utils.QL_REQUIRE(moreArgs != null, () => "wrong engine type");
          moreArgs.resetDates = new List<Date>(resetDates_);
+         moreArgs.settings = settings_;
       }
       private List<Date> resetDates_;
 

@@ -29,49 +29,49 @@ namespace QLCore
       private InterestRate rate_;
 
       // constructors
-      public FlatForward(Date referenceDate, Quote forward, DayCounter dayCounter) :
-         this(referenceDate, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
-      public FlatForward(Date referenceDate, Quote forward, DayCounter dayCounter, Compounding compounding) :
-         this(referenceDate, forward, dayCounter, compounding, Frequency.Annual) {}
-      public FlatForward(Date referenceDate, Quote forward, DayCounter dayCounter, Compounding compounding, Frequency frequency) :
-         base(referenceDate, new Calendar(), dayCounter)
+      public FlatForward(Settings settings, Date referenceDate, Quote forward, DayCounter dayCounter) :
+         this(settings, referenceDate, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
+      public FlatForward(Settings settings, Date referenceDate, Quote forward, DayCounter dayCounter, Compounding compounding) :
+         this(settings, referenceDate, forward, dayCounter, compounding, Frequency.Annual) {}
+      public FlatForward(Settings settings, Date referenceDate, Quote forward, DayCounter dayCounter, Compounding compounding, Frequency frequency) :
+         base(settings, referenceDate, new Calendar(), dayCounter)
       {
          forward_ = forward;
          compounding_ = compounding;
          frequency_ = frequency;
       }
 
-      public FlatForward(Date referenceDate, double forward, DayCounter dayCounter) :
-         this(referenceDate, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
-      public FlatForward(Date referenceDate, double forward, DayCounter dayCounter, Compounding compounding) :
-         this(referenceDate, forward, dayCounter, compounding, Frequency.Annual) {}
-      public FlatForward(Date referenceDate, double forward, DayCounter dayCounter, Compounding compounding, Frequency frequency) :
-         base(referenceDate, new Calendar(), dayCounter)
+      public FlatForward(Settings settings, Date referenceDate, double forward, DayCounter dayCounter) :
+         this(settings, referenceDate, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
+      public FlatForward(Settings settings, Date referenceDate, double forward, DayCounter dayCounter, Compounding compounding) :
+         this(settings, referenceDate, forward, dayCounter, compounding, Frequency.Annual) {}
+      public FlatForward(Settings settings, Date referenceDate, double forward, DayCounter dayCounter, Compounding compounding, Frequency frequency) :
+         base(settings, referenceDate, new Calendar(), dayCounter)
       {
          forward_ = new SimpleQuote(forward);
          compounding_ = compounding;
          frequency_ = frequency;
       }
 
-      public FlatForward(int settlementDays, Calendar calendar, Quote forward, DayCounter dayCounter) :
-         this(settlementDays, calendar, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
-      public FlatForward(int settlementDays, Calendar calendar, Quote forward, DayCounter dayCounter, Compounding compounding) :
-         this(settlementDays, calendar, forward, dayCounter, compounding, Frequency.Annual) {}
-      public FlatForward(int settlementDays, Calendar calendar, Quote forward, DayCounter dayCounter, Compounding compounding, Frequency frequency) :
-         base(settlementDays, calendar, dayCounter)
+      public FlatForward(Settings settings, int settlementDays, Calendar calendar, Quote forward, DayCounter dayCounter) :
+         this(settings, settlementDays, calendar, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
+      public FlatForward(Settings settings, int settlementDays, Calendar calendar, Quote forward, DayCounter dayCounter, Compounding compounding) :
+         this(settings, settlementDays, calendar, forward, dayCounter, compounding, Frequency.Annual) {}
+      public FlatForward(Settings settings, int settlementDays, Calendar calendar, Quote forward, DayCounter dayCounter, Compounding compounding, Frequency frequency) :
+         base(settings, settlementDays, calendar, dayCounter)
       {
          forward_ = forward;
          compounding_ = compounding;
          frequency_ = frequency;
       }
 
-      public FlatForward(int settlementDays, Calendar calendar, double forward, DayCounter dayCounter) :
-         this(settlementDays, calendar, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
-      public FlatForward(int settlementDays, Calendar calendar, double forward, DayCounter dayCounter, Compounding compounding) :
-         this(settlementDays, calendar, forward, dayCounter, compounding, Frequency.Annual) {}
-      public FlatForward(int settlementDays, Calendar calendar, double forward, DayCounter dayCounter,
+      public FlatForward(Settings settings, int settlementDays, Calendar calendar, double forward, DayCounter dayCounter) :
+         this(settings, settlementDays, calendar, forward, dayCounter, Compounding.Continuous, Frequency.Annual) {}
+      public FlatForward(Settings settings, int settlementDays, Calendar calendar, double forward, DayCounter dayCounter, Compounding compounding) :
+         this(settings, settlementDays, calendar, forward, dayCounter, compounding, Frequency.Annual) {}
+      public FlatForward(Settings settings, int settlementDays, Calendar calendar, double forward, DayCounter dayCounter,
                          Compounding compounding, Frequency frequency) :
-         base(settlementDays, calendar, dayCounter)
+         base(settings, settlementDays, calendar, dayCounter)
       {
          forward_ = new SimpleQuote(forward);
          compounding_ = compounding;

@@ -64,7 +64,7 @@ namespace QLCore
          defaultTS_ = ctptyDTS;
          ctptyRecoveryRate_ = ctptyRecoveryRate;
          invstDTS_ = invstDTS ?? new Handle<DefaultProbabilityTermStructure>(
-                        new FlatHazardRate(0, ctptyDTS.link.calendar(), 1.0E-12, ctptyDTS.link.dayCounter()));
+                        new FlatHazardRate(ctptyDTS.link.settings(), 0, ctptyDTS.link.calendar(), 1.0E-12, ctptyDTS.link.dayCounter()));
          invstRecoveryRate_ = invstRecoveryRate;
       }
 
@@ -89,7 +89,7 @@ namespace QLCore
          defaultTS_ = ctptyDTS;
          ctptyRecoveryRate_ = ctptyRecoveryRate;
          invstDTS_ = invstDTS ?? new Handle<DefaultProbabilityTermStructure>(
-                        new FlatHazardRate(0, ctptyDTS.link.calendar(), 1.0e-12, ctptyDTS.link.dayCounter()));
+                        new FlatHazardRate(ctptyDTS.link.settings(), 0, ctptyDTS.link.calendar(), 1.0e-12, ctptyDTS.link.dayCounter()));
          invstRecoveryRate_ = invstRecoveryRate;
       }
 
@@ -114,7 +114,7 @@ namespace QLCore
          defaultTS_ = ctptyDTS;
          ctptyRecoveryRate_ = ctptyRecoveryRate;
          invstDTS_ = invstDTS ?? new Handle<DefaultProbabilityTermStructure>(
-                        new FlatHazardRate(0, ctptyDTS.link.calendar(), 1.0e-12, ctptyDTS.link.dayCounter()));
+                        new FlatHazardRate(ctptyDTS.link.settings(), 0, ctptyDTS.link.calendar(), 1.0e-12, ctptyDTS.link.dayCounter()));
          invstRecoveryRate_ = invstRecoveryRate;
       }
 

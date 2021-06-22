@@ -33,6 +33,7 @@ namespace QLCore
 
       protected CalibrationHelper(Handle<Quote> volatility,
                                   Handle<YieldTermStructure> termStructure,
+                                  Settings settings,
                                   CalibrationErrorType calibrationErrorType = CalibrationErrorType.RelativePriceError,
                                   VolatilityType type = VolatilityType.ShiftedLognormal,
                                   double shift = 0.0)
@@ -42,6 +43,7 @@ namespace QLCore
          calibrationErrorType_ = calibrationErrorType;
          volatilityType_ = type;
          shift_ = shift;
+         settings_ = settings;
       }
 
       protected override void performCalculations()
@@ -57,6 +59,9 @@ namespace QLCore
 
       //! returns the actual price of the instrument (from volatility)
       public double marketValue() { calculate(); return marketValue_; }
+
+      public Settings settings() { return settings_; }
+      public void setSettings(Settings s) { settings_ = s; }
 
       //! returns the price of the instrument according to the model
       public abstract double modelValue();
@@ -126,6 +131,7 @@ namespace QLCore
       protected IPricingEngine engine_;
       protected VolatilityType volatilityType_;
       protected double shift_;
+      protected Settings settings_;
 
 
       private CalibrationErrorType calibrationErrorType_;

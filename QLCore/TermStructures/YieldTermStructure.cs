@@ -37,8 +37,8 @@ namespace QLCore
 
       #region Constructors
 
-      protected YieldTermStructure(DayCounter dc = null, List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(dc)
+      protected YieldTermStructure(Settings settings, DayCounter dc = null, List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
+         : base(settings, dc)
       {
          if (jumps != null)
             jumps_ = jumps;
@@ -55,9 +55,9 @@ namespace QLCore
          setJumps();
       }
 
-      protected YieldTermStructure(Date referenceDate, Calendar cal = null, DayCounter dc = null,
+      protected YieldTermStructure(Settings settings, Date referenceDate, Calendar cal = null, DayCounter dc = null,
                                    List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(referenceDate, cal, dc)
+         : base(settings, referenceDate, cal, dc)
       {
          if (jumps != null)
             jumps_ = jumps;
@@ -74,9 +74,9 @@ namespace QLCore
          setJumps();
       }
 
-      protected YieldTermStructure(int settlementDays, Calendar cal, DayCounter dc = null,
+      protected YieldTermStructure(Settings settings, int settlementDays, Calendar cal, DayCounter dc = null,
                                    List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(settlementDays, cal, dc)
+         : base(settings, settlementDays, cal, dc)
       {
          if (jumps != null)
             jumps_ = jumps;

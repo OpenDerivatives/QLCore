@@ -31,12 +31,12 @@ namespace QLCore
 //
    public class Tibor : IborIndex
    {
-      public Tibor(Period tenor)
-         : base("Tibor", tenor, 2, new JPYCurrency(), new Japan(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), new Handle<YieldTermStructure>())
+      public Tibor(Period tenor, Settings settings)
+         : base("Tibor", tenor, 2, new JPYCurrency(), new Japan(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), settings, new Handle<YieldTermStructure>())
       {
       }
-      public Tibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("Tibor", tenor, 2, new JPYCurrency(), new Japan(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), h)
+      public Tibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("Tibor", tenor, 2, new JPYCurrency(), new Japan(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), settings, h)
       {
       }
    }

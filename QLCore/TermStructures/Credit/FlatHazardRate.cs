@@ -28,26 +28,26 @@ namespace QLCore
    {
       #region Constructors
 
-      public FlatHazardRate(Date referenceDate, Handle<Quote> hazardRate, DayCounter dc)
-         : base(referenceDate, new Calendar(), dc)
+      public FlatHazardRate(Settings settings, Date referenceDate, Handle<Quote> hazardRate, DayCounter dc)
+         : base(settings, referenceDate, new Calendar(), dc)
       {
          hazardRate_ = hazardRate;
       }
 
-      public FlatHazardRate(Date referenceDate, double hazardRate, DayCounter dc)
-         : base(referenceDate, new Calendar(), dc)
+      public FlatHazardRate(Settings settings, Date referenceDate, double hazardRate, DayCounter dc)
+         : base(settings, referenceDate, new Calendar(), dc)
       {
          hazardRate_ = new Handle<Quote>(new SimpleQuote(hazardRate));
       }
 
-      public FlatHazardRate(int settlementDays, Calendar calendar, Handle<Quote> hazardRate, DayCounter dc)
-         : base(settlementDays, calendar, dc)
+      public FlatHazardRate(Settings settings, int settlementDays, Calendar calendar, Handle<Quote> hazardRate, DayCounter dc)
+         : base(settings, settlementDays, calendar, dc)
       {
          hazardRate_ = hazardRate;
       }
 
-      public FlatHazardRate(int settlementDays, Calendar calendar, double hazardRate, DayCounter dc)
-         : base(settlementDays, calendar, dc)
+      public FlatHazardRate(Settings settings, int settlementDays, Calendar calendar, double hazardRate, DayCounter dc)
+         : base(settings, settlementDays, calendar, dc)
       {
          hazardRate_ = new Handle<Quote>(new SimpleQuote(hazardRate));
       }

@@ -30,6 +30,7 @@ namespace QLCore
       //@{
       //! all market data are quotes
       public SabrInterpolatedSmileSection(
+         Settings settings, 
          Date optionDate,
          Handle<Quote> forward,
          List<double> strikes,
@@ -43,7 +44,7 @@ namespace QLCore
          OptimizationMethod method = null,
          DayCounter dc = null,
          double shift = 0.0)
-         : base(optionDate, dc, null, VolatilityType.ShiftedLognormal, shift)
+         : base(settings, optionDate, dc, null, VolatilityType.ShiftedLognormal, shift)
       {
          forward_  = forward;
          atmVolatility_ = atmVolatility;
@@ -65,6 +66,7 @@ namespace QLCore
       }
 
       public SabrInterpolatedSmileSection(
+         Settings settings, 
          Date optionDate,
          double forward,
          List<double> strikes,
@@ -78,7 +80,7 @@ namespace QLCore
          OptimizationMethod method = null,
          DayCounter dc = null,
          double shift = 0.0)
-         : base(optionDate, dc, null, VolatilityType.ShiftedLognormal, shift)
+         : base(settings, optionDate, dc, null, VolatilityType.ShiftedLognormal, shift)
       {
          forward_ = new Handle<Quote>(new SimpleQuote(forward));
          atmVolatility_ = new Handle<Quote>(new SimpleQuote(atmVolatility));
@@ -135,7 +137,8 @@ namespace QLCore
 
       protected void createInterpolation()
       {
-         SABRInterpolation tmp = new SABRInterpolation(actualStrikes_.Where(x => actualStrikes_.First().IsEqual(x)).ToList(),
+         SABRInterpolation tmp = new SABRInterpolation(this.settings(),
+                                                       actualStrikes_.Where(x => actualStrikes_.First().IsEqual(x)).ToList(),
                                                        actualStrikes_.Count,
                                                        vols_.Where(x => vols_.First().IsEqual(x)).ToList(),
                                                        exerciseTime(), forwardValue_, alpha_, beta_, nu_, rho_, isAlphaFixed_,

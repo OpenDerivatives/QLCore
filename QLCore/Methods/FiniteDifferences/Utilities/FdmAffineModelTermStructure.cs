@@ -27,13 +27,14 @@ namespace QLCore
    public class FdmAffineModelTermStructure : YieldTermStructure
    {
       public FdmAffineModelTermStructure(
+         Settings settings,
          Vector r,
          Calendar cal,
          DayCounter dayCounter,
          Date referenceDate,
          Date modelReferenceDate,
          IAffineModel model)
-         : base(referenceDate, cal, dayCounter)
+         : base(settings, referenceDate, cal, dayCounter)
       {
          r_ = r;
          t_ = dayCounter.yearFraction(modelReferenceDate, referenceDate);

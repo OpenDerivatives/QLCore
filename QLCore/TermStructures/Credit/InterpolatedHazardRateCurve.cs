@@ -27,9 +27,9 @@ namespace QLCore
    public class InterpolatedHazardRateCurve<Interpolator> : HazardRateStructure, InterpolatedCurve
       where Interpolator : IInterpolationFactory, new ()
    {
-      public InterpolatedHazardRateCurve(List<Date> dates, List<double> hazardRates, DayCounter dayCounter, Calendar cal = null,
+      public InterpolatedHazardRateCurve(Settings settings, List<Date> dates, List<double> hazardRates, DayCounter dayCounter, Calendar cal = null,
                                          List<Handle<Quote>> jumps = null, List<Date> jumpDates = null, Interpolator interpolator = default(Interpolator))
-         : base(dates[0], cal, dayCounter, jumps, jumpDates)
+         : base(settings, dates[0], cal, dayCounter, jumps, jumpDates)
       {
          dates_ = dates;
          times_ = new List<double>();
@@ -43,9 +43,9 @@ namespace QLCore
          initialize();
       }
 
-      public InterpolatedHazardRateCurve(List<Date> dates, List<double> hazardRates, DayCounter dayCounter, Calendar calendar,
+      public InterpolatedHazardRateCurve(Settings settings, List<Date> dates, List<double> hazardRates, DayCounter dayCounter, Calendar calendar,
                                          Interpolator interpolator)
-         : base(dates[0], calendar, dayCounter)
+         : base(settings, dates[0], calendar, dayCounter)
       {
          dates_ = dates;
          times_ = new List<double>();
@@ -57,8 +57,8 @@ namespace QLCore
          initialize();
       }
 
-      public InterpolatedHazardRateCurve(List<Date> dates, List<double> hazardRates, DayCounter dayCounter, Interpolator interpolator)
-         : base(dates[0], null, dayCounter)
+      public InterpolatedHazardRateCurve(Settings settings, List<Date> dates, List<double> hazardRates, DayCounter dayCounter, Interpolator interpolator)
+         : base(settings, dates[0], null, dayCounter)
       {
          dates_ = dates;
          if (interpolator == null)
@@ -71,25 +71,28 @@ namespace QLCore
 
       public List<double> hazardRates() { return this.data_; }
 
-      protected internal InterpolatedHazardRateCurve(DayCounter dc,
+      protected internal InterpolatedHazardRateCurve(Settings settings, 
+                                            DayCounter dc,
                                             List<Handle<Quote>> jumps = null,
                                             List<Date> jumpDates = null,
                                             Interpolator interpolator = default(Interpolator))
-         : base(dc, jumps, jumpDates)
+         : base(settings, dc, jumps, jumpDates)
       { }
 
-      protected internal InterpolatedHazardRateCurve(Date referenceDate, DayCounter dc,
+      protected internal InterpolatedHazardRateCurve(Settings settings, 
+                                            Date referenceDate, DayCounter dc,
                                             List<Handle<Quote>> jumps = null,
                                             List<Date> jumpDates = null,
                                             Interpolator interpolator = default(Interpolator))
-         : base(referenceDate, null, dc, jumps, jumpDates)
+         : base(settings, referenceDate, null, dc, jumps, jumpDates)
       { }
 
-      protected internal InterpolatedHazardRateCurve(int settlementDays, Calendar cal, DayCounter dc,
+      protected internal InterpolatedHazardRateCurve(Settings settings, 
+                                            int settlementDays, Calendar cal, DayCounter dc,
                                             List<Handle<Quote>> jumps = null,
                                             List<Date> jumpDates = null,
                                             Interpolator interpolator = default(Interpolator))
-         : base(settlementDays, cal, dc, jumps, jumpDates)
+         : base(settings, settlementDays, cal, dc, jumps, jumpDates)
       {}
 
       // DefaultProbabilityTermStructure implementation

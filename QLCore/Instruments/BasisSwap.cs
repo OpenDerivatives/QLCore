@@ -56,7 +56,7 @@ namespace QLCore
                        Schedule float1Schedule, IborIndex iborIndex1, double spread1, DayCounter float1DayCount,
                        Schedule float2Schedule, IborIndex iborIndex2, double spread2, DayCounter float2DayCount,
                        BusinessDayConvention ? paymentConvention) :
-      base(2)
+      base(float1Schedule.settings(), 2)
       {
          type_ = type;
          nominal_ = nominal;
