@@ -30,11 +30,13 @@ namespace QLCore
       private readonly Frequency freq_;
       private readonly Func<double, double, double> f_;
 
-      public CompositeZeroYieldStructure(Handle<YieldTermStructure> h1,
+      public CompositeZeroYieldStructure(Settings settings, 
+                                         Handle<YieldTermStructure> h1,
                                          Handle<YieldTermStructure> h2,
                                          Func<double, double, double> f,
                                          Compounding comp = Compounding.Continuous,
                                          Frequency freq = Frequency.NoFrequency)
+         : base(settings)
 
       {
          curve1_ = h1;

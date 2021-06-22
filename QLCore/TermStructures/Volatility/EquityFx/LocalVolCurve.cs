@@ -26,7 +26,8 @@ namespace QLCore
    public class LocalVolCurve : LocalVolTermStructure
    {
       public LocalVolCurve(Handle<BlackVarianceCurve> curve)
-         : base(curve.link.businessDayConvention(), curve.link.dayCounter())
+         : base(curve.link.settings(), curve.link.businessDayConvention(), 
+                curve.link.dayCounter())
       {
          blackVarianceCurve_ = curve;
       }

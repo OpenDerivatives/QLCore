@@ -40,7 +40,7 @@ namespace QLCore
       public FloatingRateBond(int settlementDays, double faceAmount, Schedule schedule, IborIndex index, DayCounter paymentDayCounter,
                               BusinessDayConvention paymentConvention, int fixingDays, List<double> gearings, List<double> spreads,
                               List < double? > caps, List < double? > floors, bool inArrears, double redemption, Date issueDate)
-      : base(settlementDays, schedule.calendar(), issueDate)
+      : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          maturityDate_ = schedule.endDate();
          cashflows_ = new IborLeg(schedule, index)
@@ -81,7 +81,7 @@ namespace QLCore
                               int fixingDays, List<double> gearings, List<double> spreads, List < double? > caps,
                               List < double? > floors, bool inArrears, double redemption, Date issueDate,
                               Date stubDate, DateGeneration.Rule rule, bool endOfMonth)
-      : base(settlementDays, calendar, issueDate)
+      : base(index.settings(), settlementDays, calendar, issueDate)
       {
 
          maturityDate_ = maturityDate;
@@ -108,7 +108,7 @@ namespace QLCore
                break;
          }
 
-         Schedule schedule = new Schedule(startDate, maturityDate_, new Period(couponFrequency), calendar_,
+         Schedule schedule = new Schedule(settings(), startDate, maturityDate_, new Period(couponFrequency), calendar_,
                                           accrualConvention, accrualConvention, rule, endOfMonth, firstDate, nextToLastDate);
 
          cashflows_ = new IborLeg(schedule, index)

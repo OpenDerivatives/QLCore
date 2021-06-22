@@ -42,8 +42,9 @@ namespace QLCore
       public DayCounter dayCounter() { return dayCounter_; }
 
       // Constructors
-      public Principal() { }       // default constructor
-      public Principal(double amount,
+      public Principal(Settings settings) : base(settings) { }       // default constructor
+      public Principal(Settings settings,
+                       double amount,
                        double nominal,
                        Date paymentDate,
                        Date accrualStartDate,
@@ -51,6 +52,7 @@ namespace QLCore
                        DayCounter dayCounter,
                        Date refPeriodStart = null,
                        Date refPeriodEnd = null)
+         : base(settings)
       {
          amount_ = amount;
          nominal_ = nominal;

@@ -37,14 +37,14 @@ namespace QLCore
                                  DayCounter dc = null, double displacement = 0.0)
       {
          discountCurve_ = discountCurve;
-         vol_ = new Handle<OptionletVolatilityStructure>(new ConstantOptionletVolatility(0, new NullCalendar(), BusinessDayConvention.Following, vol, dc ?? new Actual365Fixed()));
+         vol_ = new Handle<OptionletVolatilityStructure>(new ConstantOptionletVolatility(discountCurve_.link.settings(), 0, new NullCalendar(), BusinessDayConvention.Following, vol, dc ?? new Actual365Fixed()));
          displacement_ = displacement;
       }
       public BlackCapFloorEngine(Handle<YieldTermStructure> discountCurve, Handle<Quote> vol,
                                  DayCounter dc = null, double displacement = 0.0)
       {
          discountCurve_ = discountCurve;
-         vol_ = new Handle<OptionletVolatilityStructure>(new ConstantOptionletVolatility(
+         vol_ = new Handle<OptionletVolatilityStructure>(new ConstantOptionletVolatility(discountCurve_.link.settings(), 
                                                             0, new NullCalendar(), BusinessDayConvention.Following, vol, dc ?? new Actual365Fixed()));
          displacement_ = displacement;
 

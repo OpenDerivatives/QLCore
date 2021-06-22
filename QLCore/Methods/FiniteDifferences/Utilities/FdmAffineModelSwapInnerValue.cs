@@ -63,14 +63,16 @@ namespace QLCore
             Handle<YieldTermStructure> discount
                = disModel_.termStructure();
 
-            disTs_.linkTo(new FdmAffineModelTermStructure(disRate,
+            disTs_.linkTo(new FdmAffineModelTermStructure(discount.currentLink().settings(),
+                                                          disRate,
                                                           discount.currentLink().calendar(), discount.currentLink().dayCounter(),
                                                           iterExerciseDate, discount.currentLink().referenceDate(),
                                                           disModel_));
 
             Handle<YieldTermStructure> fwd = fwdModel_.termStructure();
 
-            fwdTs_.linkTo(new FdmAffineModelTermStructure(fwdRate,
+            fwdTs_.linkTo(new FdmAffineModelTermStructure(discount.currentLink().settings(),
+                                                          fwdRate,
                                                           fwd.currentLink().calendar(), fwd.currentLink().dayCounter(),
                                                           iterExerciseDate, fwd.currentLink().referenceDate(),
                                                           fwdModel_));

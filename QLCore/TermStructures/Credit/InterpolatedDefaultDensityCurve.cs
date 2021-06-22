@@ -32,6 +32,7 @@ namespace QLCore
         where Interpolator : IInterpolationFactory, new()
     {
         public InterpolatedDefaultDensityCurve(
+            Settings settings,
             List<Date> dates,
             List<double> densities,
             DayCounter dayCounter,
@@ -39,7 +40,7 @@ namespace QLCore
             List<Handle<Quote> > jumps = null,
             List<Date> jumpDates = null,
             Interpolator interpolator = default(Interpolator))
-        : base(dates[0], calendar, dayCounter, jumps, jumpDates)
+        : base(settings, dates[0], calendar, dayCounter, jumps, jumpDates)
         {
             dates_ = new List<Date>(dates);
             times_ = new List<double>();
@@ -53,12 +54,13 @@ namespace QLCore
             initialize(dates, densities, dayCounter);
         }
         public InterpolatedDefaultDensityCurve(
+            Settings settings,
             List<Date> dates,
             List<double> densities,
             DayCounter dayCounter,
             Calendar calendar,
             Interpolator interpolator = default(Interpolator))
-        : base(dates[0], calendar, dayCounter)
+        : base(settings, dates[0], calendar, dayCounter)
         {
             dates_ = new List<Date>(dates);
             times_ = new List<double>();
@@ -72,11 +74,12 @@ namespace QLCore
             initialize(dates, densities, dayCounter);
         }
         public InterpolatedDefaultDensityCurve(
+            Settings settings,
             List<Date> dates,
             List<double> densities,
             DayCounter dayCounter,
             Interpolator interpolator = default(Interpolator))
-       : base(dates[0], null, dayCounter)
+       : base(settings, dates[0], null, dayCounter)
         {
             dates_ = new List<Date>(dates);
             times_ = new List<double>();
@@ -108,11 +111,12 @@ namespace QLCore
         }
 
         public InterpolatedDefaultDensityCurve(
+            Settings settings,
             DayCounter dayCounter,
             List<Handle<Quote> > jumps = null,
             List<Date> jumpDates = null,
             Interpolator interpolator = default(Interpolator))
-            : base (dayCounter, jumps, jumpDates)
+            : base (settings, dayCounter, jumps, jumpDates)
         {
             if (interpolator == null)
                 interpolator_ = FastActivator<Interpolator>.Create();
@@ -120,12 +124,13 @@ namespace QLCore
                 interpolator_ = interpolator;
         }
         public InterpolatedDefaultDensityCurve(
+            Settings settings,
             Date referenceDate,
             DayCounter dayCounter,
             List<Handle<Quote> > jumps = null,
             List<Date> jumpDates = null,
             Interpolator interpolator = default(Interpolator))
-            : base(referenceDate, null, dayCounter, jumps, jumpDates)
+            : base(settings, referenceDate, null, dayCounter, jumps, jumpDates)
         {
             if (interpolator == null)
                 interpolator_ = FastActivator<Interpolator>.Create();
@@ -133,13 +138,14 @@ namespace QLCore
                 interpolator_ = interpolator;
         }
         public InterpolatedDefaultDensityCurve(
+            Settings settings,
             int settlementDays,
             Calendar cal,
             DayCounter dayCounter,
             List<Handle<Quote> > jumps = null,
             List<Date> jumpDates = null,
             Interpolator interpolator = default(Interpolator))
-            : base(settlementDays, cal, dayCounter, jumps, jumpDates)
+            : base(settings, settlementDays, cal, dayCounter, jumps, jumpDates)
         {
             if (interpolator == null)
                 interpolator_ = FastActivator<Interpolator>.Create();

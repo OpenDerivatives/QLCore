@@ -40,7 +40,7 @@ namespace QLCore
 
       public LocalVolSurface(Handle<BlackVolTermStructure> blackTS, Handle<YieldTermStructure> riskFreeTS,
                              Handle<YieldTermStructure> dividendTS, Handle<Quote> underlying)
-         : base(blackTS.link.businessDayConvention(), blackTS.link.dayCounter())
+         : base(blackTS.link.settings(), blackTS.link.businessDayConvention(), blackTS.link.dayCounter())
       {
          blackTS_ = blackTS;
          riskFreeTS_ = riskFreeTS;
@@ -50,7 +50,7 @@ namespace QLCore
 
       public LocalVolSurface(Handle<BlackVolTermStructure> blackTS, Handle<YieldTermStructure> riskFreeTS,
                              Handle<YieldTermStructure> dividendTS, double underlying)
-         : base(blackTS.link.businessDayConvention(), blackTS.link.dayCounter())
+         : base(blackTS.link.settings(), blackTS.link.businessDayConvention(), blackTS.link.dayCounter())
       {
          blackTS_ = blackTS;
          riskFreeTS_ = riskFreeTS;

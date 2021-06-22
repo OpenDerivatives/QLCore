@@ -42,7 +42,8 @@ namespace QLCore
                             bool interpolated,
                             Frequency frequency,
                             Period availabilitiyLag,
-                            Currency currency)
+                            Currency currency,
+                            Settings settings)
       {
          familyName_ = familyName;
          region_ = region;
@@ -51,6 +52,7 @@ namespace QLCore
          frequency_ = frequency;
          availabilityLag_ = availabilitiyLag;
          currency_ = currency;
+         settings_ = settings ?? new Settings();
          name_ = region_.name() + " " + familyName_;
       }
 
@@ -147,9 +149,10 @@ namespace QLCore
                                 Frequency frequency,
                                 Period availabilityLag,
                                 Currency currency,
+                                Settings settings,
                                 Handle<ZeroInflationTermStructure> ts = null)
          : base(familyName, region, revised, interpolated,
-                frequency, availabilityLag, currency)
+                frequency, availabilityLag, currency, settings)
       {
          zeroInflation_ = ts ?? new Handle<ZeroInflationTermStructure>();
       }
@@ -205,7 +208,7 @@ namespace QLCore
          
          ZeroInflationIndex tmp =  new ZeroInflationIndex(familyName_, region_, revised_,
                                        interpolated_, frequency_,
-                                       availabilityLag_, currency_, h);
+                                       availabilityLag_, currency_, settings_, h);
          tmp.data_ = data_;
          return tmp;
       }
@@ -219,7 +222,7 @@ namespace QLCore
          // (because you need the next one to interpolate).
          // The interpolation is calculated (linearly) on demand.
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings_.evaluationDate();
          Date todayMinusLag = today - availabilityLag_;
 
          Date historicalFixingKnown = Utils.inflationPeriod(todayMinusLag, frequency_).Key - 1;
@@ -301,8 +304,9 @@ namespace QLCore
                                Frequency frequency,
                                Period availabilityLag,
                                Currency currency,
+                               Settings settings,
                                Handle<YoYInflationTermStructure> yoyInflation = null)
-         : base(familyName, region, revised, interpolated, frequency, availabilityLag, currency)
+         : base(familyName, region, revised, interpolated, frequency, availabilityLag, currency, settings)
       {
          ratio_ = ratio;
          yoyInflation_ = yoyInflation ?? new Handle<YoYInflationTermStructure>();
@@ -312,7 +316,7 @@ namespace QLCore
       // The forecastTodaysFixing parameter (required by the Index interface) is currently ignored.
       public override double fixing(Date fixingDate, bool forecastTodaysFixing = false)
       {
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings_.evaluationDate();
          Date todayMinusLag = today - availabilityLag_;
          KeyValuePair<Date, Date> limm = Utils.inflationPeriod(todayMinusLag, frequency_);
          Date lastFix = limm.Key - 1;
@@ -411,7 +415,7 @@ namespace QLCore
       {
          YoYInflationIndex tmp = new YoYInflationIndex(familyName_, region_, revised_,
                                                          interpolated_, ratio_, frequency_,
-                                                         availabilityLag_, currency_, h);
+                                                         availabilityLag_, currency_, settings_, h);
          tmp.addFixings(timeSeries());
          return tmp;
       }

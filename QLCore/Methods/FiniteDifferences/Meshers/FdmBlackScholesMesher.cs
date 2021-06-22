@@ -206,7 +206,8 @@ namespace QLCore
          return new GeneralizedBlackScholesProcess(
                    s0, qTS, rTS,
                    new Handle<BlackVolTermStructure>(
-                      new BlackConstantVol(rTS.currentLink().referenceDate(),
+                      new BlackConstantVol(rTS.currentLink().settings(),
+                                           rTS.currentLink().referenceDate(),
                                            new Calendar(),
                                            vol,
                                            rTS.currentLink().dayCounter())));

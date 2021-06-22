@@ -28,13 +28,13 @@ namespace QLCore
    */
    public class GBPLibor : Libor
    {
-      public GBPLibor(Period tenor)
-         : base("GBPLibor", tenor, 0, new GBPCurrency(), new UnitedKingdom(UnitedKingdom.Market.Exchange), new Actual365Fixed(),
+      public GBPLibor(Period tenor, Settings settings)
+         : base("GBPLibor", tenor, 0, new GBPCurrency(), new UnitedKingdom(UnitedKingdom.Market.Exchange), new Actual365Fixed(), settings,
                 new Handle<YieldTermStructure>())
       {}
 
-      public GBPLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("GBPLibor", tenor, 0, new GBPCurrency(), new UnitedKingdom(UnitedKingdom.Market.Exchange), new Actual365Fixed(), h)
+      public GBPLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("GBPLibor", tenor, 0, new GBPCurrency(), new UnitedKingdom(UnitedKingdom.Market.Exchange), new Actual365Fixed(), settings, h)
       {}
 
    }
@@ -42,16 +42,16 @@ namespace QLCore
    //! Base class for the one day deposit ICE %GBP %LIBOR indexes
    public class DailyTenorGBPLibor : DailyTenorLibor
    {
-      public DailyTenorGBPLibor(int settlementDays, Handle<YieldTermStructure> h)
+      public DailyTenorGBPLibor(int settlementDays, Settings settings, Handle<YieldTermStructure> h)
          : base("GBPLibor", settlementDays, new GBPCurrency(), new UnitedKingdom(UnitedKingdom.Market.Exchange),
-                new Actual365Fixed(), h)
+                new Actual365Fixed(), settings, h)
       {}
    }
 
    //! Overnight %GBP %Libor index
    public class GBPLiborON : DailyTenorGBPLibor
    {
-      public GBPLiborON(Handle<YieldTermStructure> h) : base(0, h)
+      public GBPLiborON(Settings settings, Handle<YieldTermStructure> h) : base(0, settings, h)
       {}
    }
 }

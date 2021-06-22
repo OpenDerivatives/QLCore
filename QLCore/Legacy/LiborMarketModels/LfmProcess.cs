@@ -190,7 +190,8 @@ namespace QLCore
       {
          Date refDate = index_.forwardingTermStructure().link.referenceDate();
 
-         Schedule schedule = new Schedule(refDate,
+         Schedule schedule = new Schedule(index_.settings(),
+                                          refDate,
                                           refDate + new Period(index_.tenor().length() * size_,
                                                                index_.tenor().units()),
                                           index_.tenor(), index_.fixingCalendar(),

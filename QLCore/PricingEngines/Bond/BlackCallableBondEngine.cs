@@ -37,19 +37,22 @@ namespace QLCore
    public class BlackCallableFixedRateBondEngine : CallableFixedRateBond.Engine
    {
       //! volatility is the quoted fwd yield volatility, not price vol
-      public BlackCallableFixedRateBondEngine(Handle<Quote> fwdYieldVol, Handle<YieldTermStructure> discountCurve)
+      public BlackCallableFixedRateBondEngine(Settings settings, Handle<Quote> fwdYieldVol, Handle<YieldTermStructure> discountCurve)
       {
-         volatility_ = new Handle<CallableBondVolatilityStructure>(new CallableBondConstantVolatility(0, new NullCalendar(),
+         volatility_ = new Handle<CallableBondVolatilityStructure>(new CallableBondConstantVolatility(settings, 0, new NullCalendar(),
                                                                    fwdYieldVol,
                                                                    new Actual365Fixed()));
          discountCurve_ = discountCurve;
+         settings_ = settings;
       }
       //! volatility is the quoted fwd yield volatility, not price vol
-      public BlackCallableFixedRateBondEngine(Handle<CallableBondVolatilityStructure> yieldVolStructure,
+      public BlackCallableFixedRateBondEngine(Settings settings,
+                                              Handle<CallableBondVolatilityStructure> yieldVolStructure,
                                               Handle<YieldTermStructure> discountCurve)
       {
          volatility_ = yieldVolStructure;
          discountCurve_ = discountCurve;
+         settings_ = settings;
       }
 
       public override void calculate()
@@ -99,6 +102,7 @@ namespace QLCore
 
       private Handle<CallableBondVolatilityStructure> volatility_;
       private Handle<YieldTermStructure> discountCurve_;
+      private Settings settings_;
       // present value of all coupons paid during the life of option
       private double spotIncome()
       {
@@ -191,12 +195,12 @@ namespace QLCore
    {
 
       //! volatility is the quoted fwd yield volatility, not price vol
-      public BlackCallableZeroCouponBondEngine(Handle<Quote> fwdYieldVol, Handle<YieldTermStructure> discountCurve)
-         : base(fwdYieldVol, discountCurve) {}
+      public BlackCallableZeroCouponBondEngine(Settings settings, Handle<Quote> fwdYieldVol, Handle<YieldTermStructure> discountCurve)
+         : base(settings, fwdYieldVol, discountCurve) {}
 
       //! volatility is the quoted fwd yield volatility, not price vol
-      public BlackCallableZeroCouponBondEngine(Handle<CallableBondVolatilityStructure> yieldVolStructure,
+      public BlackCallableZeroCouponBondEngine(Settings settings, Handle<CallableBondVolatilityStructure> yieldVolStructure,
                                                Handle<YieldTermStructure> discountCurve)
-         : base(yieldVolStructure, discountCurve) {}
+         : base(settings, yieldVolStructure, discountCurve) {}
    }
 }

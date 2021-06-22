@@ -83,7 +83,7 @@ namespace QLCore
          bool includeRefDateFlows =
             includeSettlementDateFlows_.HasValue ?
             includeSettlementDateFlows_.Value :
-            Settings.Instance.includeReferenceDateEvents;
+            discountCurve_.currentLink().settings().includeReferenceDateEvents;
 
          for (int i = 0; i < n; ++i)
          {

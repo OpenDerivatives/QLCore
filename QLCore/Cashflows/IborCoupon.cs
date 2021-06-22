@@ -26,7 +26,9 @@ namespace QLCore
    // Coupon paying a Libor-type index
    public class IborCoupon : FloatingRateCoupon
    {
-      public IborCoupon() { }
+      public IborCoupon() : base(new Settings()) { }
+
+      public IborCoupon(Settings settings) : base(settings) { }
 
       public IborCoupon(Date paymentDate,
                         double nominal,
@@ -44,7 +46,6 @@ namespace QLCore
               refPeriodStart, refPeriodEnd, dayCounter, isInArrears)
       {
          iborIndex_ = iborIndex;
-
          fixingDate_ = fixingDate();
 
          Calendar fixingCalendar = index_.fixingCalendar();
@@ -87,12 +88,12 @@ namespace QLCore
            1) allows to save date/time recalculations, and
            2) takes into account par coupon needs
          */
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings().evaluationDate();
 
          if (fixingDate_ > today)
             return iborIndex_.forecastFixing(fixingValueDate_, fixingEndDate_, spanningTime_);
 
-         if (fixingDate_ < today || Settings.Instance.enforcesTodaysHistoricFixings)
+         if (fixingDate_ < today || settings().enforcesTodaysHistoricFixings)
          {
             // do not catch exceptions
             double? result = index_.pastFixing(fixingDate_);

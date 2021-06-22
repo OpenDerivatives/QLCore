@@ -300,7 +300,7 @@ namespace QLCore
                if (Utils.Get(fixedRates_, i, 1.0).IsEqual(0.0))
                {
                   // fixed coupon
-                  leg.Add(new FixedRateCoupon(paymentDate, Utils.Get(notionals_, i, 0.0),
+                  leg.Add(new FixedRateCoupon(schedule_.settings(), paymentDate, Utils.Get(notionals_, i, 0.0),
                                               Utils.effectiveFixedRate(spreads_, caps_, floors_, i),
                                               paymentDayCounter_, start, end, refStart, refEnd, exCouponDate));
                }

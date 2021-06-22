@@ -93,7 +93,7 @@ namespace QLCore
       public static bool operator !=(Currency c1, Currency c2) { return !(c1 == c2); }
       public static Money operator *(double value, Currency c)
       {
-         return new Money(value, c);
+         return new Money(new Settings(), value, c);
       }
 
 

@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_Swaption : IDisposable
+   public class T_Swaption
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_Swaption()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-      
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       public Period[] exercises = new Period[] { new Period(1, TimeUnit.Years),
                 new Period(2, TimeUnit.Years),
                 new Period(3, TimeUnit.Years),
@@ -81,6 +62,7 @@ namespace TestSuite
          public IborIndex index;
          public int settlementDays;
          public RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
+         public Settings settings;
 
          // utilities
          public Swaption makeSwaption(VanillaSwap swap, Date exercise, double volatility,
@@ -104,6 +86,7 @@ namespace TestSuite
 
          public CommonVars()
          {
+            settings = new Settings();
             settlementDays = 2;
             nominal = 1000000.0;
             fixedConvention = BusinessDayConvention.Unadjusted;
@@ -111,15 +94,15 @@ namespace TestSuite
             fixedFrequency = Frequency.Annual;
             fixedDayCount = new Thirty360();
 
-            index = new Euribor6M(termStructure);
+            index = new Euribor6M(settings, termStructure);
             floatingConvention = index.businessDayConvention();
             floatingTenor = index.tenor();
             calendar = index.fixingCalendar();
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
 
-            termStructure.linkTo(Utilities.flatRate(settlement, 0.05, new Actual365Fixed()));
+            termStructure.linkTo(Utilities.flatRate(settings, settlement, 0.05, new Actual365Fixed()));
          }
       }
 
@@ -393,8 +376,8 @@ namespace TestSuite
 
          vars.today = new Date(13, 3, 2002);
          vars.settlement = new Date(15, 3, 2002);
-         Settings.Instance.setEvaluationDate(vars.today);
-         vars.termStructure.linkTo(Utilities.flatRate(vars.settlement, 0.05, new Actual365Fixed()));
+         vars.settings.setEvaluationDate(vars.today);
+         vars.termStructure.linkTo(Utilities.flatRate(vars.settings, vars.settlement, 0.05, new Actual365Fixed()));
          Date exerciseDate = vars.calendar.advance(vars.settlement, new Period(5, TimeUnit.Years));
          Date startDate = vars.calendar.advance(exerciseDate,
                                                 vars.settlementDays, TimeUnit.Days);
@@ -512,12 +495,12 @@ namespace TestSuite
                Date maturity =
                   vars.calendar.advance(startDate, lengths[j],
                                         vars.floatingConvention);
-               Schedule floatSchedule = new Schedule(startDate, maturity, vars.floatingTenor,
+               Schedule floatSchedule = new Schedule(vars.settings, startDate, maturity, vars.floatingTenor,
                                                      vars.calendar, vars.floatingConvention,
                                                      vars.floatingConvention,
                                                      DateGeneration.Rule.Forward, false);
                // Swap with fixed leg conventions: Business Days = Unadjusted, DayCount = 30/360
-               Schedule fixedSchedule_u = new Schedule(startDate, maturity,
+               Schedule fixedSchedule_u = new Schedule(vars.settings, startDate, maturity,
                                                        new Period(vars.fixedFrequency),
                                                        vars.calendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                                        DateGeneration.Rule.Forward, true);
@@ -535,7 +518,7 @@ namespace TestSuite
                                   vars.index.dayCounter());
 
                // Swap with fixed leg conventions: Business Days = Modified Following, DayCount = 30/360
-               Schedule fixedSchedule_a = new Schedule(startDate, maturity,
+               Schedule fixedSchedule_a = new Schedule(vars.settings, startDate, maturity,
                                                        new Period(vars.fixedFrequency),
                                                        vars.calendar, BusinessDayConvention.ModifiedFollowing,
                                                        BusinessDayConvention.ModifiedFollowing,
@@ -569,19 +552,19 @@ namespace TestSuite
                // FlatForward curves
                // FLOATING_POINT_EXCEPTION
                Handle<YieldTermStructure> termStructure_u360  = new Handle<YieldTermStructure>(
-                  new FlatForward(vars.settlement, swap_u360.fairRate(),
+                  new FlatForward(vars.settings, vars.settlement, swap_u360.fairRate(),
                                   new Thirty360(), Compounding.Compounded,
                                   vars.fixedFrequency));
                Handle<YieldTermStructure> termStructure_a360 = new Handle<YieldTermStructure>(
-                  new FlatForward(vars.settlement, swap_a360.fairRate(),
+                  new FlatForward(vars.settings, vars.settlement, swap_a360.fairRate(),
                                   new Thirty360(), Compounding.Compounded,
                                   vars.fixedFrequency));
                Handle<YieldTermStructure> termStructure_u365 = new Handle<YieldTermStructure>(
-                  new FlatForward(vars.settlement, swap_u365.fairRate(),
+                  new FlatForward(vars.settings, vars.settlement, swap_u365.fairRate(),
                                   new Actual365Fixed(), Compounding.Compounded,
                                   vars.fixedFrequency));
                Handle<YieldTermStructure> termStructure_a365 = new Handle<YieldTermStructure>(
-                  new FlatForward(vars.settlement, swap_a365.fairRate(),
+                  new FlatForward(vars.settings, vars.settlement, swap_a365.fairRate(),
                                   new Actual365Fixed(), Compounding.Compounded,
                                   vars.fixedFrequency));
 

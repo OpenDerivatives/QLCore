@@ -29,13 +29,13 @@ namespace TestSuite
       [Fact]
       public void testCashedValues()
       {
-
+         Settings settings = new Settings();
          Date startDate = new Date(01, 03, 2007);
          Period period = new Period(360, TimeUnit.Months);
          Calendar calendar = new TARGET();
          Date endDate = calendar.advance(startDate, period, BusinessDayConvention.Unadjusted);
 
-         Schedule schedule = new Schedule(startDate, endDate, new Period(1, TimeUnit.Months), calendar,
+         Schedule schedule = new Schedule(settings, startDate, endDate, new Period(1, TimeUnit.Months), calendar,
                                           BusinessDayConvention.Unadjusted,
                                           BusinessDayConvention.Unadjusted,
                                           DateGeneration.Rule.Backward, false);

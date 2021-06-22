@@ -26,8 +26,8 @@ namespace QLCore
    //! %callability leaving to the holder the possibility to convert
    public class SoftCallability : Callability
    {
-      public SoftCallability(Callability.Price price, Date date, double trigger)
-         : base(price, Callability.Type.Call, date)
+      public SoftCallability(Settings settings, Callability.Price price, Date date, double trigger)
+         : base(settings, price, Callability.Type.Call, date)
       {
          trigger_ = trigger;
       }
@@ -111,7 +111,7 @@ namespace QLCore
                        Date issueDate,
                        int settlementDays,
                        double redemption)
-            : base(new PlainVanillaPayoff(Option.Type.Call, (bond.notionals()[0]) / 100.0 * redemption / conversionRatio),
+            : base(schedule.settings(), new PlainVanillaPayoff(Option.Type.Call, (bond.notionals()[0]) / 100.0 * redemption / conversionRatio),
                    exercise)
          {
             bond_ = bond;
@@ -260,7 +260,8 @@ namespace QLCore
          return creditSpread_;
       }
 
-      protected ConvertibleBond(Exercise exercise,
+      protected ConvertibleBond(Settings settings,
+                                Exercise exercise,
                                 double conversionRatio,
                                 DividendSchedule dividends,
                                 CallabilitySchedule callability,
@@ -269,12 +270,13 @@ namespace QLCore
                                 int settlementDays,
                                 Schedule schedule,
                                 double redemption)
-         : base(settlementDays, schedule.calendar(), issueDate)
+         : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          conversionRatio_ = conversionRatio;
          callability_ = callability;
          dividends_ = dividends;
          creditSpread_ = creditSpread;
+         settings_ = settings;
 
          maturityDate_ = schedule.endDate();
 
@@ -311,7 +313,8 @@ namespace QLCore
 
    public class ConvertibleZeroCouponBond : ConvertibleBond
    {
-      public ConvertibleZeroCouponBond(Exercise exercise,
+      public ConvertibleZeroCouponBond(Settings settings,
+                                       Exercise exercise,
                                        double conversionRatio,
                                        DividendSchedule dividends,
                                        CallabilitySchedule callability,
@@ -321,7 +324,7 @@ namespace QLCore
                                        DayCounter dayCounter,
                                        Schedule schedule,
                                        double redemption = 100)
-         : base(
+         : base(settings,
               exercise, conversionRatio, dividends, callability, creditSpread, issueDate, settlementDays, schedule,
               redemption)
       {
@@ -345,7 +348,8 @@ namespace QLCore
 
    public class ConvertibleFixedCouponBond : ConvertibleBond
    {
-      public ConvertibleFixedCouponBond(Exercise exercise,
+      public ConvertibleFixedCouponBond(Settings settings,
+                                        Exercise exercise,
                                         double conversionRatio,
                                         DividendSchedule dividends,
                                         CallabilitySchedule callability,
@@ -356,7 +360,7 @@ namespace QLCore
                                         DayCounter dayCounter,
                                         Schedule schedule,
                                         double redemption = 100)
-         : base(
+         : base(settings,
               exercise, conversionRatio, dividends, callability, creditSpread, issueDate, settlementDays, schedule,
               redemption)
       {
@@ -385,7 +389,8 @@ namespace QLCore
 
    public class ConvertibleFloatingRateBond : ConvertibleBond
    {
-      public ConvertibleFloatingRateBond(Exercise exercise,
+      public ConvertibleFloatingRateBond(Settings settings,
+                                         Exercise exercise,
                                          double conversionRatio,
                                          DividendSchedule dividends,
                                          CallabilitySchedule callability,
@@ -398,7 +403,7 @@ namespace QLCore
                                          DayCounter dayCounter,
                                          Schedule schedule,
                                          double redemption = 100)
-         : base(
+         : base(settings,
               exercise, conversionRatio, dividends, callability, creditSpread, issueDate, settlementDays, schedule,
               redemption)
 

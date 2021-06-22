@@ -49,7 +49,8 @@ namespace QLCore
          Handle<YieldTermStructure> riskFreeRate = process.riskFreeRate();
 
          Handle<BlackVolTermStructure> blackVol = process.blackVolatility();
-         var volatility = new Handle<BlackVolTermStructure>(new BlackConstantVol(blackVol.link.referenceDate(),
+         var volatility = new Handle<BlackVolTermStructure>(new BlackConstantVol(blackVol.link.settings(),
+                                                                                 blackVol.link.referenceDate(),
                                                                                  blackVol.link.calendar(), new Handle<Quote>(volQuote),
                                                                                  blackVol.link.dayCounter()));
 

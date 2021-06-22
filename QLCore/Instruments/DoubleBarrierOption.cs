@@ -39,13 +39,14 @@ namespace QLCore
    public class DoubleBarrierOption : OneAssetOption
    {
 
-      public DoubleBarrierOption(DoubleBarrier.Type barrierType,
+      public DoubleBarrierOption(Settings settings,
+                                 DoubleBarrier.Type barrierType,
                                  double barrier_lo,
                                  double barrier_hi,
                                  double rebate,
                                  StrikedTypePayoff payoff,
                                  Exercise exercise)
-         : base(payoff, exercise)
+         : base(settings, payoff, exercise)
       {
          barrierType_ = barrierType;
          barrier_lo_ = barrier_lo;

@@ -31,7 +31,8 @@ namespace QLCore
                                   int fixingDays,
                                   Currency currency,
                                   Calendar fixingCalendar,
-                                  DayCounter dayCounter)
+                                  DayCounter dayCounter,
+                                  Settings settings)
       {
          familyName_ = familyName;
          tenor_ = tenor;
@@ -39,6 +40,7 @@ namespace QLCore
          currency_ = currency;
          dayCounter_ = dayCounter;
          fixingCalendar_ = fixingCalendar;
+         settings_ = settings ?? new Settings();
 
          tenor_.normalize();
 
@@ -71,13 +73,13 @@ namespace QLCore
       {
          Utils.QL_REQUIRE(isValidFixingDate(fixingDate), () => "Fixing date " + fixingDate + " is not valid");
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings_.evaluationDate();
 
          if (fixingDate > today ||
              (fixingDate == today && forecastTodaysFixing))
             return forecastFixing(fixingDate);
 
-         if (fixingDate < today || Settings.Instance.enforcesTodaysHistoricFixings)
+         if (fixingDate < today || settings_.enforcesTodaysHistoricFixings)
          {
             // must have been fixed
             // do not catch exceptions

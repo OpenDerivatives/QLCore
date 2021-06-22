@@ -31,9 +31,10 @@ namespace QLCore
                                BusinessDayConvention convention,
                                bool endOfMonth,
                                DayCounter dayCounter,
+                               Settings settings,
                                Handle<Quote> convAdj = null,
                                Futures.Type type = Futures.Type.IMM)
-         : base(price)
+         : base(settings, price)
       {
          convAdj_ = convAdj ?? new Handle<Quote>();
 
@@ -65,9 +66,10 @@ namespace QLCore
                                BusinessDayConvention convention,
                                bool endOfMonth,
                                DayCounter dayCounter,
+                               Settings settings,
                                double convexityAdjustment = 0.0,
                                Futures.Type type = Futures.Type.IMM)
-         : base(price)
+         : base(settings, price)
       {
          convAdj_ = new Handle<Quote>(new SimpleQuote(convexityAdjustment));
 
@@ -95,9 +97,10 @@ namespace QLCore
                                Date iborStartDate,
                                Date iborEndDate,
                                DayCounter dayCounter,
+                               Settings settings,
                                Handle<Quote> convAdj = null,
                                Futures.Type type = Futures.Type.IMM)
-         : base(price)
+         : base(settings, price)
       {
          convAdj_ = convAdj ?? new Handle<Quote>();
 
@@ -109,9 +112,9 @@ namespace QLCore
                if (iborEndDate == null)
                {
                   // advance 3 months
-                  maturityDate_ = IMM.nextDate(iborStartDate, false);
-                  maturityDate_ = IMM.nextDate(maturityDate_, false);
-                  maturityDate_ = IMM.nextDate(maturityDate_, false);
+                  maturityDate_ = IMM.nextDate(termStructure().settings(), iborStartDate, false);
+                  maturityDate_ = IMM.nextDate(termStructure().settings(), maturityDate_, false);
+                  maturityDate_ = IMM.nextDate(termStructure().settings(), maturityDate_, false);
                }
                else
                {
@@ -128,9 +131,9 @@ namespace QLCore
                if (iborEndDate == null)
                {
                   // advance 3 months
-                  maturityDate_ = ASX.nextDate(iborStartDate, false);
-                  maturityDate_ = ASX.nextDate(maturityDate_, false);
-                  maturityDate_ = ASX.nextDate(maturityDate_, false);
+                  maturityDate_ = ASX.nextDate(termStructure().settings(), iborStartDate, false);
+                  maturityDate_ = ASX.nextDate(termStructure().settings(), maturityDate_, false);
+                  maturityDate_ = ASX.nextDate(termStructure().settings(), maturityDate_, false);
                }
                else
                {
@@ -154,9 +157,10 @@ namespace QLCore
                                Date iborStartDate,
                                Date iborEndDate,
                                DayCounter dayCounter,
+                               Settings settings,
                                double convAdj = 0,
                                Futures.Type type = Futures.Type.IMM)
-         : base(price)
+         : base(settings, price)
       {
          convAdj_ = new Handle<Quote>(new SimpleQuote(convAdj));
 
@@ -168,9 +172,9 @@ namespace QLCore
                if (iborEndDate == null)
                {
                   // advance 3 months
-                  maturityDate_ = IMM.nextDate(iborStartDate, false);
-                  maturityDate_ = IMM.nextDate(maturityDate_, false);
-                  maturityDate_ = IMM.nextDate(maturityDate_, false);
+                  maturityDate_ = IMM.nextDate(termStructure().settings(), iborStartDate, false);
+                  maturityDate_ = IMM.nextDate(termStructure().settings(), maturityDate_, false);
+                  maturityDate_ = IMM.nextDate(termStructure().settings(), maturityDate_, false);
                }
                else
                {
@@ -187,9 +191,9 @@ namespace QLCore
                if (iborEndDate == null)
                {
                   // advance 3 months
-                  maturityDate_ = ASX.nextDate(iborStartDate, false);
-                  maturityDate_ = ASX.nextDate(maturityDate_, false);
-                  maturityDate_ = ASX.nextDate(maturityDate_, false);
+                  maturityDate_ = ASX.nextDate(termStructure().settings(), iborStartDate, false);
+                  maturityDate_ = ASX.nextDate(termStructure().settings(), maturityDate_, false);
+                  maturityDate_ = ASX.nextDate(termStructure().settings(), maturityDate_, false);
                }
                else
                {
@@ -214,7 +218,7 @@ namespace QLCore
                                IborIndex i,
                                Handle<Quote> convAdj = null,
                                Futures.Type type = Futures.Type.IMM)
-         : base(price)
+         : base(i.settings(), price)
       {
          convAdj_ = convAdj ?? new Handle<Quote>();
 
@@ -244,7 +248,7 @@ namespace QLCore
                                IborIndex i,
                                double convAdj = 0.0,
                                Futures.Type type = Futures.Type.IMM)
-         : base(price)
+         : base(i.settings(), price)
       {
          convAdj_ = new Handle<Quote>(new SimpleQuote(convAdj));
 
@@ -303,16 +307,16 @@ namespace QLCore
 
       ///////////////////////////////////////////
       // constructors
-      protected RelativeDateRateHelper(Handle<Quote> quote)
-         : base(quote)
+      protected RelativeDateRateHelper(Settings settings, Handle<Quote> quote)
+         : base(settings, quote)
       {
-         evaluationDate_ = Settings.Instance.evaluationDate();
+         evaluationDate_ = settings.evaluationDate();
       }
 
-      protected RelativeDateRateHelper(double quote)
-         : base(quote)
+      protected RelativeDateRateHelper(Settings settings, double quote)
+         : base(settings, quote)
       {
-         evaluationDate_ = Settings.Instance.evaluationDate();
+         evaluationDate_ = settings.evaluationDate();
       }
 
 
@@ -320,9 +324,9 @@ namespace QLCore
       //! Observer interface
       public void update()
       {
-         if (evaluationDate_ != Settings.Instance.evaluationDate())
+         if (evaluationDate_ != settings().evaluationDate())
          {
-            evaluationDate_ = Settings.Instance.evaluationDate();
+            evaluationDate_ = settings().evaluationDate();
             initializeDates();
          }
       }
@@ -340,11 +344,12 @@ namespace QLCore
                                Calendar calendar,
                                BusinessDayConvention convention,
                                bool endOfMonth,
-                               DayCounter dayCounter)
-         : base(rate)
+                               DayCounter dayCounter,
+                               Settings settings)
+         : base(settings, rate)
       {
          iborIndex_ = new IborIndex("no-fix", tenor, fixingDays, new Currency(), calendar, convention,
-                                    endOfMonth, dayCounter, termStructureHandle_);
+                                    endOfMonth, dayCounter, settings, termStructureHandle_);
          initializeDates();
       }
 
@@ -354,22 +359,23 @@ namespace QLCore
                                Calendar calendar,
                                BusinessDayConvention convention,
                                bool endOfMonth,
-                               DayCounter dayCounter) :
-         base(rate)
+                               DayCounter dayCounter,
+                               Settings settings) :
+         base(settings, rate)
       {
          iborIndex_ = new IborIndex("no-fix", tenor, fixingDays, new Currency(), calendar, convention,
-                                    endOfMonth, dayCounter, termStructureHandle_);
+                                    endOfMonth, dayCounter, settings, termStructureHandle_);
          initializeDates();
       }
 
       public DepositRateHelper(Handle<Quote> rate, IborIndex i)
-         : base(rate)
+         : base(i.settings(), rate)
       {
          iborIndex_ = i.clone(termStructureHandle_);
          initializeDates();
       }
       public DepositRateHelper(double rate, IborIndex i)
-         : base(rate)
+         : base(i.settings(), rate)
       {
          iborIndex_ = i.clone(termStructureHandle_);
          initializeDates();
@@ -423,9 +429,10 @@ namespace QLCore
                            BusinessDayConvention convention,
                            bool endOfMonth,
                            DayCounter dayCounter,
+                           Settings settings,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null) :
-         base(rate)
+         base(settings, rate)
       {
          periodToStart_ = new Period(monthsToStart, TimeUnit.Months);
          pillarChoice_ = pillarChoice;
@@ -434,7 +441,7 @@ namespace QLCore
                           "monthsToEnd (" + monthsToEnd + ") must be grater than monthsToStart (" + monthsToStart + ")");
 
          iborIndex_ = new IborIndex("no-fix", new Period(monthsToEnd - monthsToStart, TimeUnit.Months), fixingDays,
-                                    new Currency(), calendar, convention, endOfMonth, dayCounter, termStructureHandle_);
+                                    new Currency(), calendar, convention, endOfMonth, dayCounter, settings, termStructureHandle_);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -447,9 +454,10 @@ namespace QLCore
                            BusinessDayConvention convention,
                            bool endOfMonth,
                            DayCounter dayCounter,
+                           Settings settings,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(settings, rate)
       {
          periodToStart_ = new Period(monthsToStart, TimeUnit.Months);
          pillarChoice_ = pillarChoice;
@@ -458,7 +466,7 @@ namespace QLCore
                           "monthsToEnd (" + monthsToEnd + ") must be grater than monthsToStart (" + monthsToStart + ")");
 
          iborIndex_ = new IborIndex("no-fix", new Period(monthsToEnd - monthsToStart, TimeUnit.Months), fixingDays,
-                                    new Currency(), calendar, convention, endOfMonth, dayCounter, termStructureHandle_);
+                                    new Currency(), calendar, convention, endOfMonth, dayCounter, settings, termStructureHandle_);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -467,7 +475,7 @@ namespace QLCore
                            int monthsToStart, IborIndex i,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(i.settings(), rate)
       {
          periodToStart_ = new Period(monthsToStart, TimeUnit.Months);
          pillarChoice_ = pillarChoice;
@@ -485,7 +493,7 @@ namespace QLCore
                            IborIndex i,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(i.settings(), rate)
       {
          periodToStart_ = new Period(monthsToStart, TimeUnit.Months);
          pillarChoice_ = pillarChoice;
@@ -504,9 +512,10 @@ namespace QLCore
                            BusinessDayConvention convention,
                            bool endOfMonth,
                            DayCounter dayCounter,
+                           Settings settings,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(settings, rate)
       {
          periodToStart_ = periodToStart;
          pillarChoice_ = pillarChoice;
@@ -516,7 +525,7 @@ namespace QLCore
                                     new Period(lengthInMonths, TimeUnit.Months),
                                     fixingDays,
                                     new Currency(), calendar, convention,
-                                    endOfMonth, dayCounter, termStructureHandle_);
+                                    endOfMonth, dayCounter, settings, termStructureHandle_);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -529,9 +538,10 @@ namespace QLCore
                            BusinessDayConvention convention,
                            bool endOfMonth,
                            DayCounter dayCounter,
+                           Settings settings,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(settings, rate)
       {
          periodToStart_ = periodToStart;
          pillarChoice_ = pillarChoice;
@@ -541,7 +551,7 @@ namespace QLCore
                                     new Period(lengthInMonths, TimeUnit.Months),
                                     fixingDays,
                                     new Currency(), calendar, convention,
-                                    endOfMonth, dayCounter, termStructureHandle_);
+                                    endOfMonth, dayCounter, settings, termStructureHandle_);
          pillarDate_ = customPillarDate;
          initializeDates();
       }
@@ -551,7 +561,7 @@ namespace QLCore
                            IborIndex iborIndex,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(iborIndex.settings(), rate)
       {
          periodToStart_ = periodToStart;
          pillarChoice_ = pillarChoice;
@@ -567,7 +577,7 @@ namespace QLCore
                            IborIndex iborIndex,
                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                            Date customPillarDate = null)
-         : base(rate)
+         : base(iborIndex.settings(), rate)
       {
          periodToStart_ = periodToStart;
          pillarChoice_ = pillarChoice;
@@ -656,7 +666,7 @@ namespace QLCore
                             Handle<YieldTermStructure> discount = null,
                             Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                             Date customPillarDate = null)
-         : base(rate)
+         : base(swapIndex.settings(), rate)
       {
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -667,6 +677,7 @@ namespace QLCore
          calendar_ = swapIndex.fixingCalendar();
          fixedConvention_ = swapIndex.fixedLegConvention();
          fixedFrequency_ = swapIndex.fixedLegTenor().frequency();
+         floatFrequency_ = swapIndex.tenor().frequency();
          fixedDayCount_ = swapIndex.dayCounter();
          iborIndex_ = swapIndex.iborIndex();
          fwdStart_ = fwdStart;
@@ -684,6 +695,7 @@ namespace QLCore
                             Period tenor,
                             Calendar calendar,
                             Frequency fixedFrequency,
+                            Frequency floatFrequency,
                             BusinessDayConvention fixedConvention,
                             DayCounter fixedDayCount,
                             IborIndex iborIndex,
@@ -694,7 +706,29 @@ namespace QLCore
                             int? settlementDays = null,
                             Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                             Date customPillarDate = null)
-      : base(rate)
+      : this(rate, tenor, calendar, fixedFrequency, fixedConvention, fixedDayCount, iborIndex, 
+             spread, fwdStart, discount, settlementDays, pillarChoice, customPillarDate)
+      {
+         floatFrequency_ = floatFrequency;
+
+         initializeDates();
+      }
+
+      public SwapRateHelper(Handle<Quote> rate,
+                            Period tenor,
+                            Calendar calendar,
+                            Frequency fixedFrequency,
+                            BusinessDayConvention fixedConvention,
+                            DayCounter fixedDayCount,
+                            IborIndex iborIndex,
+                            Handle<Quote> spread = null,
+                            Period fwdStart = null,
+                            // exogenous discounting curve
+                            Handle<YieldTermStructure> discount = null,
+                            int? settlementDays = null,
+                            Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
+                            Date customPillarDate = null)
+      : base(iborIndex.settings(), rate)
       {
          settlementDays_ = settlementDays;
          tenor_ = tenor;
@@ -702,6 +736,7 @@ namespace QLCore
          calendar_ = calendar;
          fixedConvention_ = fixedConvention;
          fixedFrequency_ = fixedFrequency;
+         floatFrequency_ = iborIndex.tenor().frequency();
          fixedDayCount_ = fixedDayCount;
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -725,7 +760,7 @@ namespace QLCore
                             Handle<YieldTermStructure> discount = null,
                             Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                             Date customPillarDate = null)
-         : base(rate)
+         : base(swapIndex.settings(), rate)
       {
          settlementDays_ = swapIndex.fixingDays();
          tenor_ = swapIndex.tenor();
@@ -733,6 +768,7 @@ namespace QLCore
          calendar_ = swapIndex.fixingCalendar();
          fixedConvention_ = swapIndex.fixedLegConvention();
          fixedFrequency_ = swapIndex.fixedLegTenor().frequency();
+         floatFrequency_ = swapIndex.tenor().frequency();
          fixedDayCount_ = swapIndex.dayCounter();
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -759,7 +795,7 @@ namespace QLCore
                             int? settlementDays = null,
                             Pillar.Choice pillarChoice = Pillar.Choice.LastRelevantDate,
                             Date customPillarDate = null)
-      : base(rate)
+      : base(iborIndex.settings(), rate)
       {
          settlementDays_ = settlementDays;
          tenor_ = tenor;
@@ -767,6 +803,7 @@ namespace QLCore
          calendar_ = calendar;
          fixedConvention_ = fixedConvention;
          fixedFrequency_ = fixedFrequency;
+         floatFrequency_ = iborIndex.tenor().frequency();
          fixedDayCount_ = fixedDayCount;
          spread_ = spread ?? new Handle<Quote>();
          fwdStart_ = fwdStart ?? new Period(0, TimeUnit.Days);
@@ -790,6 +827,7 @@ namespace QLCore
          // use a RelinkableHandle here
          swap_ = new MakeVanillaSwap(tenor_, iborIndex_, 0.0, fwdStart_)
          .withSettlementDays(settlementDays_.Value)
+         .withFloatingLegTenor(new Period(floatFrequency_))
          .withDiscountingTermStructure(discountRelinkableHandle_)
          .withFixedLegDayCount(fixedDayCount_)
          .withFixedLegTenor(new Period(fixedFrequency_))
@@ -873,7 +911,7 @@ namespace QLCore
       protected Pillar.Choice pillarChoice_;
       protected Calendar calendar_;
       protected BusinessDayConvention fixedConvention_;
-      protected Frequency fixedFrequency_;
+      protected Frequency fixedFrequency_, floatFrequency_;
       protected DayCounter fixedDayCount_;
       protected IborIndex iborIndex_;
       protected VanillaSwap swap_;
@@ -898,7 +936,7 @@ namespace QLCore
                                DayCounter bmaDayCount,
                                BMAIndex bmaIndex,
                                IborIndex iborIndex)
-         : base(liborFraction)
+         : base(iborIndex.settings(), liborFraction)
       {
          tenor_ = tenor;
          settlementDays_ = settlementDays;
@@ -942,13 +980,13 @@ namespace QLCore
          // dummy BMA index with curve/swap arguments
          BMAIndex clonedIndex = bmaIndex_.clone(termStructureHandle_);
 
-         Schedule bmaSchedule = new MakeSchedule().from(earliestDate_).to(maturity)
+         Schedule bmaSchedule = new MakeSchedule(settings()).from(earliestDate_).to(maturity)
          .withTenor(bmaPeriod_)
          .withCalendar(bmaIndex_.fixingCalendar())
          .withConvention(bmaConvention_)
          .backwards().value();
 
-         Schedule liborSchedule = new MakeSchedule().from(earliestDate_).to(maturity)
+         Schedule liborSchedule = new MakeSchedule(settings()).from(earliestDate_).to(maturity)
          .withTenor(iborIndex_.tenor())
          .withCalendar(iborIndex_.fixingCalendar())
          .withConvention(iborIndex_.businessDayConvention())
@@ -999,8 +1037,9 @@ namespace QLCore
                               BusinessDayConvention convention,
                               bool endOfMonth,
                               bool isFxBaseCurrencyCollateralCurrency,
-                              Handle<YieldTermStructure> coll)
-         : base(fwdPoint)
+                              Handle<YieldTermStructure> coll,
+                              Settings settings)
+         : base(settings, fwdPoint)
       {
          spot_ = spotFx;
          tenor_ = tenor;

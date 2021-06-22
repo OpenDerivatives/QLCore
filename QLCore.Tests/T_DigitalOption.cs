@@ -82,7 +82,7 @@ namespace TestSuite
       public void testCashOrNothingEuropeanValues()
       {
          // Testing European cash-or-nothing digital option
-
+         Settings settings = new Settings();
          DigitalOptionData[] values =
          {
             // "Option pricing formulas", E.G. Haug, McGraw-Hill 1998 - pag 88
@@ -95,11 +95,11 @@ namespace TestSuite
 
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -120,7 +120,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticEuropeanEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, exercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, exercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -150,14 +150,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -178,7 +178,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticEuropeanEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, exercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, exercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -206,14 +206,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -234,7 +234,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticEuropeanEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, exercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, exercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -273,14 +273,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -305,7 +305,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticDigitalAmericanEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, amExercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, amExercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -342,14 +342,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.01);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.25);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -374,7 +374,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticDigitalAmericanEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, amExercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, amExercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -410,14 +410,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.01);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.25);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -446,7 +446,7 @@ namespace TestSuite
             else
                engine = new AnalyticDigitalAmericanKOEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, amExercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, amExercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -487,14 +487,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.01);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.25);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -524,7 +524,7 @@ namespace TestSuite
             else
                engine = new AnalyticDigitalAmericanKOEngine(stochProcess);
 
-            VanillaOption opt = new VanillaOption(payoff, amExercise);
+            VanillaOption opt = new VanillaOption(settings, payoff, amExercise);
             opt.setPricingEngine(engine);
 
             double calculated = opt.NPV();
@@ -544,7 +544,7 @@ namespace TestSuite
 
          // Testing American cash-(at-hit)-or-nothing digital option greeks
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             SortedDictionary<string, double> calculated = new SortedDictionary<string, double>();
             SortedDictionary<string, double> expected = new SortedDictionary<string, double>();
@@ -564,15 +564,15 @@ namespace TestSuite
 
             DayCounter dc = new Actual360();
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             SimpleQuote spot = new SimpleQuote(0.0);
             SimpleQuote qRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+            Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
             SimpleQuote rRate = new SimpleQuote(0.0);
-            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+            Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
             SimpleQuote vol = new SimpleQuote(0.0);
-            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+            Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
             // there is no cycling on different residual times
             Date exDate = today + 360;
@@ -597,7 +597,7 @@ namespace TestSuite
                   {
                      StrikedTypePayoff payoff = new CashOrNothingPayoff(types[i1], strikes[i6], cashPayoff);
 
-                     VanillaOption opt = new VanillaOption(payoff, exercises[j]);
+                     VanillaOption opt = new VanillaOption(settings, payoff, exercises[j]);
                      opt.setPricingEngine(engines[j]);
 
                      for (int i2 = 0; i2 < underlyings.Length; i2++)
@@ -690,7 +690,7 @@ namespace TestSuite
 
       //   // Testing Monte Carlo cash-(at-hit)-or-nothing American engine
 
-      //   using (SavedSettings backup = new SavedSettings())
+      //   using (Settings settings = new Settings())
       //   {
 
       //   DigitalOptionData[] values = {
@@ -704,11 +704,11 @@ namespace TestSuite
 
       //   SimpleQuote spot = new SimpleQuote(0.0);
       //   SimpleQuote qRate = new SimpleQuote(0.0);
-      //   YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+      //   YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
       //   SimpleQuote rRate = new SimpleQuote(0.0);
-      //   YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+      //   YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
       //   SimpleQuote vol = new SimpleQuote(0.0);
-      //   BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+      //   BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
       //   int timeStepsPerYear = 90;
       //   int maxSamples = 1000000;
@@ -739,7 +739,7 @@ namespace TestSuite
       //         .withMaxSamples(maxSamples)
       //         .withSeed(seed);
 
-      //      VanillaOption opt = new VanillaOption(payoff, amExercise);
+      //      VanillaOption opt = new VanillaOption(settings, payoff, amExercise);
       //      opt.setPricingEngine(mcldEngine);
 
       //      double calculated = opt.NPV();

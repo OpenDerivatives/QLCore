@@ -32,7 +32,7 @@ namespace TestSuite
       public void testDefaultProbability()
       {
          // Testing default-probability structure...
-
+         Settings settings = new Settings();
          double hazardRate = 0.0100;
          Handle<Quote> hazardRateQuote = new Handle<Quote>(new SimpleQuote(hazardRate));
          DayCounter dayCounter = new Actual360();
@@ -40,11 +40,11 @@ namespace TestSuite
          int n = 20;
 
          double tolerance = 1.0e-10;
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings.evaluationDate();
          Date startDate = today;
          Date endDate = startDate;
 
-         FlatHazardRate flatHazardRate = new FlatHazardRate(startDate, hazardRateQuote, dayCounter);
+         FlatHazardRate flatHazardRate = new FlatHazardRate(settings, startDate, hazardRateQuote, dayCounter);
 
          for (int i = 0; i < n; i++)
          {
@@ -92,7 +92,7 @@ namespace TestSuite
       {
 
          // Testing flat hazard rate...
-
+         Settings settings = new Settings();
          double hazardRate = 0.0100;
          Handle<Quote> hazardRateQuote = new Handle<Quote>(new SimpleQuote(hazardRate));
          DayCounter dayCounter = new Actual360();
@@ -100,11 +100,11 @@ namespace TestSuite
          int n = 20;
 
          double tolerance = 1.0e-10;
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings.evaluationDate();
          Date startDate = today;
          Date endDate = startDate;
 
-         FlatHazardRate flatHazardRate = new FlatHazardRate(today, hazardRateQuote, dayCounter);
+         FlatHazardRate flatHazardRate = new FlatHazardRate(settings, today, hazardRateQuote, dayCounter);
 
          for (int i = 0; i < n; i++)
          {
@@ -124,42 +124,46 @@ namespace TestSuite
       public void testFlatHazardConsistency() 
       {
          // Testing piecewise-flat hazard-rate consistency...
-         testBootstrapFromSpread<HazardRate,BackwardFlat>();
-         testBootstrapFromUpfront<HazardRate,BackwardFlat>();
+         Settings settings = new Settings();
+         testBootstrapFromSpread<HazardRate,BackwardFlat>(settings);
+         testBootstrapFromUpfront<HazardRate,BackwardFlat>(settings);
       }
 
       [Fact]
       public void testFlatDensityConsistency()
       {
          // Testing piecewise-flat default-density consistency...
-         testBootstrapFromSpread<DefaultDensity, BackwardFlat>();
-         testBootstrapFromUpfront<DefaultDensity, BackwardFlat>();
+         Settings settings = new Settings();
+         testBootstrapFromSpread<DefaultDensity, BackwardFlat>(settings);
+         testBootstrapFromUpfront<DefaultDensity, BackwardFlat>(settings);
       }
 
       [Fact]
       public void testLinearDensityConsistency()
       {
          // Testing piecewise-linear default-density consistency...
-         testBootstrapFromSpread<DefaultDensity, Linear>();
-         testBootstrapFromUpfront<DefaultDensity, Linear>();
+         Settings settings = new Settings();
+         testBootstrapFromSpread<DefaultDensity, Linear>(settings);
+         testBootstrapFromUpfront<DefaultDensity, Linear>(settings);
       }
 
       [Fact]
       public void testLogLinearSurvivalConsistency()
       {
          // Testing log-linear survival-probability consistency...
-         testBootstrapFromSpread<SurvivalProbability, LogLinear>();
-         testBootstrapFromUpfront<SurvivalProbability, LogLinear>();
+         Settings settings = new Settings();
+         testBootstrapFromSpread<SurvivalProbability, LogLinear>(settings);
+         testBootstrapFromUpfront<SurvivalProbability, LogLinear>(settings);
       }
 
       [Fact]
       public void testSingleInstrumentBootstrap() 
       {
          //Testing single-instrument curve bootstrap...
-
+         Settings settings = new Settings();
          Calendar calendar = new TARGET();
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings.evaluationDate();
 
          int settlementDays = 0;
 
@@ -173,7 +177,7 @@ namespace TestSuite
          double recoveryRate = 0.4;
 
          RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
-         discountCurve.linkTo(new FlatForward(today,0.06,new Actual360()));
+         discountCurve.linkTo(new FlatForward(settings, today,0.06,new Actual360()));
 
          List<CdsHelper> helpers = new List<CdsHelper>();
 
@@ -182,27 +186,11 @@ namespace TestSuite
                                        settlementDays, calendar,
                                        frequency, convention, rule,
                                        dayCounter, recoveryRate,
-                                       discountCurve));
+                                       discountCurve, settings));
 
-         PiecewiseDefaultCurve<HazardRate,BackwardFlat> defaultCurve = new PiecewiseDefaultCurve<HazardRate,BackwardFlat>(today, helpers,
+         PiecewiseDefaultCurve<HazardRate,BackwardFlat> defaultCurve = new PiecewiseDefaultCurve<HazardRate,BackwardFlat>(settings, today, helpers,
                                                                      dayCounter);
          defaultCurve.recalculate();
-      }
-
-      [Fact]
-      public void testUpfrontBootstrap() {
-         //Testing bootstrap on upfront quotes...
-
-         SavedSettings backup = new SavedSettings();
-         // not taken into account, this would prevent the upfront from being used
-         Settings.Instance.includeTodaysCashFlows = false;
-
-         testBootstrapFromUpfront<HazardRate,BackwardFlat>();
-
-         // also ensure that we didn't override the flag permanently
-         bool? flag = Settings.Instance.includeTodaysCashFlows;
-         if (flag != false)
-               QAssert.Fail("Cash-flow settings improperly modified");
       }
 
       [Fact]
@@ -215,10 +203,10 @@ namespace TestSuite
 
          //Testing iterative bootstrap with retries...
 
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          Date asof = new Date(1, Month.Apr, 2020);
-         Settings.Instance.setEvaluationDate(asof);
+         settings.setEvaluationDate(asof);
          Actual365Fixed tsDayCounter = new Actual365Fixed();
 
          // USD discount curve built out of FedFunds OIS swaps.
@@ -283,7 +271,7 @@ namespace TestSuite
          };
 
          Handle<YieldTermStructure> usdYts = new Handle<YieldTermStructure>(
-                                                new InterpolatedDiscountCurve<LogLinear>(
+                                                new InterpolatedDiscountCurve<LogLinear>(settings, 
                                                    usdCurveDates, usdCurveDfs, tsDayCounter));
 
          // CDS spreads
@@ -311,12 +299,12 @@ namespace TestSuite
          {
             instruments.Add(
                   new SpreadCdsHelper(it.Value, it.Key, settlementDays, calendar,
-                                       frequency, paymentConvention, rule, dayCounter, recoveryRate, usdYts, true, true, null,
+                                       frequency, paymentConvention, rule, dayCounter, recoveryRate, usdYts, settings, true, true, null,
                                        lastPeriodDayCounter));
          }
 
          // Create the default curve with the default IterativeBootstrap.
-         DefaultProbabilityTermStructure dpts = new PiecewiseDefaultCurve<SurvivalProbability, LogLinear, IterativeBootstrapForCds>(asof, instruments, tsDayCounter);
+         DefaultProbabilityTermStructure dpts = new PiecewiseDefaultCurve<SurvivalProbability, LogLinear, IterativeBootstrapForCds>(settings, asof, instruments, tsDayCounter);
 
          // Check that the default curve throws by requesting a default probability.
          Date testDate = new Date(21, Month.Dec, 2020);
@@ -334,7 +322,7 @@ namespace TestSuite
          IterativeBootstrap<PiecewiseDefaultCurve, DefaultProbabilityTermStructure> ib =
             new IterativeBootstrap<PiecewiseDefaultCurve, DefaultProbabilityTermStructure>(null, null, null, 5, 1.0, 10.0);
 
-         dpts = new PiecewiseDefaultCurve<SurvivalProbability, LogLinear>(asof, instruments, tsDayCounter, ib);
+         dpts = new PiecewiseDefaultCurve<SurvivalProbability, LogLinear>(settings, asof, instruments, tsDayCounter, ib);
 
          // Check that the default curve still throws. It throws at the third pillar because the survival probability is 
          // too low at the second pillar.
@@ -349,7 +337,7 @@ namespace TestSuite
          IterativeBootstrap<PiecewiseDefaultCurve, DefaultProbabilityTermStructure> ibNoThrow =
             new IterativeBootstrap<PiecewiseDefaultCurve, DefaultProbabilityTermStructure>(null, null, null, 5, 1.0, 10.0, true, 2);
 
-         dpts = new PiecewiseDefaultCurve<SurvivalProbability, LogLinear>(asof, instruments, tsDayCounter, ibNoThrow);
+         dpts = new PiecewiseDefaultCurve<SurvivalProbability, LogLinear>(settings, asof, instruments, tsDayCounter, ibNoThrow);
 
          try 
          { 
@@ -361,16 +349,15 @@ namespace TestSuite
          }
       }
 
-      void testBootstrapFromSpread<T, I>() 
+      void testBootstrapFromSpread<T, I>(Settings settings) 
             where T : ITraits<DefaultProbabilityTermStructure>, new()
             where I : class, IInterpolationFactory, new()
       {
          Calendar calendar = new TARGET();
 
          // ensure apple-to-apple comparison
-         SavedSettings backup = new SavedSettings();
-         Settings.Instance.includeTodaysCashFlows = true;
-         Date today = Settings.Instance.evaluationDate();
+         settings.includeTodaysCashFlows = true;
+         Date today = settings.evaluationDate();
 
          int settlementDays = 1;
 
@@ -393,7 +380,7 @@ namespace TestSuite
          double recoveryRate = 0.4;
 
          RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
-         discountCurve.linkTo(new FlatForward(today,0.06,new Actual360()));
+         discountCurve.linkTo(new FlatForward(settings, today,0.06,new Actual360()));
 
          List<CdsHelper> helpers = new List<CdsHelper>();
 
@@ -403,11 +390,11 @@ namespace TestSuite
                                           settlementDays, calendar,
                                           frequency, convention, rule,
                                           dayCounter, recoveryRate,
-                                          discountCurve));
+                                          discountCurve, settings));
 
          RelinkableHandle<DefaultProbabilityTermStructure> piecewiseCurve = new RelinkableHandle<DefaultProbabilityTermStructure>();
          piecewiseCurve.linkTo(
-                  new PiecewiseDefaultCurve<T,I>(today, helpers,
+                  new PiecewiseDefaultCurve<T,I>(settings, today, helpers,
                                                    new Thirty360()));
 
          double notional = 1.0;
@@ -418,7 +405,7 @@ namespace TestSuite
                Date startDate = calendar.adjust(protectionStart, convention);
                Date endDate = today + new Period(n[i], TimeUnit.Years);
 
-               Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+               Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                  convention, BusinessDayConvention.Unadjusted, rule, false);
 
                CreditDefaultSwap cds = new CreditDefaultSwap(CreditDefaultSwap.Protection.Side.Buyer, notional, quote[i],
@@ -439,14 +426,15 @@ namespace TestSuite
          }
       }
 
-      void testBootstrapFromUpfront<T, I>() 
+      void testBootstrapFromUpfront<T, I>(Settings settings) 
             where T : ITraits<DefaultProbabilityTermStructure>, new()
             where I : class, IInterpolationFactory, new()
       {
-
+         // ensure apple-to-apple comparison
+         settings.includeTodaysCashFlows = true;
          Calendar calendar = new TARGET();
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings.evaluationDate();
 
          int settlementDays = 1;
 
@@ -471,7 +459,7 @@ namespace TestSuite
          int upfrontSettlementDays = 3;
 
          RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
-         discountCurve.linkTo(new FlatForward(today,0.06,new Actual360()));
+         discountCurve.linkTo(new FlatForward(settings, today,0.06,new Actual360()));
 
          List<CdsHelper> helpers = new List<CdsHelper>();
 
@@ -482,35 +470,28 @@ namespace TestSuite
                                           settlementDays, calendar,
                                           frequency, convention, rule,
                                           dayCounter, recoveryRate,
-                                          discountCurve,
+                                          discountCurve, settings,
                                           upfrontSettlementDays, 
                                           true, true, null, new Actual360(true)));
 
          RelinkableHandle<DefaultProbabilityTermStructure> piecewiseCurve = new RelinkableHandle<DefaultProbabilityTermStructure>();
-         piecewiseCurve.linkTo(new PiecewiseDefaultCurve<T,I>(today, helpers, new Thirty360()));
+         piecewiseCurve.linkTo(new PiecewiseDefaultCurve<T,I>(settings, today, helpers, new Thirty360()));
 
          double notional = 1.0;
          double tolerance = 1.0e-6;
 
-         SavedSettings backup = new SavedSettings();
-         // ensure apple-to-apple comparison
-         Settings.Instance.includeTodaysCashFlows = true;
-
          for (int i=0; i<n.Count; i++) 
          {
             Date protectionStart = today + settlementDays;
-            Date startDate = calendar.adjust(protectionStart, convention);
-            Date endDate = today + new Period(n[i], TimeUnit.Years);
+            Date startDate = protectionStart;
+            Date endDate = Utils.cdsMaturity(today, new Period(n[i], TimeUnit.Years), rule);
             Date upfrontDate = calendar.advance(today,
                                        upfrontSettlementDays,
                                        TimeUnit.Days,
                                        convention);
 
-            Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                              convention, BusinessDayConvention.Unadjusted, rule, false);
-            
-            schedule.isRegular().Insert(0, schedule.isRegular()[0]);
-            schedule.dates().Insert(0, protectionStart);
 
             CreditDefaultSwap cds = new CreditDefaultSwap(CreditDefaultSwap.Protection.Side.Buyer, notional,
                                                          quote[i], fixedRate,
@@ -519,7 +500,7 @@ namespace TestSuite
                                                          upfrontDate,
                                                          null,
                                                          new Actual360(true),
-                                                         true);
+                                                         true, today);
 
             cds.setPricingEngine(new MidPointCdsEngine(piecewiseCurve, recoveryRate,
                                                        discountCurve, true));
@@ -534,8 +515,6 @@ namespace TestSuite
                   + "    computed: " + computedUpfront.ToString() + "\n"
                   + "    expected: " + inputUpfront.ToString());
          }
-
-         backup.Dispose();
       }
    }
 }

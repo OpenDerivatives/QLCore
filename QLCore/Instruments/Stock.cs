@@ -27,7 +27,8 @@ namespace QLCore
    {
       private Handle<Quote> quote_;
 
-      public Stock(Handle<Quote> quote)
+      public Stock(Settings settings, Handle<Quote> quote)
+         : base(settings)
       {
          quote_ = quote;
       }

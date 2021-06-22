@@ -35,7 +35,8 @@ namespace QLCore
       private Handle<YieldTermStructure> originalCurve_;
       private Handle<Quote> spread_;
 
-      public ForwardSpreadedTermStructure(Handle<YieldTermStructure> h, Handle<Quote> spread)
+      public ForwardSpreadedTermStructure(Settings settings, Handle<YieldTermStructure> h, Handle<Quote> spread)
+      : base(settings)
       {
          originalCurve_ = h;
          spread_ = spread;

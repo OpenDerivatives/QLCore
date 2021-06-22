@@ -43,7 +43,7 @@ namespace QLCore
       protected double? floor_;
 
       // need by CashFlowVectors
-      public CappedFlooredCoupon() { }
+      public CappedFlooredCoupon(Settings settings) : base(settings) { }
 
       public CappedFlooredCoupon(FloatingRateCoupon underlying, double? cap = null, double? floor = null)
       : base(underlying.date(), underlying.nominal(), underlying.accrualStartDate(), underlying.accrualEndDate(), underlying.fixingDays, underlying.index(), underlying.gearing(), underlying.spread(), underlying.referencePeriodStart, underlying.referencePeriodEnd, underlying.dayCounter(), underlying.isInArrears())
@@ -157,7 +157,9 @@ namespace QLCore
    public class CappedFlooredIborCoupon : CappedFlooredCoupon
    {
       // need by CashFlowVectors
-      public CappedFlooredIborCoupon() { }
+      public CappedFlooredIborCoupon() : base(new Settings()) { }
+
+      public CappedFlooredIborCoupon(Settings settings) : base(settings) { }
 
       public CappedFlooredIborCoupon(Date paymentDate,
                                      double nominal,
@@ -187,8 +189,9 @@ namespace QLCore
    public class CappedFlooredCmsCoupon : CappedFlooredCoupon
    {
       // need by CashFlowVectors
-      public CappedFlooredCmsCoupon() { }
+      public CappedFlooredCmsCoupon() : base(new Settings()) { }
 
+      public CappedFlooredCmsCoupon(Settings settings) : base(settings) { }
       public CappedFlooredCmsCoupon(double nominal,
                                     Date paymentDate,
                                     Date startDate,

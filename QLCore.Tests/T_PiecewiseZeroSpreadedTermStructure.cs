@@ -41,7 +41,7 @@ namespace TestSuite
          public Date settlementDate;
 
          // cleanup
-         public SavedSettings backup;
+         public Settings settings;
 
          // setup
          public CommonVars()
@@ -50,6 +50,7 @@ namespace TestSuite
             // garbage collection in .NET is rather weird and we do need when we run several tests in a row
             GC.Collect();
 
+            settings = new Settings();
             // data
             calendar = new TARGET();
             settlementDays = 2;
@@ -58,7 +59,7 @@ namespace TestSuite
             dayCount = new Actual360();
             settlementDate = calendar.advance(today, settlementDays, TimeUnit.Days);
 
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             int[] ts = new int[] { 13, 41, 75, 165, 256, 345, 524, 703 };
             double[] r = new double[] { 0.035, 0.033, 0.034, 0.034, 0.036, 0.037, 0.039, 0.040 };
@@ -69,7 +70,7 @@ namespace TestSuite
                dates.Add(calendar.advance(today, ts[i], TimeUnit.Days));
                rates.Add(r[i]);
             }
-            termStructure = new InterpolatedZeroCurve<Linear>(dates, rates, dayCount);
+            termStructure = new InterpolatedZeroCurve<Linear>(settings, dates, rates, dayCount);
          }
       }
 
@@ -93,7 +94,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 6, TimeUnit.Months);
 
          ZeroYieldStructure spreadedTermStructure =
-            new PiecewiseZeroSpreadedTermStructure(
+            new PiecewiseZeroSpreadedTermStructure(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -129,7 +130,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 20, TimeUnit.Months);
 
          ZeroYieldStructure spreadedTermStructure =
-            new PiecewiseZeroSpreadedTermStructure(
+            new PiecewiseZeroSpreadedTermStructure(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
          spreadedTermStructure.enableExtrapolation();
@@ -172,7 +173,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 120, TimeUnit.Days);
 
          ZeroYieldStructure spreadedTermStructure =
-            new PiecewiseZeroSpreadedTermStructure(
+            new PiecewiseZeroSpreadedTermStructure(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -211,7 +212,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 120, TimeUnit.Days);
 
          ZeroYieldStructure spreadedTermStructure =
-            new InterpolatedPiecewiseZeroSpreadedTermStructure<Linear>(
+            new InterpolatedPiecewiseZeroSpreadedTermStructure<Linear>(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -254,7 +255,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 100, TimeUnit.Days);
 
          ZeroYieldStructure spreadedTermStructure =
-            new InterpolatedPiecewiseZeroSpreadedTermStructure<ForwardFlat>(
+            new InterpolatedPiecewiseZeroSpreadedTermStructure<ForwardFlat>(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -295,7 +296,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 110, TimeUnit.Days);
 
          ZeroYieldStructure spreadedTermStructure =
-            new InterpolatedPiecewiseZeroSpreadedTermStructure<BackwardFlat>(
+            new InterpolatedPiecewiseZeroSpreadedTermStructure<BackwardFlat>(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -334,7 +335,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 100, TimeUnit.Days);
 
          ZeroYieldStructure spreadedTermStructure =
-            new PiecewiseZeroSpreadedTermStructure(
+            new PiecewiseZeroSpreadedTermStructure(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -384,7 +385,7 @@ namespace TestSuite
                                    CubicInterpolation.BoundaryCondition.SecondDerivative, 0);
 
          spreadedTermStructure =
-            new InterpolatedPiecewiseZeroSpreadedTermStructure<Cubic>(
+            new InterpolatedPiecewiseZeroSpreadedTermStructure<Cubic>(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates, vars.compounding,
             freq, vars.dayCount, factory);
@@ -421,7 +422,7 @@ namespace TestSuite
          spreadDates.Add(vars.calendar.advance(vars.today, 15, TimeUnit.Months));
 
          ZeroYieldStructure spreadedTermStructure =
-            new PiecewiseZeroSpreadedTermStructure(
+            new PiecewiseZeroSpreadedTermStructure(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 
@@ -456,7 +457,7 @@ namespace TestSuite
          Date interpolationDate = vars.calendar.advance(vars.today, 120, TimeUnit.Days);
 
          ZeroYieldStructure spreadedTermStructure =
-            new InterpolatedPiecewiseZeroSpreadedTermStructure<BackwardFlat>(
+            new InterpolatedPiecewiseZeroSpreadedTermStructure<BackwardFlat>(vars.settings, 
             new Handle<YieldTermStructure>(vars.termStructure),
             spreads, spreadDates);
 

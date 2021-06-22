@@ -135,14 +135,14 @@ namespace QLCore
          return false;
       }
 
-      public ExchangeRate lookup(Currency source, Currency target)
+      public ExchangeRate lookup(Settings settings, Currency source, Currency target)
       {
-         return lookup(source, target, new Date(), ExchangeRate.Type.Derived);
+         return lookup(settings, source, target, new Date(), ExchangeRate.Type.Derived);
       }
 
-      public ExchangeRate lookup(Currency source, Currency target, Date date)
+      public ExchangeRate lookup(Settings settings, Currency source, Currency target, Date date)
       {
-         return lookup(source, target, date, ExchangeRate.Type.Derived);
+         return lookup(settings, source, target, date, ExchangeRate.Type.Derived);
       }
 
       // Lookup the exchange rate between two currencies at a given
@@ -152,13 +152,13 @@ namespace QLCore
       // if two or more exchange-rate chains are possible
       // which allow to specify a requested rate, it is
       // unspecified which one is returned.
-      public ExchangeRate lookup(Currency source, Currency target, Date date, ExchangeRate.Type type)
+      public ExchangeRate lookup(Settings settings, Currency source, Currency target, Date date, ExchangeRate.Type type)
       {
          if (source == target)
             return new ExchangeRate(source, target, 1.0);
 
          if (date == new Date())
-            date = Settings.Instance.evaluationDate();
+            date = settings.evaluationDate();
 
          if (type == ExchangeRate.Type.Direct)
          {
@@ -169,14 +169,14 @@ namespace QLCore
             Currency link = source.triangulationCurrency;
             if (link == target)
                return directLookup(source, link, date);
-            return ExchangeRate.chain(directLookup(source, link, date), lookup(link, target, date));
+            return ExchangeRate.chain(directLookup(source, link, date), lookup(settings, link, target, date));
          }
          if (!target.triangulationCurrency.empty())
          {
             Currency link = target.triangulationCurrency;
             if (source == link)
                return directLookup(link, target, date);
-            return ExchangeRate.chain(lookup(source, link, date), directLookup(link, target, date));
+            return ExchangeRate.chain(lookup(settings, source, link, date), directLookup(link, target, date));
          }
          return smartLookup(source, target, date);
       }

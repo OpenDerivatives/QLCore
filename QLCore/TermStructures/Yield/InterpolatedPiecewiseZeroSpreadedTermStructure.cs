@@ -26,13 +26,15 @@ namespace QLCore
    public class InterpolatedPiecewiseZeroSpreadedTermStructure<Interpolator> : ZeroYieldStructure
       where Interpolator : class, IInterpolationFactory, new ()
    {
-      public InterpolatedPiecewiseZeroSpreadedTermStructure(Handle<YieldTermStructure> h,
+      public InterpolatedPiecewiseZeroSpreadedTermStructure(Settings settings, 
+                                                            Handle<YieldTermStructure> h,
                                                             List<Handle<Quote>> spreads,
                                                             List<Date> dates,
                                                             Compounding compounding = Compounding.Continuous,
                                                             Frequency frequency = Frequency.NoFrequency,
                                                             DayCounter dc = default(DayCounter),
                                                             Interpolator factory = default(Interpolator))
+            : base(settings)
       {
          originalCurve_ = h;
          spreads_ = spreads;
@@ -119,13 +121,14 @@ namespace QLCore
 
    public class PiecewiseZeroSpreadedTermStructure: InterpolatedPiecewiseZeroSpreadedTermStructure<Linear>
    {
-      public PiecewiseZeroSpreadedTermStructure(Handle<YieldTermStructure> h,
+      public PiecewiseZeroSpreadedTermStructure(Settings settings, 
+                                                Handle<YieldTermStructure> h,
                                                 List<Handle<Quote>> spreads,
                                                 List<Date> dates,
                                                 Compounding compounding = Compounding.Continuous,
                                                 Frequency frequency = Frequency.NoFrequency,
                                                 DayCounter dc = default(DayCounter))
-         : base(h, spreads, dates, compounding, frequency, dc, new Linear())
+         : base(settings, h, spreads, dates, compounding, frequency, dc, new Linear())
       { }
    }
 }

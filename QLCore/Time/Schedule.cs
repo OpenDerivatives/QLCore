@@ -29,9 +29,6 @@ namespace QLCore
    /// </summary>
    public class Schedule
    {
-
-
-
       #region Constructors
 
       public Schedule() { }
@@ -41,6 +38,7 @@ namespace QLCore
       /// that neither the list of dates nor the meta information is
       /// checked for plausibility in any sense.
       /// </summary>
+      /// <param name="settings"></param>
       /// <param name="dates"></param>
       /// <param name="calendar"></param>
       /// <param name="convention"></param>
@@ -49,7 +47,8 @@ namespace QLCore
       /// <param name="rule"></param>
       /// <param name="endOfMonth"></param>
       /// <param name="isRegular"></param>
-      public Schedule(List<Date> dates,
+      public Schedule(Settings settings,
+                      List<Date> dates,
                       Calendar calendar = null,
                       BusinessDayConvention convention = BusinessDayConvention.Unadjusted,
                       BusinessDayConvention? terminationDateConvention = null,
@@ -58,6 +57,7 @@ namespace QLCore
                       bool? endOfMonth = null,
                       IList<bool> isRegular = null)
       {
+         settings_ = settings ?? new Settings();
          calendar_ = calendar ?? new NullCalendar();
          isRegular_ = isRegular ?? new List<bool>();
 
@@ -75,6 +75,7 @@ namespace QLCore
       /// <summary>
       /// rule based constructor
       /// </summary>
+      /// <param name="settings"></param>
       /// <param name="effectiveDate"></param>
       /// <param name="terminationDate"></param>
       /// <param name="tenor"></param>
@@ -85,7 +86,8 @@ namespace QLCore
       /// <param name="endOfMonth"></param>
       /// <param name="firstDate"></param>
       /// <param name="nextToLastDate"></param>
-      public Schedule(Date effectiveDate,
+      public Schedule(Settings settings,
+                      Date effectiveDate,
                       Date terminationDate,
                       Period tenor,
                       Calendar calendar,
@@ -96,7 +98,7 @@ namespace QLCore
                       Date firstDate = null,
                       Date nextToLastDate = null)
       {
-
+         settings_ = settings ?? new Settings();
          calendar_ = calendar ?? new NullCalendar();
          firstDate_ = firstDate == effectiveDate ? null : firstDate;
          nextToLastDate_ = nextToLastDate == terminationDate ? null : nextToLastDate;
@@ -114,7 +116,7 @@ namespace QLCore
          // really necessary. In these cases a decent placeholder is enough
          if (effectiveDate == null && firstDate == null && rule == DateGeneration.Rule.Backward)
          {
-            Date evalDate = Settings.Instance.evaluationDate();
+            Date evalDate = settings_.evaluationDate();
             Utils.QL_REQUIRE(evalDate < terminationDate, () => "null effective date", QLNetExceptionEnum.NullEffectiveDate);
             int y;
             if (nextToLastDate != null)
@@ -592,6 +594,13 @@ namespace QLCore
       }
       public int Count { get { return dates_.Count; } }
 
+      public bool hasRule()
+      {
+         return rule_ != null;
+      }
+      public Settings settings() { return settings_; }
+      public void setSettings(Settings s) { settings_ = s; }
+
 
       private Date nextTwentieth(Date d, DateGeneration.Rule rule)
       {
@@ -613,7 +622,7 @@ namespace QLCore
          }
          return result;
       }
-      private Date previousTwentieth(Date d, DateGeneration.Rule rule)
+      public Date previousTwentieth(Date d, DateGeneration.Rule rule)
       {
          Date result = new Date(20, d.month(), d.year());
          if (result > d)
@@ -648,6 +657,7 @@ namespace QLCore
       private Date firstDate_, nextToLastDate_;
       private List<Date> dates_ = new List<Date>();
       private IList<bool> isRegular_ = new List<bool>();
+      private Settings settings_ = new Settings();
 
    }
 
@@ -656,7 +666,7 @@ namespace QLCore
    /// </summary>
    public class MakeSchedule
    {
-      public MakeSchedule() { rule_ = DateGeneration.Rule.Backward; endOfMonth_ = false; }
+      public MakeSchedule(Settings settings) { settings_ = settings; rule_ = DateGeneration.Rule.Backward; endOfMonth_ = false; }
 
       public MakeSchedule from(Date effectiveDate)
       {
@@ -729,13 +739,12 @@ namespace QLCore
          firstDate_ = d;
          return this;
       }
-
+      
       public MakeSchedule withNextToLastDate(Date d)
       {
          nextToLastDate_ = d;
          return this;
       }
-
       public Schedule value()
       {
 
@@ -784,8 +793,8 @@ namespace QLCore
             terminationDateConvention = convention;
          }
 
-         return new Schedule(effectiveDate_, terminationDate_, tenor_, calendar_,
-                             convention, terminationDateConvention,
+         return new Schedule(settings_, effectiveDate_, terminationDate_, tenor_, 
+                             calendar_, convention, terminationDateConvention,
                              rule_, endOfMonth_, firstDate_, nextToLastDate_);
       }
 
@@ -796,5 +805,6 @@ namespace QLCore
       private DateGeneration.Rule rule_;
       private bool endOfMonth_;
       private Date firstDate_, nextToLastDate_;
+      private Settings settings_;
    }
 }

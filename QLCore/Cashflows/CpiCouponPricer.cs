@@ -104,7 +104,7 @@ namespace QLCore
       protected virtual double optionletPrice(Option.Type optionType, double effStrike)
       {
          Date fixingDate = coupon_.fixingDate();
-         if (fixingDate <= Settings.Instance.evaluationDate())
+         if (fixingDate <= coupon_.settings().evaluationDate())
          {
             // the amount is determined
             double a, b;

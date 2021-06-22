@@ -26,34 +26,14 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_InflationCapFlooredCouponTest : IDisposable
+   public class T_InflationCapFlooredCouponTest
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_InflationCapFlooredCouponTest()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       class CommonVars
       {
          // common data
          public int length;
          public Date startDate;
          public double volatility;
-
          public Frequency frequency;
          public List<double> nominals;
          public Calendar calendar;
@@ -69,10 +49,12 @@ namespace TestSuite
          public RelinkableHandle<YieldTermStructure> nominalTS = new RelinkableHandle<YieldTermStructure>();
          public YoYInflationTermStructure yoyTS;
          public RelinkableHandle<YoYInflationTermStructure> hy = new RelinkableHandle<YoYInflationTermStructure>();
-
+         public Settings settings;
          // setup
          public CommonVars()
          {
+            settings = new Settings();
+
             // option variables
             nominals = new List<double>() {1000000};
             frequency = Frequency.Annual;
@@ -83,7 +65,7 @@ namespace TestSuite
             convention = BusinessDayConvention.ModifiedFollowing;
             Date today = new Date(13, Month.August, 2007);
             evaluationDate = calendar.adjust(today);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
             settlementDays = 0;
             fixingDays = 0;
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
@@ -94,7 +76,7 @@ namespace TestSuite
             //      fixing data
             Date from = new Date(1, Month.January, 2005);
             Date to = new Date(13, Month.August, 2007);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -107,13 +89,13 @@ namespace TestSuite
                                };
             // link from yoy index to yoy TS
             bool interp = false;
-            iir = new YYUKRPIr(interp, hy);
+            iir = new YYUKRPIr(interp, settings, hy);
             for (int i = 0; i < rpiSchedule.Count; i++)
             {
                iir.addFixing(rpiSchedule[i], fixData[i]);
             }
 
-            YieldTermStructure nominalFF = new FlatForward(evaluationDate, 0.05, new ActualActual());
+            YieldTermStructure nominalFF = new FlatForward(settings, evaluationDate, 0.05, new ActualActual());
             nominalTS.linkTo(nominalFF);
 
             // now build the YoY inflation curve
@@ -145,7 +127,7 @@ namespace TestSuite
                            calendar, convention, dc);
 
             double baseYYRate = yyData[0].rate / 100.0;
-            PiecewiseYoYInflationCurve<Linear>  pYYTS = new PiecewiseYoYInflationCurve<Linear>(
+            PiecewiseYoYInflationCurve<Linear>  pYYTS = new PiecewiseYoYInflationCurve<Linear>(settings, 
                evaluationDate, calendar, dc, observationLag,
                iir.frequency(), iir.interpolated(), baseYYRate,
                new Handle<YieldTermStructure>(nominalTS), helpers);
@@ -162,7 +144,7 @@ namespace TestSuite
          {
             YoYInflationIndex ii = iir as YoYInflationIndex;
             Date endDate = calendar.advance(startDate, new Period(length, TimeUnit.Years), BusinessDayConvention.Unadjusted);
-            Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                              BusinessDayConvention.Unadjusted,
                                              BusinessDayConvention.Unadjusted,// ref periods & acc periods
                                              DateGeneration.Rule.Forward, false);
@@ -181,7 +163,7 @@ namespace TestSuite
          public List<CashFlow> makeFixedLeg(Date startDate, int length)
          {
             Date endDate = calendar.advance(startDate, length, TimeUnit.Years, convention);
-            Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                              convention, convention,
                                              DateGeneration.Rule.Forward, false);
             List<double> coupons = new InitializedList<double>(length, 0.0);
@@ -200,7 +182,8 @@ namespace TestSuite
          {
 
             Handle<YoYOptionletVolatilitySurface> vol = new Handle<YoYOptionletVolatilitySurface>(
-               new ConstantYoYOptionletVolatility(volatility,
+               new ConstantYoYOptionletVolatility(settings,
+                                                  volatility,
                                                   settlementDays,
                                                   calendar,
                                                   convention,
@@ -233,7 +216,7 @@ namespace TestSuite
 
             YoYInflationIndex ii = iir as YoYInflationIndex;
             Date endDate = calendar.advance(startDate, new Period(length, TimeUnit.Years), BusinessDayConvention.Unadjusted);
-            Schedule schedule = new Schedule(startDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, startDate, endDate, new Period(frequency), calendar,
                                              BusinessDayConvention.Unadjusted,
                                              BusinessDayConvention.Unadjusted,// ref periods & acc periods
                                              DateGeneration.Rule.Forward, false);
@@ -263,7 +246,8 @@ namespace TestSuite
             YoYInflationIndex  yyii = iir as YoYInflationIndex;
 
             Handle<YoYOptionletVolatilitySurface> vol = new Handle<YoYOptionletVolatilitySurface>(
-               new ConstantYoYOptionletVolatility(volatility,
+               new ConstantYoYOptionletVolatility(settings, 
+                                                  volatility,
                                                   settlementDays,
                                                   calendar,
                                                   convention,
@@ -304,10 +288,10 @@ namespace TestSuite
             switch (type)
             {
                case CapFloorType.Cap:
-                  result = new YoYInflationCap(leg, new List<double>() {strike});
+                  result = new YoYInflationCap(settings, leg, new List<double>() {strike});
                   break;
                case CapFloorType.Floor:
-                  result = new YoYInflationFloor(leg, new List<double>() { strike});
+                  result = new YoYInflationFloor(settings, leg, new List<double>() { strike});
                   break;
                default:
                   Utils.QL_FAIL("unknown YoYInflation cap/floor type");
@@ -369,11 +353,11 @@ namespace TestSuite
          // floating leg with negative gearing (gearing_n) and spread<>0
          List<CashFlow> floatLeg_n = vars.makeYoYLeg(vars.startDate, vars.length, gearing_n, spread_n);
          // Swap with null fixed leg and floating leg with gearing=1 and spread=0
-         Swap vanillaLeg = new Swap(fixedLeg, floatLeg);
+         Swap vanillaLeg = new Swap(vars.settings, fixedLeg, floatLeg);
          // Swap with null fixed leg and floating leg with positive gearing and spread<>0
-         Swap vanillaLeg_p = new Swap(fixedLeg, floatLeg_p);
+         Swap vanillaLeg_p = new Swap(vars.settings, fixedLeg, floatLeg_p);
          // Swap with null fixed leg and floating leg with negative gearing and spread<>0
-         Swap vanillaLeg_n = new Swap(fixedLeg, floatLeg_n);
+         Swap vanillaLeg_n = new Swap(vars.settings, fixedLeg, floatLeg_n);
 
          IPricingEngine engine = new DiscountingSwapEngine(vars.nominalTS);
 
@@ -393,9 +377,9 @@ namespace TestSuite
          // Case gearing = 1 and spread = 0
          List<CashFlow> cappedLeg = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length,
                                                               caps, floors0, vars.volatility);
-         Swap capLeg = new Swap(fixedLeg, cappedLeg);
+         Swap capLeg = new Swap(vars.settings, fixedLeg, cappedLeg);
          capLeg.setPricingEngine(engine);
-         YoYInflationCap cap = new YoYInflationCap(floatLeg, new List<double>() {capstrike});
+         YoYInflationCap cap = new YoYInflationCap(vars.settings, floatLeg, new List<double>() {capstrike});
          cap.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
          npvVanilla = vanillaLeg.NPV();
          npvCappedLeg = capLeg.NPV();
@@ -420,9 +404,9 @@ namespace TestSuite
 
          List<CashFlow> flooredLeg = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length,
                                                                caps0, floors, vars.volatility);
-         Swap floorLeg = new Swap(fixedLeg, flooredLeg);
+         Swap floorLeg = new Swap(vars.settings, fixedLeg, flooredLeg);
          floorLeg.setPricingEngine(engine);
-         YoYInflationFloor floor = new YoYInflationFloor(floatLeg, new List<double>() {floorstrike});
+         YoYInflationFloor floor = new YoYInflationFloor(vars.settings, floatLeg, new List<double>() {floorstrike});
          floor.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
          npvFlooredLeg = floorLeg.NPV();
          npvFloor = floor.NPV();
@@ -444,9 +428,9 @@ namespace TestSuite
 
          List<CashFlow> collaredLeg = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length,
                                                                 caps, floors, vars.volatility);
-         Swap collarLeg = new Swap(fixedLeg, collaredLeg);
+         Swap collarLeg = new Swap(vars.settings, fixedLeg, collaredLeg);
          collarLeg.setPricingEngine(engine);
-         YoYInflationCollar collar = new YoYInflationCollar(floatLeg,
+         YoYInflationCollar collar = new YoYInflationCollar(vars.settings, floatLeg,
          new List<double>() {capstrike},
          new List<double>() {floorstrike});
          collar.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
@@ -478,9 +462,9 @@ namespace TestSuite
          // Positive gearing
          List<CashFlow> cappedLeg_p = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length, caps, floors0,
                                                                 vars.volatility, gearing_p, spread_p);
-         Swap capLeg_p = new Swap(fixedLeg, cappedLeg_p);
+         Swap capLeg_p = new Swap(vars.settings, fixedLeg, cappedLeg_p);
          capLeg_p.setPricingEngine(engine);
-         YoYInflationCap cap_p = new YoYInflationCap(floatLeg_p, new List<double>() {capstrike});
+         YoYInflationCap cap_p = new YoYInflationCap(vars.settings, floatLeg_p, new List<double>() {capstrike});
          cap_p.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
          npvVanilla = vanillaLeg_p.NPV();
          npvCappedLeg = capLeg_p.NPV();
@@ -503,9 +487,9 @@ namespace TestSuite
          // Negative gearing
          List<CashFlow> cappedLeg_n = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length, caps, floors0,
                                                                 vars.volatility, gearing_n, spread_n);
-         Swap capLeg_n = new Swap(fixedLeg, cappedLeg_n);
+         Swap capLeg_n = new Swap(vars.settings, fixedLeg, cappedLeg_n);
          capLeg_n.setPricingEngine(engine);
-         YoYInflationFloor floor_n = new YoYInflationFloor(floatLeg, new List<double>() {(capstrike - spread_n) / gearing_n});
+         YoYInflationFloor floor_n = new YoYInflationFloor(vars.settings, floatLeg, new List<double>() {(capstrike - spread_n) / gearing_n});
          floor_n.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
          npvVanilla = vanillaLeg_n.NPV();
          npvCappedLeg = capLeg_n.NPV();
@@ -541,9 +525,9 @@ namespace TestSuite
          // Positive gearing
          List<CashFlow> flooredLeg_p1 = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length, caps0, floors,
                                                                   vars.volatility, gearing_p, spread_p);
-         Swap floorLeg_p1 = new Swap(fixedLeg, flooredLeg_p1);
+         Swap floorLeg_p1 = new Swap(vars.settings, fixedLeg, flooredLeg_p1);
          floorLeg_p1.setPricingEngine(engine);
-         YoYInflationFloor floor_p1 = new YoYInflationFloor(floatLeg_p, new List<double>() {floorstrike});
+         YoYInflationFloor floor_p1 = new YoYInflationFloor(vars.settings, floatLeg_p, new List<double>() {floorstrike});
          floor_p1.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
          npvVanilla = vanillaLeg_p.NPV();
          npvFlooredLeg = floorLeg_p1.NPV();
@@ -564,9 +548,9 @@ namespace TestSuite
          // Negative gearing
          List<CashFlow> flooredLeg_n = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length, caps0, floors,
                                                                  vars.volatility, gearing_n, spread_n);
-         Swap floorLeg_n = new Swap(fixedLeg, flooredLeg_n);
+         Swap floorLeg_n = new Swap(vars.settings, fixedLeg, flooredLeg_n);
          floorLeg_n.setPricingEngine(engine);
-         YoYInflationCap cap_n = new YoYInflationCap(floatLeg, new List<double>() {(floorstrike - spread_n) / gearing_n});
+         YoYInflationCap cap_n = new YoYInflationCap(vars.settings, floatLeg, new List<double>() {(floorstrike - spread_n) / gearing_n});
          cap_n.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
          npvVanilla = vanillaLeg_n.NPV();
          npvFlooredLeg = floorLeg_n.NPV();
@@ -594,9 +578,9 @@ namespace TestSuite
          // Positive gearing
          List<CashFlow> collaredLeg_p = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length, caps, floors,
                                                                   vars.volatility, gearing_p, spread_p);
-         Swap collarLeg_p1 = new Swap(fixedLeg, collaredLeg_p);
+         Swap collarLeg_p1 = new Swap(vars.settings, fixedLeg, collaredLeg_p);
          collarLeg_p1.setPricingEngine(engine);
-         YoYInflationCollar collar_p = new YoYInflationCollar(floatLeg_p,
+         YoYInflationCollar collar_p = new YoYInflationCollar(vars.settings, floatLeg_p,
          new List<double>() {capstrike},
          new List<double>() {floorstrike});
          collar_p.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
@@ -622,9 +606,9 @@ namespace TestSuite
          // Negative gearing
          List<CashFlow> collaredLeg_n = vars.makeYoYCapFlooredLeg(whichPricer, vars.startDate, vars.length, caps, floors,
                                                                   vars.volatility, gearing_n, spread_n);
-         Swap collarLeg_n1 = new Swap(fixedLeg, collaredLeg_n);
+         Swap collarLeg_n1 = new Swap(vars.settings, fixedLeg, collaredLeg_n);
          collarLeg_n1.setPricingEngine(engine);
-         YoYInflationCollar collar_n = new YoYInflationCollar(floatLeg,
+         YoYInflationCollar collar_n = new YoYInflationCollar(vars.settings, floatLeg,
          new List<double>() {(floorstrike - spread_n) / gearing_n},
          new List<double>() {(capstrike - spread_n) / gearing_n});
          collar_n.setPricingEngine(vars.makeEngine(vars.volatility, whichPricer));
@@ -687,7 +671,7 @@ namespace TestSuite
 
                      Date from = vars.nominalTS.link.referenceDate();
                      Date to = from + new Period(lengths[i], TimeUnit.Years);
-                     Schedule yoySchedule = new MakeSchedule().from(from).to(to)
+                     Schedule yoySchedule = new MakeSchedule(vars.settings).from(from).to(to)
                      .withTenor(new Period(1, TimeUnit.Years))
                      .withCalendar(new UnitedKingdom())
                      .withConvention(BusinessDayConvention.Unadjusted)

@@ -42,7 +42,7 @@ namespace QLCore
          Handle<BlackVolTermStructure> exchRateBlackVolTS,
          double exchRateATMlevel,
          double underlyingExchRateCorrelation)
-         : base(underlyingDividendTS.currentLink().dayCounter())
+         : base(riskFreeTS.currentLink().settings(), underlyingDividendTS.currentLink().dayCounter())
       {
          underlyingDividendTS_ = underlyingDividendTS;
          riskFreeTS_ = riskFreeTS;

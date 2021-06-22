@@ -144,7 +144,7 @@ namespace QLCore
       public override double optionletPrice(Option.Type optionType, double effectiveStrike)
       {
          Date fixingDate = coupon_.fixingDate();
-         if (fixingDate <= Settings.Instance.evaluationDate())
+         if (fixingDate <= coupon_.settings().evaluationDate())
          {
             // the amount is determined
             double a;

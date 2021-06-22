@@ -32,11 +32,12 @@ namespace QLCore
    /// </summary>
    public class CatBond : Bond
    {
-      public CatBond(int settlementDays,
+      public CatBond(Settings settings,
+                     int settlementDays,
                      Calendar calendar,
                      Date issueDate,
                      NotionalRisk notionalRisk)
-         : base(settlementDays, calendar, issueDate)
+         : base(settings, settlementDays, calendar, issueDate)
       {
          notionalRisk_ = notionalRisk;
       }
@@ -126,7 +127,7 @@ namespace QLCore
                              bool inArrears = false,
                              double redemption = 100.0,
                              Date issueDate = null)
-      : base(settlementDays, schedule.calendar(), issueDate, notionalRisk)
+      : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate, notionalRisk)
       {
          maturityDate_ = schedule.endDate();
 
@@ -169,7 +170,7 @@ namespace QLCore
                              Date stubDate = null,
                              DateGeneration.Rule rule = DateGeneration.Rule.Backward,
                              bool endOfMonth = false)
-      : base(settlementDays, calendar, issueDate, notionalRisk)
+      : base(iborIndex.settings(), settlementDays, calendar, issueDate, notionalRisk)
       {
          maturityDate_ = maturityDate;
 
@@ -196,7 +197,7 @@ namespace QLCore
                break;
          }
 
-         Schedule schedule = new Schedule(startDate, maturityDate_, new Period(couponFrequency),
+         Schedule schedule = new Schedule(settings(), startDate, maturityDate_, new Period(couponFrequency),
                                           calendar_, accrualConvention, accrualConvention,
                                           rule, endOfMonth, firstDate, nextToLastDate);
 

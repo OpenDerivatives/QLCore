@@ -26,7 +26,7 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_PiecewiseYieldCurve : IDisposable
+   public class T_PiecewiseYieldCurve
    {
       public class CommonVars
       {
@@ -130,15 +130,17 @@ namespace TestSuite
          public List<RateHelper> instruments, fraHelpers, bondHelpers, bmaHelpers;
          public List<Schedule> schedules;
          public YieldTermStructure termStructure;
+         public Settings settings = new Settings();
 
          // setup
          public CommonVars()
          {
             // data
+            settings = new Settings();
             calendar = new TARGET();
             settlementDays = 2;
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
             fixedLegConvention = BusinessDayConvention.Unadjusted;
             fixedLegFrequency = Frequency.Annual;
@@ -190,7 +192,7 @@ namespace TestSuite
             schedules = new List<Schedule>(bonds);
             bmaHelpers = new List<RateHelper>(bmas);
 
-            IborIndex euribor6m = new Euribor6M();
+            IborIndex euribor6m = new Euribor6M(settings);
             for (int i = 0; i < deposits; i++)
             {
                Handle<Quote> r = new Handle<Quote>(rates[i]);
@@ -198,7 +200,8 @@ namespace TestSuite
                                                      euribor6m.fixingDays(), calendar,
                                                      euribor6m.businessDayConvention(),
                                                      euribor6m.endOfMonth(),
-                                                     euribor6m.dayCounter()));
+                                                     euribor6m.dayCounter(),
+                                                     settings));
             }
             for (int i = 0; i < swaps; i++)
             {
@@ -207,7 +210,7 @@ namespace TestSuite
                                                   fixedLegFrequency, fixedLegConvention, fixedLegDayCounter, euribor6m));
             }
 
-            Euribor3M euribor3m = new Euribor3M();
+            Euribor3M euribor3m = new Euribor3M(settings);
             for (int i = 0; i < fras; i++)
             {
                Handle<Quote> r = new Handle<Quote>(fraRates[i]);
@@ -216,7 +219,8 @@ namespace TestSuite
                                                 euribor3m.fixingCalendar(),
                                                 euribor3m.businessDayConvention(),
                                                 euribor3m.endOfMonth(),
-                                                euribor3m.dayCounter()));
+                                                euribor3m.dayCounter(),
+                                                settings));
             }
 
             for (int i = 0; i < bonds; i++)
@@ -225,32 +229,13 @@ namespace TestSuite
                Date maturity = calendar.advance(today, bondData[i].n, bondData[i].units);
                Date issue = calendar.advance(maturity, -bondData[i].length, TimeUnit.Years);
                List<double> coupons = new List<double>() { bondData[i].coupon / 100.0 };
-               schedules.Add(new Schedule(issue, maturity, new Period(bondData[i].frequency), calendar,
+               schedules.Add(new Schedule(settings, issue, maturity, new Period(bondData[i].frequency), calendar,
                                           bondConvention, bondConvention, DateGeneration.Rule.Backward, false));
                bondHelpers.Add(new FixedRateBondHelper(p, bondSettlementDays, bondRedemption, schedules[i],
                                                        coupons, bondDayCounter, bondConvention, bondRedemption, issue));
             }
          }
       }
-
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_PiecewiseYieldCurve()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
 
       /*
       unstable
@@ -412,8 +397,8 @@ namespace TestSuite
          // "Testing use of today's LIBOR fixings in swap curve...");
          CommonVars vars = new CommonVars();
 
-         var swapHelpers = new InitializedList<RateHelper>();
-         IborIndex euribor6m = new Euribor6M();
+         var swapHelpers = new List<RateHelper>();
+         IborIndex euribor6m = new Euribor6M(vars.settings);
 
          for (int i = 0; i < vars.swaps; i++)
          {
@@ -424,7 +409,7 @@ namespace TestSuite
                                                vars.fixedLegDayCounter, euribor6m));
          }
 
-         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settlement, swapHelpers, new Actual360());
+         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settings, vars.settlement, swapHelpers, new Actual360());
 
          Handle<YieldTermStructure> curveHandle = new Handle<YieldTermStructure>(vars.termStructure);
 
@@ -492,7 +477,7 @@ namespace TestSuite
          DayCounter d = new ActualActual();
          DayCounter d1 = new Actual360();
 
-         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settlementDays,
+         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settings, vars.settlementDays,
                                                                            vars.calendar, vars.instruments, d);
 
          InterestRate ir = vars.termStructure.forwardRate(vars.settlement, vars.settlement + 30, d1, Compounding.Simple);
@@ -513,7 +498,7 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          vars.today = new Date(4, Month.October, 2007);
-         Settings.Instance.setEvaluationDate(vars.today);
+         vars.settings.setEvaluationDate(vars.today);
 
          vars.calendar = new Japan();
          vars.settlement = vars.calendar.advance(vars.today, vars.settlementDays, TimeUnit.Days);
@@ -526,19 +511,19 @@ namespace TestSuite
          }
 
          // rate helpers
-         vars.instruments = new InitializedList<RateHelper>(vars.swaps);
+         vars.instruments = new List<RateHelper>(vars.swaps);
 
-         IborIndex index = new JPYLibor(new Period(6, TimeUnit.Months));
+         IborIndex index = new JPYLibor(new Period(6, TimeUnit.Months), vars.settings);
          for (int i = 0; i < vars.swaps; i++)
          {
             Handle<Quote> r = new Handle<Quote>(vars.rates[i]);
-            vars.instruments[i] = new SwapRateHelper(r, new Period(vars.swapData[i].n, vars.swapData[i].units),
+            vars.instruments.Add(new SwapRateHelper(r, new Period(vars.swapData[i].n, vars.swapData[i].units),
                                                      vars.calendar,
                                                      vars.fixedLegFrequency, vars.fixedLegConvention,
-                                                     vars.fixedLegDayCounter, index);
+                                                     vars.fixedLegDayCounter, index));
          }
 
-         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(
+         vars.termStructure = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settings, 
             vars.settlement, vars.instruments,
             new Actual360(),
             new List<Handle<Quote>>(),
@@ -549,7 +534,7 @@ namespace TestSuite
          curveHandle.linkTo(vars.termStructure);
 
          // check swaps
-         IborIndex jpylibor6m = new JPYLibor(new Period(6, TimeUnit.Months), curveHandle);
+         IborIndex jpylibor6m = new JPYLibor(new Period(6, TimeUnit.Months), vars.settings, curveHandle);
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -616,7 +601,7 @@ namespace TestSuite
          where B : IBootStrap<PiecewiseYieldCurve>, new ()
       {
 
-         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settlement, vars.instruments,
+         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settings, vars.settlement, vars.instruments,
                                                                new Actual360(), new List<Handle<Quote>>(), new List<Date>(), 1.0e-12, interpolator);
 
          RelinkableHandle<YieldTermStructure> curveHandle = new RelinkableHandle<YieldTermStructure>();
@@ -625,7 +610,7 @@ namespace TestSuite
          // check deposits
          for (int i = 0; i < vars.deposits; i++)
          {
-            Euribor index = new Euribor(new Period(vars.depositData[i].n, vars.depositData[i].units), curveHandle);
+            Euribor index = new Euribor(new Period(vars.depositData[i].n, vars.depositData[i].units), vars.settings, curveHandle);
             double expectedRate = vars.depositData[i].rate / 100,
                    estimatedRate = index.fixing(vars.today);
             QAssert.IsTrue(Math.Abs(expectedRate - estimatedRate) < tolerance,
@@ -637,7 +622,7 @@ namespace TestSuite
          }
 
          // check swaps
-         IborIndex euribor6m = new Euribor6M(curveHandle);
+         IborIndex euribor6m = new Euribor6M(vars.settings, curveHandle);
          for (int i = 0; i < vars.swaps; i++)
          {
             Period tenor = new Period(vars.swapData[i].n, vars.swapData[i].units);
@@ -661,7 +646,7 @@ namespace TestSuite
          }
 
          // check bonds
-         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settlement, vars.bondHelpers,
+         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settings, vars.settlement, vars.bondHelpers,
                                                                new Actual360(), new List<Handle<Quote>>(), new List<Date>(), 1.0e-12, interpolator);
          curveHandle.linkTo(vars.termStructure);
 
@@ -688,11 +673,11 @@ namespace TestSuite
          }
 
          // check FRA
-         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settlement, vars.fraHelpers,
+         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settings, vars.settlement, vars.fraHelpers,
                                                                new Actual360(), new List<Handle<Quote>>(), new List<Date>(), 1.0e-12, interpolator);
          curveHandle.linkTo(vars.termStructure);
 
-         IborIndex euribor3m = new Euribor3M(curveHandle);
+         IborIndex euribor3m = new Euribor3M(vars.settings, curveHandle);
          for (int i = 0; i < vars.fras; i++)
          {
             Date start = vars.calendar.advance(vars.settlement,
@@ -704,7 +689,7 @@ namespace TestSuite
                                              euribor3m.businessDayConvention(),
                                              euribor3m.endOfMonth());
 
-            ForwardRateAgreement fra = new ForwardRateAgreement(start, end, Position.Type.Long, vars.fraData[i].rate / 100,
+            ForwardRateAgreement fra = new ForwardRateAgreement(vars.settings, start, end, Position.Type.Long, vars.fraData[i].rate / 100,
                                                                 100.0, euribor3m, curveHandle);
             double expectedRate = vars.fraData[i].rate / 100,
                    estimatedRate = fra.forwardRate().rate();
@@ -731,21 +716,21 @@ namespace TestSuite
 
          // readjust settlement
          vars.calendar = new JointCalendar(new BMAIndex().fixingCalendar(),
-                                           new USDLibor(new Period(3, TimeUnit.Months)).fixingCalendar(),
+                                           new USDLibor(new Period(3, TimeUnit.Months), vars.settings).fixingCalendar(),
                                            JointCalendar.JointCalendarRule.JoinHolidays);
          vars.today = vars.calendar.adjust(Date.Today);
-         Settings.Instance.setEvaluationDate(vars.today);
+         vars.settings.setEvaluationDate(vars.today);
          vars.settlement = vars.calendar.advance(vars.today, vars.settlementDays, TimeUnit.Days);
 
          Handle<YieldTermStructure> riskFreeCurve = new Handle<YieldTermStructure>(
-            new FlatForward(vars.settlement, 0.04, new Actual360()));
+            new FlatForward(vars.settings, vars.settlement, 0.04, new Actual360()));
 
          BMAIndex bmaIndex = new BMAIndex();
          int w = vars.today.weekday();
          Date lastWednesday = (w >= 4) ? vars.today - (w - 4) : vars.today + (4 - w - 7);
          Date lastFixing = bmaIndex.fixingCalendar().adjust(lastWednesday);
          bmaIndex.addFixing(lastFixing, 0.03);
-         IborIndex liborIndex = new USDLibor(new Period(3, TimeUnit.Months), riskFreeCurve);
+         IborIndex liborIndex = new USDLibor(new Period(3, TimeUnit.Months), vars.settings, riskFreeCurve);
          for (int i = 0; i < vars.bmas; ++i)
          {
             Handle<Quote> f = new Handle<Quote>(vars.fractions[i]);
@@ -759,7 +744,7 @@ namespace TestSuite
                                                       liborIndex));
          }
 
-         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settlement, vars.bmaHelpers,
+         vars.termStructure = new PiecewiseYieldCurve<T, I, B>(vars.settings, vars.settlement, vars.bmaHelpers,
                                                                new Actual360(), new List<Handle<Quote>>(), new List<Date>(), 1.0e-12, interpolator);
 
          RelinkableHandle<YieldTermStructure> curveHandle = new RelinkableHandle<YieldTermStructure>();
@@ -768,12 +753,12 @@ namespace TestSuite
          // check BMA swaps
          BMAIndex bma = new BMAIndex(curveHandle);
          bma.addFixing(lastFixing, 0.03);
-         IborIndex libor3m = new USDLibor(new Period(3, TimeUnit.Months), riskFreeCurve);
+         IborIndex libor3m = new USDLibor(new Period(3, TimeUnit.Months), vars.settings, riskFreeCurve);
          for (int i = 0; i < vars.bmas; i++)
          {
             Period tenor = new Period(vars.bmaData[i].n, vars.bmaData[i].units);
 
-            Schedule bmaSchedule = new MakeSchedule().from(vars.settlement)
+            Schedule bmaSchedule = new MakeSchedule(vars.settings).from(vars.settlement)
             .to(vars.settlement + tenor)
             .withFrequency(vars.bmaFrequency)
             .withCalendar(bma.fixingCalendar())
@@ -781,7 +766,7 @@ namespace TestSuite
             .backwards()
             .value();
 
-            Schedule liborSchedule = new MakeSchedule().from(vars.settlement)
+            Schedule liborSchedule = new MakeSchedule(vars.settings).from(vars.settlement)
             .to(vars.settlement + tenor)
             .withTenor(libor3m.tenor())
             .withCalendar(libor3m.fixingCalendar())
@@ -817,7 +802,7 @@ namespace TestSuite
          where I : class, IInterpolationFactory, new()
       {
 
-         PiecewiseYieldCurve<T, I> curve = new PiecewiseYieldCurve<T, I>(vars.settlement, vars.instruments,
+         PiecewiseYieldCurve<T, I> curve = new PiecewiseYieldCurve<T, I>(vars.settings, vars.settlement, vars.instruments,
                                                                          new Actual360(),
                                                                          new List<Handle<Quote>>(),
                                                                          new List<Date>(),

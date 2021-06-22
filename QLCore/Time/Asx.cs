@@ -143,12 +143,12 @@ namespace QLCore
          \warning It raises an exception if the input
                   string is not an ASX code
       */
-      public static Date date(String asxCode, Date refDate = null)
+      public static Date date(Settings settings, String asxCode, Date refDate = null)
       {
          Utils.QL_REQUIRE(isASXcode(asxCode, false), () =>
                           asxCode + " is not a valid ASX code");
 
-         Date referenceDate = refDate ?? Settings.Instance.evaluationDate();
+         Date referenceDate = refDate ?? settings.evaluationDate();
 
          String code = asxCode.ToUpper();
          String ms = code.Substring(0, 1);
@@ -189,9 +189,9 @@ namespace QLCore
             y += 10;
          int referenceYear = (referenceDate.year() % 10);
          y += referenceDate.year() - referenceYear;
-         Date result = ASX.nextDate(new Date(1, m, y), false);
+         Date result = ASX.nextDate(settings, new Date(1, m, y), false);
          if (result < referenceDate)
-            return ASX.nextDate(new Date(1, m, y + 10), false);
+            return ASX.nextDate(settings, new Date(1, m, y + 10), false);
 
          return result;
       }
@@ -201,9 +201,9 @@ namespace QLCore
       /*! returns the 1st delivery date for next contract listed in the
          Australian Securities Exchange.
       */
-      public static Date nextDate(Date date = null, bool mainCycle = true)
+      public static Date nextDate(Settings settings, Date date = null, bool mainCycle = true)
       {
-         Date refDate = date ?? Settings.Instance.evaluationDate();
+         Date refDate = date ?? settings.evaluationDate();
          int y = refDate.year();
          int m = refDate.month();
 
@@ -225,7 +225,7 @@ namespace QLCore
 
          Date result = Date.nthWeekday(2, DayOfWeek.Friday, m, y);
          if (result <= refDate)
-            result = nextDate(new Date(15, m, y), mainCycle);
+            result = nextDate(settings, new Date(15, m, y), mainCycle);
          return result;
       }
 
@@ -233,19 +233,19 @@ namespace QLCore
       /*! returns the 1st delivery date for next contract listed in the
          Australian Securities Exchange
       */
-      public static Date nextDate(String ASXcode, bool mainCycle = true, Date referenceDate = null)
+      public static Date nextDate(Settings settings, String ASXcode, bool mainCycle = true, Date referenceDate = null)
       {
-         Date asxDate = date(ASXcode, referenceDate);
-         return nextDate(asxDate + 1, mainCycle);
+         Date asxDate = date(settings, ASXcode, referenceDate);
+         return nextDate(settings, asxDate + 1, mainCycle);
       }
 
       //! next ASX code following the given date
       /*! returns the ASX code for next contract listed in the
          Australian Securities Exchange
       */
-      public static String nextCode(Date d = null, bool mainCycle = true)
+      public static String nextCode(Settings settings, Date d = null, bool mainCycle = true)
       {
-         Date date = nextDate(d, mainCycle);
+         Date date = nextDate(settings, d, mainCycle);
          return code(date);
       }
 
@@ -253,9 +253,9 @@ namespace QLCore
       /*! returns the ASX code for next contract listed in the
          Australian Securities Exchange
       */
-      public static String nextCode(String asxCode, bool mainCycle = true, Date referenceDate = null)
+      public static String nextCode(Settings settings, String asxCode, bool mainCycle = true, Date referenceDate = null)
       {
-         Date date = nextDate(asxCode, mainCycle, referenceDate);
+         Date date = nextDate(settings, asxCode, mainCycle, referenceDate);
          return code(date);
       }
    }

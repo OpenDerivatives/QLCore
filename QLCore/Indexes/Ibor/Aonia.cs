@@ -27,8 +27,8 @@ namespace QLCore
    */
    public class Aonia : OvernightIndex
    {
-      public Aonia(Handle<YieldTermStructure> h = null)
-         : base("Aonia", 0, new AUDCurrency(), new Australia(), new Actual365Fixed(),
+      public Aonia(Settings settings, Handle<YieldTermStructure> h = null)
+         : base("Aonia", 0, new AUDCurrency(), new Australia(), new Actual365Fixed(), settings,
                 h ?? new Handle<YieldTermStructure>())
       {}
    }

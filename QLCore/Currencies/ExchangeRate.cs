@@ -137,9 +137,9 @@ namespace QLCore
          {
             case Type.Direct:
                if (amount.currency == source_)
-                  return new Money(amount.value * rate_.Value, target_);
+                  return new Money(amount.settings(), amount.value * rate_.Value, target_);
                if (amount.currency == target_)
-                  return new Money(amount.value / rate_.Value, source_);
+                  return new Money(amount.settings(), amount.value / rate_.Value, source_);
                Utils.QL_FAIL("exchange rate not applicable");
                return null;
 

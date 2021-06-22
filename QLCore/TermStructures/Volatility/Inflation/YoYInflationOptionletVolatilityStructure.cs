@@ -34,14 +34,15 @@ namespace QLCore
    {
       // Constructor
       //! calculate the reference date based on the global evaluation date
-      protected YoYOptionletVolatilitySurface(int settlementDays,
+      protected YoYOptionletVolatilitySurface(Settings settings, 
+                                              int settlementDays,
                                               Calendar cal,
                                               BusinessDayConvention bdc,
                                               DayCounter dc,
                                               Period observationLag,
                                               Frequency frequency,
                                               bool indexIsInterpolated)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          baseLevel_ = null;
          observationLag_ = observationLag;
@@ -262,7 +263,8 @@ namespace QLCore
 
       // Constructor
       //! calculate the reference date based on the global evaluation date
-      public ConstantYoYOptionletVolatility(double v,
+      public ConstantYoYOptionletVolatility(Settings settings,
+                                            double v,
                                             int settlementDays,
                                             Calendar cal,
                                             BusinessDayConvention bdc,
@@ -272,7 +274,7 @@ namespace QLCore
                                             bool indexIsInterpolated,
                                             double minStrike = -1.0,  // -100%
                                             double maxStrike = 100.0)  // +10,000%
-         : base(settlementDays, cal, bdc, dc, observationLag, frequency, indexIsInterpolated)
+         : base(settings, settlementDays, cal, bdc, dc, observationLag, frequency, indexIsInterpolated)
       {
          volatility_ = v;
          minStrike_ = minStrike;

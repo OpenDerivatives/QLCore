@@ -180,7 +180,7 @@ namespace TestSuite
          // Black Scholes calculator, since premium adjusted deltas can be calculated
          // from spot deltas by adding/subtracting the premium.
 
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          // actually, value and tol won't be needed for testing
          EuropeanOptionData[] values =
@@ -230,15 +230,15 @@ namespace TestSuite
 
          SimpleQuote qQuote = new SimpleQuote(0.0);
          Handle<Quote> qHandle = new Handle<Quote>(qQuote);
-         YieldTermStructure qTS = new FlatForward(today, qHandle, dc);
+         YieldTermStructure qTS = new FlatForward(settings, today, qHandle, dc);
 
          SimpleQuote rQuote = new SimpleQuote(0.0);
          Handle<Quote> rHandle = new Handle<Quote>(qQuote);
-         YieldTermStructure rTS = new FlatForward(today, rHandle, dc);
+         YieldTermStructure rTS = new FlatForward(settings, today, rHandle, dc);
 
          SimpleQuote volQuote = new SimpleQuote(0.0);
          Handle<Quote> volHandle = new Handle<Quote>(volQuote);
-         BlackVolTermStructure volTS = new BlackConstantVol(today, calendar, volHandle, dc);
+         BlackVolTermStructure volTS = new BlackConstantVol(settings, today, calendar, volHandle, dc);
 
          BlackScholesMertonProcess stochProcess;
          IPricingEngine engine;
@@ -279,7 +279,7 @@ namespace TestSuite
 
             engine = new AnalyticEuropeanEngine(stochProcess);
 
-            EuropeanOption option = new EuropeanOption(payoff, exercise);
+            EuropeanOption option = new EuropeanOption(settings, payoff, exercise);
             option.setPricingEngine(engine);
 
             calculatedVal = myCalc.deltaFromStrike(values[i].strike);
@@ -333,7 +333,7 @@ namespace TestSuite
 
          // Test for put call parity between put and call deltas.
 
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          /* The data below are from
             "Option pricing formulas", E.G. Haug, McGraw-Hill 1998
@@ -409,15 +409,15 @@ namespace TestSuite
 
          SimpleQuote qQuote = new SimpleQuote(0.0);
          Handle<Quote> qHandle = new Handle<Quote>(qQuote);
-         YieldTermStructure qTS = new FlatForward(today, qHandle, dc);
+         YieldTermStructure qTS = new FlatForward(settings, today, qHandle, dc);
 
          SimpleQuote rQuote = new SimpleQuote(0.0);
          Handle<Quote> rHandle = new Handle<Quote>(qQuote);
-         YieldTermStructure rTS = new FlatForward(today, rHandle, dc);
+         YieldTermStructure rTS = new FlatForward(settings, today, rHandle, dc);
 
          SimpleQuote volQuote = new SimpleQuote(0.0);
          Handle<Quote> volHandle = new Handle<Quote>(volQuote);
-         BlackVolTermStructure volTS = new BlackConstantVol(today, calendar, volHandle, dc);
+         BlackVolTermStructure volTS = new BlackConstantVol(settings, today, calendar, volHandle, dc);
 
          StrikedTypePayoff payoff;
          Date exDate;
@@ -526,7 +526,7 @@ namespace TestSuite
       public void testAtmCalcs()
       {
          // Testing delta-neutral ATM quotations
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          DeltaData[] values =
          {

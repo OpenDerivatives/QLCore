@@ -33,10 +33,11 @@ namespace QLCore
    */
    public class ExponentialSplinesFitting : FittedBondDiscountCurve.FittingMethod
    {
-      public ExponentialSplinesFitting(bool constrainAtZero = true,
+      public ExponentialSplinesFitting(Settings settings,
+                                       bool constrainAtZero = true,
                                        Vector weights = null,
                                        OptimizationMethod optimizationMethod = null)
-         : base(constrainAtZero, weights, optimizationMethod)
+         : base(settings, constrainAtZero, weights, optimizationMethod)
       {}
 
       public override FittedBondDiscountCurve.FittingMethod clone()
@@ -89,8 +90,8 @@ namespace QLCore
    */
    public class NelsonSiegelFitting :  FittedBondDiscountCurve.FittingMethod
    {
-      public NelsonSiegelFitting(Vector weights = null, OptimizationMethod optimizationMethod = null)
-         : base(true, weights, optimizationMethod)
+      public NelsonSiegelFitting(Settings settings, Vector weights = null, OptimizationMethod optimizationMethod = null)
+         : base(settings, true, weights, optimizationMethod)
       {}
 
       public override FittedBondDiscountCurve.FittingMethod clone()
@@ -121,8 +122,8 @@ namespace QLCore
    */
    public class SvenssonFitting : FittedBondDiscountCurve.FittingMethod
    {
-      public SvenssonFitting(Vector weights = null, OptimizationMethod optimizationMethod = null)
-         : base(true, weights, optimizationMethod)
+      public SvenssonFitting(Settings settings, Vector weights = null, OptimizationMethod optimizationMethod = null)
+         : base(settings, true, weights, optimizationMethod)
       {}
 
       public override FittedBondDiscountCurve.FittingMethod clone()
@@ -169,9 +170,9 @@ namespace QLCore
    */
    public class CubicBSplinesFitting : FittedBondDiscountCurve.FittingMethod
    {
-      public CubicBSplinesFitting(List<double> knots, bool constrainAtZero = true, Vector weights = null,
+      public CubicBSplinesFitting(Settings settings, List<double> knots, bool constrainAtZero = true, Vector weights = null,
                                   OptimizationMethod optimizationMethod = null)
-         : base(constrainAtZero, weights, optimizationMethod)
+         : base(settings, constrainAtZero, weights, optimizationMethod)
       {
          splines_ = new BSpline(3, knots.Count - 5, knots);
 
@@ -256,11 +257,12 @@ namespace QLCore
    */
    public class SimplePolynomialFitting : FittedBondDiscountCurve.FittingMethod
    {
-      public SimplePolynomialFitting(int degree,
+      public SimplePolynomialFitting(Settings settings, 
+                                     int degree,
                                      bool constrainAtZero = true,
                                      Vector weights = null,
                                      OptimizationMethod optimizationMethod = null)
-         : base(constrainAtZero, weights, optimizationMethod)
+         : base(settings, constrainAtZero, weights, optimizationMethod)
       {
          size_ = constrainAtZero ? degree : degree + 1;
       }
@@ -297,8 +299,9 @@ namespace QLCore
    */
    public class SpreadFittingMethod : FittedBondDiscountCurve.FittingMethod
    {
-      public SpreadFittingMethod(FittedBondDiscountCurve.FittingMethod method, Handle<YieldTermStructure> discountCurve)
-         : base(method != null ? method.constrainAtZero() : true,
+      public SpreadFittingMethod(Settings settings, FittedBondDiscountCurve.FittingMethod method, Handle<YieldTermStructure> discountCurve)
+         : base(settings,
+                method != null ? method.constrainAtZero() : true,
                 method != null ? method.weights() : null,
                 method != null ? method.optimizationMethod() : null)
       {

@@ -27,26 +27,26 @@ namespace QLCore
    {
       private Handle<Quote> volatility_;
 
-      public BlackConstantVol(Date referenceDate, Calendar cal, double volatility, DayCounter dc)
-         : base(referenceDate, cal, BusinessDayConvention.Following, dc)
+      public BlackConstantVol(Settings settings, Date referenceDate, Calendar cal, double volatility, DayCounter dc)
+         : base(settings, referenceDate, cal, BusinessDayConvention.Following, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
       }
 
-      public BlackConstantVol(Date referenceDate, Calendar cal, Handle<Quote> volatility, DayCounter dc)
-         : base(referenceDate, cal, BusinessDayConvention.Following, dc)
+      public BlackConstantVol(Settings settings, Date referenceDate, Calendar cal, Handle<Quote> volatility, DayCounter dc)
+         : base(settings, referenceDate, cal, BusinessDayConvention.Following, dc)
       {
          volatility_ = volatility;
       }
 
-      public BlackConstantVol(int settlementDays, Calendar cal, double volatility, DayCounter dc)
-         : base(settlementDays, cal, BusinessDayConvention.Following, dc)
+      public BlackConstantVol(Settings settings, int settlementDays, Calendar cal, double volatility, DayCounter dc)
+         : base(settings, settlementDays, cal, BusinessDayConvention.Following, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
       }
 
-      public BlackConstantVol(int settlementDays, Calendar cal, Handle<Quote> volatility, DayCounter dc)
-         : base(settlementDays, cal, BusinessDayConvention.Following, dc)
+      public BlackConstantVol(Settings settings, int settlementDays, Calendar cal, Handle<Quote> volatility, DayCounter dc)
+         : base(settings, settlementDays, cal, BusinessDayConvention.Following, dc)
       {
          volatility_ = volatility;
       }

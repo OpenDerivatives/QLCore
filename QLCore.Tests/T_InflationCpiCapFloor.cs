@@ -97,12 +97,12 @@ namespace TestSuite
 
          // cleanup
 
-         public SavedSettings backup;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
-            backup = new SavedSettings();
+            settings = new Settings();
             nominalUK = new RelinkableHandle<YieldTermStructure>();
             cpiUK = new RelinkableHandle<ZeroInflationTermStructure>();
             hcpi = new RelinkableHandle<ZeroInflationTermStructure>();
@@ -120,7 +120,7 @@ namespace TestSuite
             convention = BusinessDayConvention.ModifiedFollowing;
             Date today = new Date(1, Month.June, 2010);
             evaluationDate = calendar.adjust(today);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
             settlementDays = 0;
             fixingDays = 0;
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
@@ -132,7 +132,7 @@ namespace TestSuite
             //      fixing data
             Date from = new Date(1, Month.July, 2007);
             Date to = new Date(1, Month.June, 2010);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -150,7 +150,7 @@ namespace TestSuite
             // link from cpi index to cpi TS
             bool interp = false;// this MUST be false because the observation lag is only 2 months
             // for ZCIIS; but not for contract if the contract uses a bigger lag.
-            ii = new UKRPI(interp, hcpi);
+            ii = new UKRPI(interp, settings, hcpi);
             for (int i = 0; i < rpiSchedule.Count; i++)
             {
                ii.addFixing(rpiSchedule[i], fixData[i], true);// force overwrite in case multiple use
@@ -201,7 +201,7 @@ namespace TestSuite
                nomD.Add(nominalData[i].date);
                nomR.Add(nominalData[i].rate / 100.0);
             }
-            YieldTermStructure nominalTS = new InterpolatedZeroCurve<Linear>(nomD, nomR, dcNominal);
+            YieldTermStructure nominalTS = new InterpolatedZeroCurve<Linear>(settings, nomD, nomR, dcNominal);
             nominalUK.linkTo(nominalTS);
 
             // now build the zero inflation curve
@@ -243,7 +243,7 @@ namespace TestSuite
             // we can use historical or first ZCIIS for this
             // we know historical is WAY off market-implied, so use market implied flat.
             baseZeroRate = zciisData[0].rate / 100.0;
-            PiecewiseZeroInflationCurve<Linear> pCPIts = new PiecewiseZeroInflationCurve<Linear>(
+            PiecewiseZeroInflationCurve<Linear> pCPIts = new PiecewiseZeroInflationCurve<Linear>(settings,
                evaluationDate, calendar, dcZCIIS, observationLag, ii.frequency(), ii.interpolated(), baseZeroRate,
                new Handle<YieldTermStructure>(nominalTS), helpers);
             pCPIts.recalculate();
@@ -400,7 +400,7 @@ namespace TestSuite
          // interpolation pricer first
          // N.B. no new instrument required but we do need a new pricer
 
-         Date startDate = Settings.Instance.evaluationDate();
+         Date startDate = common.settings.evaluationDate();
          Date maturity = (startDate + new Period(3, TimeUnit.Years));
          Calendar fixCalendar = new UnitedKingdom(), payCalendar = new UnitedKingdom();
          BusinessDayConvention fixConvention = BusinessDayConvention.Unadjusted,
@@ -408,7 +408,8 @@ namespace TestSuite
          double strike = 0.03;
          double baseCPI = common.hii.link.fixing(fixCalendar.adjust(startDate - common.observationLag, fixConvention));
          InterpolationType observationInterpolation = InterpolationType.AsIndex;
-         CPICapFloor aCap = new CPICapFloor(Option.Type.Call,
+         CPICapFloor aCap = new CPICapFloor(common.settings,
+                                            Option.Type.Call,
                                             nominal,
                                             startDate,   // start date of contract (only)
                                             baseCPI,

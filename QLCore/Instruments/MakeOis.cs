@@ -37,7 +37,7 @@ namespace QLCore
       private Date effectiveDate_, terminationDate_;
       private Calendar calendar_;
 
-      private Frequency paymentFrequency_;
+      private Frequency paymentFrequency_, receiveFrequency_;
       DateGeneration.Rule rule_;
       private bool endOfMonth_, isDefaultEOM_;
 
@@ -46,10 +46,10 @@ namespace QLCore
 
       private double overnightSpread_;
       private DayCounter fixedDayCount_;
-
+      private Settings settings_;
       private IPricingEngine engine_;
 
-      public MakeOIS(Period swapTenor, OvernightIndex overnightIndex, double? fixedRate = null, Period fwdStart = null)
+      public MakeOIS(Settings settings, Period swapTenor, OvernightIndex overnightIndex, double? fixedRate = null, Period fwdStart = null)
       {
          swapTenor_ = swapTenor;
          overnightIndex_ = overnightIndex;
@@ -58,6 +58,7 @@ namespace QLCore
          settlementDays_ = 2;
          calendar_ = overnightIndex.fixingCalendar();
          paymentFrequency_ = Frequency.Annual;
+         receiveFrequency_ = Frequency.Annual;
          rule_ = DateGeneration.Rule.Backward;
          // any value here for endOfMonth_ would not be actually used
          isDefaultEOM_ = true;
@@ -65,6 +66,7 @@ namespace QLCore
          nominal_ = 1.0;
          overnightSpread_ = 0.0;
          fixedDayCount_ = overnightIndex.dayCounter();
+         settings_ = settings;
       }
 
       public MakeOIS receiveFixed(bool flag = true)
@@ -107,11 +109,22 @@ namespace QLCore
          return this;
       }
 
+      public MakeOIS withReceiveFrequency(Frequency f)
+      {
+         receiveFrequency_ = f;
+         if (receiveFrequency_ == Frequency.Once)
+            rule_ = DateGeneration.Rule.Zero;
+         return this;
+      }
+
       public MakeOIS withRule(DateGeneration.Rule r)
       {
          rule_ = r;
          if (r == DateGeneration.Rule.Zero)
+         {
             paymentFrequency_ = Frequency.Once;
+            receiveFrequency_ = Frequency.Once;
+         }
          return this;
       }
 
@@ -154,6 +167,12 @@ namespace QLCore
          return this;
       }
 
+      public MakeOIS withSettings(Settings s)
+      {
+         settings_ = s;
+         return this;
+      }
+
       // OIswap creator
       public static implicit operator OvernightIndexedSwap(MakeOIS o) { return o.value(); }
 
@@ -165,7 +184,7 @@ namespace QLCore
             startDate = effectiveDate_;
          else
          {
-            Date refDate = Settings.Instance.evaluationDate();
+            Date refDate = settings_.evaluationDate();
             // if the evaluation date is not a business day
             // then move to the next business day
             refDate = calendar_.adjust(refDate);
@@ -193,8 +212,18 @@ namespace QLCore
 
 
 
-         Schedule schedule = new Schedule(startDate, endDate,
+         Schedule paymentSchedule = new Schedule(settings_,
+                                          startDate, endDate,
                                           new Period(paymentFrequency_),
+                                          calendar_,
+                                          BusinessDayConvention.ModifiedFollowing,
+                                          BusinessDayConvention.ModifiedFollowing,
+                                          rule_,
+                                          usedEndOfMonth);
+
+         Schedule receiveSchedule = new Schedule(settings_,
+                                          startDate, endDate,
+                                          new Period(receiveFrequency_),
                                           calendar_,
                                           BusinessDayConvention.ModifiedFollowing,
                                           BusinessDayConvention.ModifiedFollowing,
@@ -205,10 +234,13 @@ namespace QLCore
          if (fixedRate_ == null)
          {
             OvernightIndexedSwap temp = new OvernightIndexedSwap(type_, nominal_,
-                                                                 schedule,
+                                                                 paymentSchedule,
                                                                  0.0, // fixed rate
                                                                  fixedDayCount_,
-                                                                 overnightIndex_, overnightSpread_);
+                                                                 nominal_,
+                                                                 receiveSchedule,
+                                                                 overnightIndex_, 
+                                                                 overnightSpread_);
             if (engine_ == null)
             {
                Handle<YieldTermStructure> disc = overnightIndex_.forwardingTermStructure();
@@ -225,8 +257,9 @@ namespace QLCore
          }
 
          OvernightIndexedSwap ois = new OvernightIndexedSwap(type_, nominal_,
-                                                             schedule,
+                                                             paymentSchedule,
                                                              usedFixedRate.Value, fixedDayCount_,
+                                                             nominal_, receiveSchedule,
                                                              overnightIndex_, overnightSpread_);
 
          if (engine_ == null)

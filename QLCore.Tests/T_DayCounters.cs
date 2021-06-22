@@ -200,14 +200,14 @@ namespace TestSuite
       {
 
          // Testing actual/actual with schedule for undefined semiannual reference periods
-
+         Settings settings = new Settings();
          Calendar calendar = new UnitedStates();
          Date fromDate = new Date(10, Month.January, 2017);
          Date firstCoupon = new Date(31, Month.August, 2017);
          Date quasiCoupon = new Date(28, Month.February, 2017);
          Date quasiCoupon2 = new Date(31, Month.August, 2016);
 
-         Schedule schedule = new MakeSchedule()
+         Schedule schedule = new MakeSchedule(settings)
          .from(fromDate)
          .withFirstDate(firstCoupon)
          .to(new Date(28, Month.February, 2026))
@@ -271,7 +271,7 @@ namespace TestSuite
 
          // test multiple periods
 
-         schedule = new MakeSchedule()
+         schedule = new MakeSchedule(settings)
          .from(new Date(10, Month.January, 2017))
          .withFirstDate(new Date(31, Month.August, 2017))
          .to(new Date(28, Month.February, 2026))
@@ -310,10 +310,10 @@ namespace TestSuite
       public void testActualActualWithAnnualSchedule()
       {
          // Testing actual/actual with schedule "for undefined annual reference periods
-
+         Settings settings = new Settings();
          // Now do an annual schedule
          Calendar calendar = new UnitedStates();
-         Schedule schedule = new MakeSchedule()
+         Schedule schedule = new MakeSchedule(settings)
          .from(new Date(10, Month.January, 2017))
          .withFirstDate(new Date(31, Month.August, 2017))
          .to(new Date(28, Month.February, 2026))
@@ -350,7 +350,7 @@ namespace TestSuite
       [Fact]
       public void testActualActualWithSchedule()
       {
-
+         Settings settings = new Settings();
          // Testing actual/actual day counter with schedule
 
          // long first coupon
@@ -358,7 +358,7 @@ namespace TestSuite
          Date firstCouponDateExpected = new Date(31, Month.August, 2017);
 
          Schedule schedule =
-            new MakeSchedule()
+            new MakeSchedule(settings)
          .from(issueDateExpected)
          .withFirstDate(firstCouponDateExpected)
          .to(new Date(28, Month.February, 2026))

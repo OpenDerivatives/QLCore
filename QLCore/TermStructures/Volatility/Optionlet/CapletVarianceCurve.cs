@@ -27,13 +27,14 @@ namespace QLCore
 
       private BlackVarianceCurve blackCurve_;
 
-      public CapletVarianceCurve(Date referenceDate,
+      public CapletVarianceCurve(Settings settings,
+                                 Date referenceDate,
                                  List<Date> dates,
                                  List<double> capletVolCurve,
                                  DayCounter dayCounter)
-         : base(referenceDate, new Calendar(), BusinessDayConvention.Following, new DayCounter())
+         : base(settings, referenceDate, new Calendar(), BusinessDayConvention.Following, new DayCounter())
       {
-         blackCurve_ = new BlackVarianceCurve(referenceDate, dates, capletVolCurve, dayCounter, false);
+         blackCurve_ = new BlackVarianceCurve(settings, referenceDate, dates, capletVolCurve, dayCounter, false);
       }
 
       public override DayCounter dayCounter()
@@ -60,7 +61,7 @@ namespace QLCore
       {
          // dummy strike
          double atmVol = blackCurve_.blackVol(t, 0.05, true);
-         return new FlatSmileSection(t, atmVol, dayCounter());
+         return new FlatSmileSection(this.settings(), t, atmVol, dayCounter());
       }
 
       protected override double volatilityImpl(double t, double r)

@@ -88,7 +88,7 @@ namespace TestSuite
 
 
          // cleanup
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          public void createYieldCurve()
          {
@@ -137,7 +137,7 @@ namespace TestSuite
             zeroRates.Add(0.04468646066); zeroRates.Add(0.04430951558);
             zeroRates.Add(0.04363922313); zeroRates.Add(0.04363601992);
 
-            termStructure.linkTo(new InterpolatedZeroCurve<Linear>(dates, zeroRates, new Actual365Fixed()));
+            termStructure.linkTo(new InterpolatedZeroCurve<Linear>(settings, dates, zeroRates, new Actual365Fixed()));
          }
 
          public void createVolatilityStructures()
@@ -235,9 +235,9 @@ namespace TestSuite
             fixedLegFrequency = Frequency.Annual;
             fixedLegConvention = BusinessDayConvention.Unadjusted;
             fixedLegDayCounter = new Thirty360();
-            SwapIndex swapIndexBase = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), termStructure);
+            SwapIndex swapIndexBase = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), settings, termStructure);
 
-            SwapIndex shortSwapIndexBase = new EuriborSwapIsdaFixA(new Period(1, TimeUnit.Years), termStructure);
+            SwapIndex shortSwapIndexBase = new EuriborSwapIsdaFixA(new Period(1, TimeUnit.Years), settings, termStructure);
 
             vegaWeightedSmileFit = false;
 
@@ -256,7 +256,7 @@ namespace TestSuite
 
             dayCounter = new Actual365Fixed();
 
-            atmVol = new Handle<SwaptionVolatilityStructure>(new SwaptionVolatilityMatrix(calendar,
+            atmVol = new Handle<SwaptionVolatilityStructure>(new SwaptionVolatilityMatrix(settings, calendar,
                                                                                           optionBDC, atmOptionTenors, atmSwapTenors, atmVolsHandle, dayCounter));
 
             // Volatility Cube without smile
@@ -1333,14 +1333,14 @@ namespace TestSuite
 
             //Create smiles on Expiry Date
             smilesOnExpiry = new List<SmileSection>();
-            smilesOnExpiry.Add(new FlatSmileSection(startDate, flatVol, rangeCouponDayCount));
+            smilesOnExpiry.Add(new FlatSmileSection(settings, startDate, flatVol, rangeCouponDayCount));
             double dummyAtmLevel = 0;
-            smilesOnExpiry.Add(new InterpolatedSmileSection<Linear>(startDate,
+            smilesOnExpiry.Add(new InterpolatedSmileSection<Linear>(settings, startDate,
                                                                     strikes, stdDevsOnExpiry, dummyAtmLevel, rangeCouponDayCount));
             //Create smiles on Payment Date
             smilesOnPayment = new List<SmileSection>();
-            smilesOnPayment.Add(new FlatSmileSection(endDate, flatVol, rangeCouponDayCount));
-            smilesOnPayment.Add(new InterpolatedSmileSection<Linear>(endDate,
+            smilesOnPayment.Add(new FlatSmileSection(settings, endDate, flatVol, rangeCouponDayCount));
+            smilesOnPayment.Add(new InterpolatedSmileSection<Linear>(settings, endDate,
                                                                      strikes, stdDevsOnPayment, dummyAtmLevel, rangeCouponDayCount, new Linear()));
 
             Utils.QL_REQUIRE(smilesOnExpiry.Count == smilesOnPayment.Count, () =>
@@ -1353,13 +1353,13 @@ namespace TestSuite
             //General Settings
             calendar = new TARGET();
             today = new Date(39147); // 6 Mar 2007
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             settlement = today;
             //create Yield Curve
             createYieldCurve();
             referenceDate = termStructure.link.referenceDate();
             // Ibor index
-            iborIndex = new Euribor6M(termStructure);
+            iborIndex = new Euribor6M(settings, termStructure);
 
             // create Volatility Structures
             flatVol = 0.1;
@@ -1381,7 +1381,7 @@ namespace TestSuite
             // observations schedule
             observationsConvention = BusinessDayConvention.ModifiedFollowing;
             observationsFrequency = Frequency.Daily;
-            observationSchedule = new Schedule(startDate, endDate,
+            observationSchedule = new Schedule(settings, startDate, endDate,
                                                new Period(observationsFrequency), calendar, observationsConvention, observationsConvention,
                                                DateGeneration.Rule.Forward, false);
             // Range accrual pricers properties

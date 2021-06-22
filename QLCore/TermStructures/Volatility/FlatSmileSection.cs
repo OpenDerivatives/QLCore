@@ -29,17 +29,17 @@ namespace QLCore
          return atmLevel_;
       }
 
-      public FlatSmileSection(Date d, double vol, DayCounter dc, Date referenceDate = null, double? atmLevel = null,
+      public FlatSmileSection(Settings settings, Date d, double vol, DayCounter dc, Date referenceDate = null, double? atmLevel = null,
                               VolatilityType type = VolatilityType.ShiftedLognormal, double shift = 0.0)
-      : base(d, dc, referenceDate, type, shift)
+      : base(settings, d, dc, referenceDate, type, shift)
       {
          vol_ = vol;
          atmLevel_ = atmLevel;
       }
 
-      public FlatSmileSection(double exerciseTime, double vol, DayCounter dc, double? atmLevel = null,
+      public FlatSmileSection(Settings settings, double exerciseTime, double vol, DayCounter dc, double? atmLevel = null,
                               VolatilityType type = VolatilityType.ShiftedLognormal, double shift = 0.0)
-      : base(exerciseTime, dc, type, shift)
+      : base(settings, exerciseTime, dc, type, shift)
       {
          vol_ = vol;
          atmLevel_ = atmLevel;

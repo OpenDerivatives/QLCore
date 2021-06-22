@@ -26,15 +26,17 @@ namespace QLCore
    public abstract class Coupon : CashFlow
    {
       // Constructors
-      protected Coupon() { }       // default constructor
+      protected Coupon(Settings settings) : base(settings) { }       // default constructor
       // coupon does not adjust the payment date which must already be a business day
-      protected Coupon(Date paymentDate,
+      protected Coupon(Settings settings,
+                       Date paymentDate,
                        double nominal,
                        Date accrualStartDate,
                        Date accrualEndDate,
                        Date refPeriodStart = null,
                        Date refPeriodEnd = null,
                        Date exCouponDate = null)
+            : base(settings)
       {
          paymentDate_ = paymentDate;
          nominal_ = nominal;
@@ -53,10 +55,8 @@ namespace QLCore
 
       // Event interface
       public override Date date() { return paymentDate_; }
-
       // CashFlow interface
       public override Date exCouponDate() { return exCouponDate_; }
-
       // Inspectors
       public double nominal() { return nominal_; }
       //! start of the accrual period

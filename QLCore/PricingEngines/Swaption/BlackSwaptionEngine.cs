@@ -54,7 +54,7 @@ namespace QLCore
       {
          dc = dc == null ? new Actual365Fixed() : dc;
          discountCurve_ = discountCurve;
-         vol_ = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(0, new NullCalendar(),
+         vol_ = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(discountCurve_.link.settings(), 0, new NullCalendar(),
                                                                                        BusinessDayConvention.Following, vol, dc, new Spec().type(), displacement));
          model_ = model;
          displacement_ = displacement;
@@ -68,7 +68,7 @@ namespace QLCore
       {
          dc = dc == null ? new Actual365Fixed() : dc;
          discountCurve_ = discountCurve;
-         vol_ = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(0, new NullCalendar(),
+         vol_ = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(discountCurve_.link.settings(), 0, new NullCalendar(),
                                                                                        BusinessDayConvention.Following, vol, dc, new Spec().type(), displacement));
          model_ = model;
          displacement_ = displacement;

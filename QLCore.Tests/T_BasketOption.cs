@@ -213,22 +213,22 @@ namespace TestSuite
 
 
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot1 = new SimpleQuote(0.0);
          SimpleQuote spot2 = new SimpleQuote(0.0);
 
          SimpleQuote qRate1 = new SimpleQuote(0.0);
-         YieldTermStructure qTS1 = Utilities.flatRate(today, qRate1, dc);
+         YieldTermStructure qTS1 = Utilities.flatRate(settings, today, qRate1, dc);
          SimpleQuote qRate2 = new SimpleQuote(0.0);
-         YieldTermStructure qTS2 = Utilities.flatRate(today, qRate2, dc);
+         YieldTermStructure qTS2 = Utilities.flatRate(settings, today, qRate2, dc);
 
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
 
          SimpleQuote vol1 = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS1 = Utilities.flatVol(today, vol1, dc);
+         BlackVolTermStructure volTS1 = Utilities.flatVol(settings, today, vol1, dc);
          SimpleQuote vol2 = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS2 = Utilities.flatVol(today, vol2, dc);
+         BlackVolTermStructure volTS2 = Utilities.flatVol(settings, today, vol2, dc);
 
          //double mcRelativeErrorTolerance = 0.01;
          //double fdRelativeErrorTolerance = 0.01;
@@ -309,7 +309,7 @@ namespace TestSuite
 
             //IPricingEngine fdEngine = new Fd2dBlackScholesVanillaEngine(p1, p2, values[i].rho, 50, 50, 15);
 
-            BasketOption basketOption = new BasketOption(basketTypeToPayoff(values[i].basketType, payoff), exercise);
+            BasketOption basketOption = new BasketOption(settings, basketTypeToPayoff(values[i].basketType, payoff), exercise);
 
             // analytic engine
             basketOption.setPricingEngine(analyticEngine);

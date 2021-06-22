@@ -26,48 +26,30 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_LiborMarketModel : IDisposable
+   public class T_LiborMarketModel
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_LiborMarketModel()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
-      IborIndex makeIndex(List<Date> dates,
+      IborIndex makeIndex(Settings settings,
+                          List<Date> dates,
                           List<double> rates)
       {
          DayCounter dayCounter = new Actual360();
 
          RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
-         IborIndex index = new Euribor6M(termStructure);
+         IborIndex index = new Euribor6M(settings, termStructure);
 
          Date todaysDate =
             index.fixingCalendar().adjust(new Date(4, 9, 2005));
-         Settings.Instance.setEvaluationDate(todaysDate);
+         settings.setEvaluationDate(todaysDate);
 
          dates[0] = index.fixingCalendar().advance(todaysDate,
                                                    index.fixingDays(), TimeUnit.Days);
          Linear Interpolator = new Linear();
-         termStructure.linkTo(new InterpolatedZeroCurve<Linear>(dates, rates, dayCounter, Interpolator));
+         termStructure.linkTo(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dayCounter, Interpolator));
 
          return index;
       }
 
-      IborIndex makeIndex()
+      IborIndex makeIndex(Settings settings)
       {
          List<Date> dates = new List<Date>();
          List<double> rates = new List<double>();
@@ -76,10 +58,10 @@ namespace TestSuite
          rates.Add(0.039);
          rates.Add(0.041);
 
-         return makeIndex(dates, rates);
+         return makeIndex(settings, dates, rates);
       }
 
-      OptionletVolatilityStructure makeCapVolCurve(Date todaysDate)
+      OptionletVolatilityStructure makeCapVolCurve(Settings settings, Date todaysDate)
       {
          double[] vols = {14.40, 17.15, 16.81, 16.64, 16.17,
                           15.78, 15.40, 15.21, 14.86
@@ -88,7 +70,7 @@ namespace TestSuite
          List<Date> dates = new List<Date>() ;
          List<double> capletVols = new List<double>();
          LiborForwardModelProcess process =
-            new LiborForwardModelProcess(10, makeIndex());
+            new LiborForwardModelProcess(10, makeIndex(settings));
 
          for (int i = 0; i < 9; ++i)
          {
@@ -96,7 +78,7 @@ namespace TestSuite
             dates.Add(process.fixingDates()[i + 1]);
          }
 
-         return new CapletVarianceCurve(todaysDate, dates,
+         return new CapletVarianceCurve(settings, todaysDate, dates,
                                         capletVols, new Actual360());
       }
 
@@ -104,6 +86,7 @@ namespace TestSuite
       public void testSimpleCovarianceModels()
       {
          // Testing simple covariance models
+         Settings settings = new Settings();
          const int size = 10;
          const double tolerance = 1e-14;
          int i;
@@ -139,7 +122,7 @@ namespace TestSuite
 
          LfmCovarianceProxy covarProxy = new LfmCovarianceProxy(volaModel, corrModel);
 
-         LiborForwardModelProcess process = new LiborForwardModelProcess(size, makeIndex());
+         LiborForwardModelProcess process = new LiborForwardModelProcess(size, makeIndex(settings));
 
          LiborForwardModel liborModel = new LiborForwardModel(process, volaModel, corrModel);
 
@@ -188,12 +171,12 @@ namespace TestSuite
 #else
          const double tolerance = 1e-12;
 #endif
-
-         IborIndex index = makeIndex();
+         Settings settings = new Settings();
+         IborIndex index = makeIndex(settings);
          LiborForwardModelProcess process = new LiborForwardModelProcess(size, index);
 
          // set-up pricing engine
-         OptionletVolatilityStructure capVolCurve = makeCapVolCurve(Settings.Instance.evaluationDate());
+         OptionletVolatilityStructure capVolCurve = makeCapVolCurve(settings, settings.evaluationDate());
 
          Vector variances = new LfmHullWhiteParameterization(process, capVolCurve).covariance(0.0, null).diagonal();
 
@@ -207,7 +190,7 @@ namespace TestSuite
 
          AnalyticCapFloorEngine engine1 = new AnalyticCapFloorEngine(model, termStructure);
 
-         Cap cap1 = new Cap(process.cashFlows(),
+         Cap cap1 = new Cap(settings, process.cashFlows(),
                             new InitializedList<double>(size, 0.04));
          cap1.setPricingEngine(engine1);
 
@@ -224,6 +207,8 @@ namespace TestSuite
       public void testCalibration()
       {
          // Testing calibration of a Libor forward model
+         Settings settings = new Settings();
+         
          const int size = 14;
          const double tolerance = 8e-3;
 
@@ -247,7 +232,7 @@ namespace TestSuite
                                   0.106996, 0.100064
                                  };
 
-         IborIndex index = makeIndex();
+         IborIndex index = makeIndex(settings);
          LiborForwardModelProcess process = new LiborForwardModelProcess(size, index);
          Handle<YieldTermStructure> termStructure = index.forwardingTermStructure();
 
@@ -335,6 +320,7 @@ namespace TestSuite
          const double tolerance = 1e-12;
 #endif
 
+         Settings settings = new Settings();
          List<Date> dates = new List<Date>();
          List<double> rates = new List<double>();
          dates.Add(new Date(4, 9, 2005));
@@ -342,7 +328,7 @@ namespace TestSuite
          rates.Add(0.04);
          rates.Add(0.08);
 
-         IborIndex index = makeIndex(dates, rates);
+         IborIndex index = makeIndex(settings, dates, rates);
 
          LiborForwardModelProcess process = new LiborForwardModelProcess(size, index);
 
@@ -397,7 +383,7 @@ namespace TestSuite
                Date fwdStart    = settlement + new Period(6 * i, TimeUnit.Months);
                Date fwdMaturity = fwdStart + new Period(6 * j, TimeUnit.Months);
 
-               Schedule schedule = new Schedule(fwdStart, fwdMaturity, index.tenor(), calendar,
+               Schedule schedule = new Schedule(settings, fwdStart, fwdMaturity, index.tenor(), calendar,
                                                 convention, convention, DateGeneration.Rule.Forward, false);
 
                double swapRate  = 0.0404;

@@ -41,13 +41,13 @@ namespace QLCore
          }
       }
 
-      public MultiAssetOption(Payoff payoff, Exercise exercise) : base(payoff, exercise)
+      public MultiAssetOption(Settings settings, Payoff payoff, Exercise exercise) : base(settings, payoff, exercise)
       {}
 
       // Instrument interface
       public override bool isExpired()
       {
-         return new simple_event(exercise_.lastDate()).hasOccurred();
+         return new simple_event(settings(), exercise_.lastDate()).hasOccurred();
       }
 
       // greeks

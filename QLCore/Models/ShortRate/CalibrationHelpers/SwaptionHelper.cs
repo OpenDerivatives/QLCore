@@ -37,7 +37,7 @@ namespace QLCore
                             double nominal = 1.0,
                             VolatilityType type = VolatilityType.ShiftedLognormal,
                             double shift = 0.0)
-      : base(volatility, termStructure, errorType, type, shift)
+      : base(volatility, termStructure, index.settings(), errorType, type, shift)
       {
          exerciseDate_ = null;
          endDate_ = null;
@@ -64,7 +64,7 @@ namespace QLCore
                             double nominal = 1.0,
                             VolatilityType type = VolatilityType.ShiftedLognormal,
                             double shift = 0.0)
-      : base(volatility, termStructure, errorType, type, shift)
+      : base(volatility, termStructure, index.settings(), errorType, type, shift)
       {
          exerciseDate_ = exerciseDate;
          endDate_ = null;
@@ -91,7 +91,7 @@ namespace QLCore
                             double nominal = 1.0,
                             VolatilityType type = VolatilityType.ShiftedLognormal,
                             double shift = 0.0)
-      : base(volatility, termStructure, errorType, type, shift)
+      : base(volatility, termStructure, index.settings(), errorType, type, shift)
       {
          exerciseDate_ = exerciseDate;
          endDate_ = endDate;
@@ -179,11 +179,11 @@ namespace QLCore
             endDate = calendar.advance(startDate, length_,
                                        index_.businessDayConvention());
 
-         Schedule fixedSchedule = new Schedule(startDate, endDate, fixedLegTenor_, calendar,
+         Schedule fixedSchedule = new Schedule(settings(), startDate, endDate, fixedLegTenor_, calendar,
                                                index_.businessDayConvention(),
                                                index_.businessDayConvention(),
                                                DateGeneration.Rule.Forward, false);
-         Schedule floatSchedule = new Schedule(startDate, endDate, index_.tenor(), calendar,
+         Schedule floatSchedule = new Schedule(settings(), startDate, endDate, index_.tenor(), calendar,
                                                index_.businessDayConvention(),
                                                index_.businessDayConvention(),
                                                DateGeneration.Rule.Forward, false);

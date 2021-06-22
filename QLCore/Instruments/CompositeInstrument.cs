@@ -18,6 +18,7 @@
  FOR A PARTICAR PURPOSE. See the license for more details.
 */
 
+using System.Linq;
 using System.Collections.Generic;
 using component = System.Collections.Generic.KeyValuePair<QLCore.Instrument, double>;
 
@@ -36,6 +37,8 @@ namespace QLCore
    */
    public class CompositeInstrument : Instrument
    {
+      public CompositeInstrument() : base(new Settings()) {}
+
       //! adds an instrument to the composite
       public void add
          (Instrument instrument, double multiplier = 1.0)
@@ -61,6 +64,16 @@ namespace QLCore
          return true;
       }
 
+      public override Settings settings()
+      {
+         return components_.First().Key.settings();
+      }
+
+      public override void setSettings(Settings s)
+      {
+         components_.ForEach(x => x.Key.setSettings(s));
+      }
+
       protected override void performCalculations()
       {
          NPV_ = 0.0;
@@ -71,6 +84,5 @@ namespace QLCore
       }
 
       private List<component> components_ = new List<component>();
-
    }
 }

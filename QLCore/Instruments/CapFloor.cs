@@ -53,9 +53,9 @@ namespace QLCore
 
       #region Constructors
 
-      public CapFloor(CapFloorType type, List<CashFlow> floatingLeg, List<double> capRates, List<double> floorRates)
+      public CapFloor(Settings settings, CapFloorType type, List<CashFlow> floatingLeg, List<double> capRates, List<double> floorRates)
+         : base(settings)
       {
-
          type_ = type;
          floatingLeg_ = new List<CashFlow>(floatingLeg);
          capRates_ = new List<double>(capRates);
@@ -78,7 +78,9 @@ namespace QLCore
                floorRates_.Add(floorRates_.Last());
          }
       }
-      public CapFloor(CapFloorType type, List<CashFlow> floatingLeg, List<double> strikes)
+
+      public CapFloor(Settings settings, CapFloorType type, List<CashFlow> floatingLeg, List<double> strikes)
+         : base(settings)
       {
 
          type_ = type;
@@ -112,7 +114,7 @@ namespace QLCore
 
       public override bool isExpired()
       {
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings().evaluationDate();
          foreach (var cf in floatingLeg_)
             if (!cf.hasOccurred(today))
                return false;
@@ -142,7 +144,7 @@ namespace QLCore
 
          arguments.type = type_;
 
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings().evaluationDate();
 
          for (int i = 0; i < n; ++i)
          {
@@ -223,7 +225,7 @@ namespace QLCore
          if (getType() == CapFloorType.Floor || getType() == CapFloorType.Collar)
             floor.Add(floorRates()[i]);
 
-         return new CapFloor(getType(), cf, cap, floor);
+         return new CapFloor(settings(), getType(), cf, cap, floor);
       }
 
       public double atmRate(YieldTermStructure discountCurve)
@@ -337,8 +339,8 @@ namespace QLCore
    /// </summary>
    public class Cap : CapFloor
    {
-      public Cap(List<CashFlow> floatingLeg, List<double> exerciseRates)
-         : base(CapFloorType.Cap, floatingLeg, exerciseRates, new List<double>()) {}
+      public Cap(Settings settings, List<CashFlow> floatingLeg, List<double> exerciseRates)
+         : base(settings, CapFloorType.Cap, floatingLeg, exerciseRates, new List<double>()) {}
    }
 
    /// <summary>
@@ -347,8 +349,8 @@ namespace QLCore
    /// </summary>
    public class Floor : CapFloor
    {
-      public Floor(List<CashFlow> floatingLeg, List<double> exerciseRates)
-         : base(CapFloorType.Floor, floatingLeg, new List<double>(), exerciseRates) {}
+      public Floor(Settings settings, List<CashFlow> floatingLeg, List<double> exerciseRates)
+         : base(settings, CapFloorType.Floor, floatingLeg, new List<double>(), exerciseRates) {}
    }
 
    /// <summary>
@@ -357,8 +359,8 @@ namespace QLCore
    /// </summary>
    public class Collar : CapFloor
    {
-      public Collar(List<CashFlow> floatingLeg, List<double> capRates, List<double> floorRates)
-         : base(CapFloorType.Collar, floatingLeg, capRates, floorRates) { }
+      public Collar(Settings settings, List<CashFlow> floatingLeg, List<double> capRates, List<double> floorRates)
+         : base(settings, CapFloorType.Collar, floatingLeg, capRates, floorRates) { }
    }
 
    //! base class for cap/floor engines

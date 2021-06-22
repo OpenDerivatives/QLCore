@@ -39,7 +39,8 @@ namespace QLCore
           data, if available.  Therefore, redemptions must not be
           included in the passed cash flows.
       */
-      public Bond(int settlementDays, Calendar calendar, Date issueDate = null, List<CashFlow> coupons = null)
+      public Bond(Settings settings, int settlementDays, Calendar calendar, Date issueDate = null, List<CashFlow> coupons = null)
+            : base(settings)
       {
          settlementDays_ = settlementDays;
          calendar_ = calendar;
@@ -69,8 +70,9 @@ namespace QLCore
                    redemption. No other cash flow can have a date
                    later than the redemption date.
       */
-      public Bond(int settlementDays, Calendar calendar, double faceAmount, Date maturityDate, Date issueDate = null,
+      public Bond(Settings settings, int settlementDays, Calendar calendar, double faceAmount, Date maturityDate, Date issueDate = null,
                   List<CashFlow> cashflows = null)
+            : base(settings)
       {
          settlementDays_ = settlementDays;
          calendar_ = calendar;
@@ -116,7 +118,7 @@ namespace QLCore
          // this is the Instrument interface, so it doesn't use
          // BondFunctions, and includeSettlementDateFlows is true
          // (unless QL_TODAY_PAYMENTS will set it to false later on)
-         return CashFlows.isExpired(cashflows_, true, Settings.Instance.evaluationDate());
+         return CashFlows.isExpired(cashflows_, true, settings().evaluationDate());
       }
 
       #endregion
@@ -171,7 +173,7 @@ namespace QLCore
       public bool isTradable(Date d = null)  { return BondFunctions.isTradable(this, d); }
       public Date settlementDate(Date date = null)
       {
-         Date d = (date ?? Settings.Instance.evaluationDate());
+         Date d = (date ?? settings().evaluationDate());
 
          // usually, the settlement is at T+n...
          Date settlement = calendar_.advance(d, settlementDays_, TimeUnit.Days);
@@ -374,9 +376,9 @@ namespace QLCore
             double amount = (R / 100.0) * (notionals_[i - 1] - notionals_[i]);
             CashFlow payment;
             if (i < notionalSchedule_.Count - 1)
-               payment = new AmortizingPayment(amount, notionalSchedule_[i]);
+               payment = new AmortizingPayment(settings(), amount, notionalSchedule_[i]);
             else
-               payment = new Redemption(amount, notionalSchedule_[i]);
+               payment = new Redemption(settings(), amount, notionalSchedule_[i]);
 
             cashflows_.Add(payment);
             redemptions_.Add(payment);
@@ -393,7 +395,7 @@ namespace QLCore
       */
       protected void setSingleRedemption(double notional, double redemption, Date date)
       {
-         CashFlow redemptionCashflow = new Redemption(notional * redemption / 100.0, date);
+         CashFlow redemptionCashflow = new Redemption(settings(), notional * redemption / 100.0, date);
          setSingleRedemption(notional, redemptionCashflow);
       }
 

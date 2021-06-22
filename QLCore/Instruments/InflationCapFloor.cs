@@ -46,7 +46,8 @@ namespace QLCore
 
    public class YoYInflationCapFloor : Instrument
    {
-      public YoYInflationCapFloor(CapFloorType type, List<CashFlow> yoyLeg,  List<double> capRates, List<double> floorRates)
+      public YoYInflationCapFloor(Settings settings, CapFloorType type, List<CashFlow> yoyLeg,  List<double> capRates, List<double> floorRates)
+         : base(settings)
       {
          type_ = type;
          yoyLeg_ = yoyLeg;
@@ -67,7 +68,8 @@ namespace QLCore
          }
       }
 
-      public YoYInflationCapFloor(CapFloorType type, List<CashFlow> yoyLeg,  List<double> strikes)
+      public YoYInflationCapFloor(Settings settings, CapFloorType type, List<CashFlow> yoyLeg,  List<double> strikes)
+         : base(settings)
       {
          type_ = type;
          yoyLeg_ = yoyLeg;
@@ -97,6 +99,7 @@ namespace QLCore
                return false;
          return true;
       }
+
       public override void setupArguments(IPricingEngineArguments args)
       {
          YoYInflationCapFloor.Arguments arguments = args as YoYInflationCapFloor.Arguments;
@@ -113,7 +116,7 @@ namespace QLCore
          arguments.capRates = new List < double? >(n);
          arguments.floorRates = new List < double? >(n);
          arguments.spreads = new List<double>(n);
-
+         arguments.settings = settings_;
          arguments.type = type_;
 
          for (int i = 0; i < n; ++i)
@@ -148,9 +151,9 @@ namespace QLCore
 
       // Inspectors
       public CapFloorType type() { return type_; }
-      public  List<double> capRates()  { return capRates_; }
-      public  List<double> floorRates()  { return floorRates_; }
-      public  List<CashFlow> yoyLeg()  { return yoyLeg_; }
+      public List<double> capRates()  { return capRates_; }
+      public List<double> floorRates()  { return floorRates_; }
+      public List<CashFlow> yoyLeg()  { return yoyLeg_; }
 
       public Date startDate() {return CashFlows.startDate(yoyLeg_);}
       public Date maturityDate() { return CashFlows.maturityDate(yoyLeg_);}
@@ -172,7 +175,7 @@ namespace QLCore
          if (type() == CapFloorType.Floor || type() == CapFloorType.Collar)
             floor.Add(floorRates()[i]);
 
-         return new YoYInflationCapFloor(type(), cf, cap, floor);
+         return new YoYInflationCapFloor(settings(), type(), cf, cap, floor);
       }
 
       public virtual double atmRate(YieldTermStructure discountCurve)
@@ -215,6 +218,8 @@ namespace QLCore
          public List<double> gearings { get; set; }
          public List<double> spreads { get; set; }
          public List<double> nominals { get; set; }
+         public Settings settings { get; set; }
+
          public void validate()
          {
             Utils.QL_REQUIRE(payDates.Count == startDates.Count, () =>
@@ -260,8 +265,8 @@ namespace QLCore
    /*! \ingroup instruments */
    public class YoYInflationCap : YoYInflationCapFloor
    {
-      public YoYInflationCap(List<CashFlow> yoyLeg, List<double> exerciseRates)
-         : base(CapFloorType.Cap, yoyLeg, exerciseRates, new List<double>())
+      public YoYInflationCap(Settings settings, List<CashFlow> yoyLeg, List<double> exerciseRates)
+         : base(settings, CapFloorType.Cap, yoyLeg, exerciseRates, new List<double>())
       {}
    }
 
@@ -269,8 +274,8 @@ namespace QLCore
    /*! \ingroup instruments */
    public class YoYInflationFloor : YoYInflationCapFloor
    {
-      public YoYInflationFloor(List<CashFlow> yoyLeg, List<double> exerciseRates)
-         : base(CapFloorType.Floor, yoyLeg, new List<double>(), exerciseRates)
+      public YoYInflationFloor(Settings settings, List<CashFlow> yoyLeg, List<double> exerciseRates)
+         : base(settings, CapFloorType.Floor, yoyLeg, new List<double>(), exerciseRates)
       {}
    }
 
@@ -278,8 +283,8 @@ namespace QLCore
    /*! \ingroup instruments */
    public class YoYInflationCollar : YoYInflationCapFloor
    {
-      public YoYInflationCollar(List<CashFlow> yoyLeg, List<double> capRates,  List<double> floorRates)
-         : base(CapFloorType.Collar, yoyLeg, capRates, floorRates) {}
+      public YoYInflationCollar(Settings settings, List<CashFlow> yoyLeg, List<double> capRates,  List<double> floorRates)
+         : base(settings, CapFloorType.Collar, yoyLeg, capRates, floorRates) {}
    }
 
 

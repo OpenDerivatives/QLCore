@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_Swaps : IDisposable
+   public class T_Swaps
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_Swaps()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       class CommonVars
       {
          // global data
@@ -60,14 +41,15 @@ namespace TestSuite
          public IborIndex index;
          public int settlementDays;
          public RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
+         public Settings settings;
 
          // utilities
          public VanillaSwap makeSwap(int length, double fixedRate, double floatingSpread)
          {
             Date maturity = calendar.advance(settlement, length, TimeUnit.Years, floatingConvention);
-            Schedule fixedSchedule = new Schedule(settlement, maturity, new Period(fixedFrequency),
+            Schedule fixedSchedule = new Schedule(settings, settlement, maturity, new Period(fixedFrequency),
                                                   calendar, fixedConvention, fixedConvention, DateGeneration.Rule.Forward, false);
-            Schedule floatSchedule = new Schedule(settlement, maturity, new Period(floatingFrequency),
+            Schedule floatSchedule = new Schedule(settings, settlement, maturity, new Period(floatingFrequency),
                                                   calendar, floatingConvention, floatingConvention, DateGeneration.Rule.Forward, false);
             VanillaSwap swap = new VanillaSwap(type, nominal, fixedSchedule, fixedRate, fixedDayCount,
                                                floatSchedule, index, floatingSpread, index.dayCounter());
@@ -77,6 +59,7 @@ namespace TestSuite
 
          public CommonVars()
          {
+            settings = new Settings();
             type = VanillaSwap.Type.Payer;
             settlementDays = 2;
             nominal = 100.0;
@@ -86,14 +69,14 @@ namespace TestSuite
             floatingFrequency = Frequency.Semiannual;
             fixedDayCount = new Thirty360();
 
-            index = new Euribor(new Period(floatingFrequency), termStructure);
+            index = new Euribor(new Period(floatingFrequency), settings, termStructure);
 
             calendar = index.fixingCalendar();
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
 
-            termStructure.linkTo(Utilities.flatRate(settlement, 0.05, new Actual365Fixed()));
+            termStructure.linkTo(Utilities.flatRate(settings, settlement, 0.05, new Actual365Fixed()));
          }
       }
 
@@ -237,7 +220,7 @@ namespace TestSuite
             Note: the calculation in the book is wrong (work out the adjustment and you'll get 0.05 + 0.000115 T1) */
          Date maturity = vars.today + new Period(5, TimeUnit.Years);
          Calendar calendar = new NullCalendar();
-         Schedule schedule = new Schedule(vars.today, maturity, new Period(Frequency.Annual), calendar,
+         Schedule schedule = new Schedule(vars.settings, vars.today, maturity, new Period(Frequency.Annual), calendar,
                                           BusinessDayConvention.Following, BusinessDayConvention.Following,
                                           DateGeneration.Rule.Forward, false);
          DayCounter dayCounter = new SimpleDayCounter();
@@ -245,10 +228,10 @@ namespace TestSuite
          List<double> nominals = new List<double>() { 100000000.0 };
 
          IborIndex index = new IborIndex("dummy", new Period(1, TimeUnit.Years), 0, new EURCurrency(), calendar,
-                                         BusinessDayConvention.Following, false, dayCounter, vars.termStructure);
+                                         BusinessDayConvention.Following, false, dayCounter, vars.settings, vars.termStructure);
          double oneYear = 0.05;
          double r = Math.Log(1.0 + oneYear);
-         vars.termStructure.linkTo(Utilities.flatRate(vars.today, r, dayCounter));
+         vars.termStructure.linkTo(Utilities.flatRate(vars.settings, vars.today, r, dayCounter));
 
          List<double> coupons = new List<double>() { oneYear };
          List<CashFlow> fixedLeg = new FixedRateLeg(schedule)
@@ -261,7 +244,7 @@ namespace TestSuite
 
          double capletVolatility = 0.22;
          var vol = new Handle<OptionletVolatilityStructure>(
-            new ConstantOptionletVolatility(vars.today, new NullCalendar(),
+            new ConstantOptionletVolatility(vars.settings, vars.today, new NullCalendar(),
                                             BusinessDayConvention.Following, capletVolatility, dayCounter));
          IborCouponPricer pricer = new BlackIborCouponPricer(vol);
 
@@ -274,7 +257,7 @@ namespace TestSuite
          .withNotionals(nominals);
          Utils.setCouponPricer(floatingLeg, pricer);
 
-         Swap swap = new Swap(floatingLeg, fixedLeg);
+         Swap swap = new Swap(vars.settings, floatingLeg, fixedLeg);
          swap.setPricingEngine(new DiscountingSwapEngine(vars.termStructure));
 
          double storedValue = -144813.0;
@@ -292,9 +275,9 @@ namespace TestSuite
          CommonVars vars = new CommonVars();
 
          vars.today = new Date(17, Month.June, 2002);
-         Settings.Instance.setEvaluationDate(vars.today);
+         vars.settings.setEvaluationDate(vars.today);
          vars.settlement = vars.calendar.advance(vars.today, vars.settlementDays, TimeUnit.Days);
-         vars.termStructure.linkTo(Utilities.flatRate(vars.settlement, 0.05, new Actual365Fixed()));
+         vars.termStructure.linkTo(Utilities.flatRate(vars.settings, vars.settlement, 0.05, new Actual365Fixed()));
 
          VanillaSwap swap = vars.makeSwap(10, 0.06, 0.001);
 #if QL_USE_INDEXED_COUPON
@@ -311,13 +294,14 @@ namespace TestSuite
       [Fact]
       public void testFixing()
       {
+         CommonVars vars = new CommonVars();
          Date tradeDate = new Date(17, Month.April, 2015);
          Calendar calendar = new UnitedKingdom();
          Date settlementDate = calendar.advance(tradeDate, 2, TimeUnit.Days, BusinessDayConvention.Following);
          Date maturityDate = calendar.advance(settlementDate, 5, TimeUnit.Years, BusinessDayConvention.Following);
 
          Date valueDate = new Date(20, Month.April, 2015);
-         Settings.Instance.setEvaluationDate(valueDate);
+         vars.settings.setEvaluationDate(valueDate);
 
          List<Date> dates = new List<Date>();
          dates.Add(valueDate);
@@ -337,10 +321,10 @@ namespace TestSuite
 
          var discountCurveHandle = new RelinkableHandle<YieldTermStructure>();
          var forecastCurveHandle = new RelinkableHandle<YieldTermStructure>();
-         GBPLibor index = new GBPLibor(new Period(6, TimeUnit.Months), forecastCurveHandle);
-         InterpolatedZeroCurve<Linear> zeroCurve = new InterpolatedZeroCurve<Linear>(dates, rates, new Actual360(), new Linear());
-         var fixedSchedule = new Schedule(settlementDate, maturityDate, new Period(1, TimeUnit.Years), calendar, BusinessDayConvention.Following, BusinessDayConvention.Following, DateGeneration.Rule.Forward, false);
-         var floatSchedule = new Schedule(settlementDate, maturityDate, index.tenor(), calendar, BusinessDayConvention.Following, BusinessDayConvention.Following, DateGeneration.Rule.Forward, false);
+         GBPLibor index = new GBPLibor(new Period(6, TimeUnit.Months), vars.settings, forecastCurveHandle);
+         InterpolatedZeroCurve<Linear> zeroCurve = new InterpolatedZeroCurve<Linear>(vars.settings, dates, rates, new Actual360(), new Linear());
+         var fixedSchedule = new Schedule(vars.settings, settlementDate, maturityDate, new Period(1, TimeUnit.Years), calendar, BusinessDayConvention.Following, BusinessDayConvention.Following, DateGeneration.Rule.Forward, false);
+         var floatSchedule = new Schedule(vars.settings, settlementDate, maturityDate, index.tenor(), calendar, BusinessDayConvention.Following, BusinessDayConvention.Following, DateGeneration.Rule.Forward, false);
          VanillaSwap swap = new VanillaSwap(VanillaSwap.Type.Payer, 1000000, fixedSchedule, 0.01, new Actual360(), floatSchedule, index, 0, new Actual360());
          discountCurveHandle.linkTo(zeroCurve);
          forecastCurveHandle.linkTo(zeroCurve);

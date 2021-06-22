@@ -23,39 +23,46 @@ using System.Threading;
 
 namespace QLCore
 {
-   // we need only one instance of the class
-   // we can not derive it from IObservable because the class is static
-   public class Settings : Singleton<Settings>
+   public class Settings : IDisposable
    {
       public Settings() {}
 
-      private Date evaluationDate_;
-      private bool includeReferenceDateEvents_;
-      private bool enforcesTodaysHistoricFixings_;
-      private bool? includeTodaysCashFlows_;
+      private ThreadLocal<Date> evaluationDate_;
+      private ThreadLocal<bool> includeReferenceDateEvents_;
+      private ThreadLocal<bool> enforcesTodaysHistoricFixings_;
+      private ThreadLocal<bool?> includeTodaysCashFlows_;
 
       public Date evaluationDate()
       {
-         if (evaluationDate_ == null)
-            evaluationDate_ = new Date(Date.Today);
-         return evaluationDate_;
-      }
+         if (evaluationDate_ == null || evaluationDate_.Value == null)
+            evaluationDate_ = new ThreadLocal<Date>(() => Date.Today);
 
+         return evaluationDate_.Value;
+      }
 
       public void setEvaluationDate(Date d)
       {
-         evaluationDate_ = d;
+          if (evaluationDate_ == null || evaluationDate_.Value == null)
+            evaluationDate_ = new ThreadLocal<Date>(() => Date.Today);
+
+         evaluationDate_.Value = d;
       }
 
       public bool enforcesTodaysHistoricFixings
       {
          get
          {
-            return enforcesTodaysHistoricFixings_;
+             if (enforcesTodaysHistoricFixings_ == null)
+               enforcesTodaysHistoricFixings_ = new ThreadLocal<bool>(() => false);
+
+            return enforcesTodaysHistoricFixings_.Value;
          }
          set
          {
-            enforcesTodaysHistoricFixings_ = value;
+            if (enforcesTodaysHistoricFixings_ == null)
+               enforcesTodaysHistoricFixings_ = new ThreadLocal<bool>(() => false);
+
+            enforcesTodaysHistoricFixings_.Value = value;
          }
       }
 
@@ -63,11 +70,17 @@ namespace QLCore
       {
          get
          {
-            return includeReferenceDateEvents_;
+            if (includeReferenceDateEvents_ == null)
+               includeReferenceDateEvents_ = new ThreadLocal<bool>(() => false);
+
+            return includeReferenceDateEvents_.Value;
          }
          set
          {
-            includeReferenceDateEvents_ = value;
+            if (includeReferenceDateEvents_ == null)
+               includeReferenceDateEvents_ = new ThreadLocal<bool>(() => false);
+
+            includeReferenceDateEvents_.Value = value;
          }
       }
 
@@ -75,39 +88,33 @@ namespace QLCore
       {
          get
          {
-            return includeTodaysCashFlows_;
+            if (includeTodaysCashFlows_ == null)
+               includeTodaysCashFlows_ = new ThreadLocal<bool?>(() => false);
+
+            return includeTodaysCashFlows_.Value;
          }
          set
          {
-            includeTodaysCashFlows_ = value;
+            if (includeTodaysCashFlows_ == null)
+               includeTodaysCashFlows_ = new ThreadLocal<bool?>(() => false);
+
+            includeTodaysCashFlows_.Value = value;
          }
-      }
-   }
-      
-
-   // helper class to temporarily and safely change the settings
-   public class SavedSettings : IDisposable
-   {
-      private Date evaluationDate_;
-      private bool enforcesTodaysHistoricFixings_;
-      private bool includeReferenceDateEvents_;
-      private bool? includeTodaysCashFlows_;
-
-      public SavedSettings()
-      {
-         evaluationDate_ = Settings.Instance.evaluationDate();
-         enforcesTodaysHistoricFixings_ = Settings.Instance.enforcesTodaysHistoricFixings;
-         includeReferenceDateEvents_ = Settings.Instance.includeReferenceDateEvents;
-         includeTodaysCashFlows_ = Settings.Instance.includeTodaysCashFlows;
       }
 
       public void Dispose()
       {
-         if (evaluationDate_ != Settings.Instance.evaluationDate())
-            Settings.Instance.setEvaluationDate(evaluationDate_);
-         Settings.Instance.enforcesTodaysHistoricFixings = enforcesTodaysHistoricFixings_;
-         Settings.Instance.includeReferenceDateEvents = includeReferenceDateEvents_;
-         Settings.Instance.includeTodaysCashFlows = includeTodaysCashFlows_;
+         if (evaluationDate_ != null)
+            evaluationDate_.Dispose();
+         
+         if (enforcesTodaysHistoricFixings_ != null)
+            enforcesTodaysHistoricFixings_.Dispose();
+         
+         if (includeReferenceDateEvents_ != null)
+            includeReferenceDateEvents_.Dispose();
+
+         if (includeTodaysCashFlows_ != null)
+            includeTodaysCashFlows_.Dispose();
       }
    }
 }

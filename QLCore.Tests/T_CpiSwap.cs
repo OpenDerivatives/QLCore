@@ -86,15 +86,12 @@ namespace TestSuite
          public RelinkableHandle<ZeroInflationTermStructure> cpiUK;
          public RelinkableHandle<ZeroInflationTermStructure> hcpi;
 
-
-         // cleanup
-
-         public SavedSettings backup;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
-            backup = new SavedSettings();
+            settings = new Settings();
             nominalUK = new RelinkableHandle<YieldTermStructure>();
             cpiUK = new RelinkableHandle<ZeroInflationTermStructure>();
             hcpi = new RelinkableHandle<ZeroInflationTermStructure>();
@@ -112,7 +109,7 @@ namespace TestSuite
             convention = BusinessDayConvention.ModifiedFollowing;
             Date today = new Date(25, Month.November, 2009);
             evaluationDate = calendar.adjust(today);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
             settlementDays = 0;
             fixingDays = 0;
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
@@ -124,7 +121,7 @@ namespace TestSuite
             //      fixing data
             Date from = new Date(20, Month.July, 2007);
             Date to = new Date(20, Month.November, 2009);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -141,7 +138,7 @@ namespace TestSuite
             // link from cpi index to cpi TS
             bool interp = false;// this MUST be false because the observation lag is only 2 months
             // for ZCIIS; but not for contract if the contract uses a bigger lag.
-            ii = new UKRPI(interp, hcpi);
+            ii = new UKRPI(interp, settings, hcpi);
             for (int i = 0; i < rpiSchedule.Count; i++)
             {
                ii.addFixing(rpiSchedule[i], fixData[i], true);  // force overwrite in case multiple use
@@ -189,7 +186,7 @@ namespace TestSuite
                nomD.Add(nominalData[i].date);
                nomR.Add(nominalData[i].rate / 100.0);
             }
-            YieldTermStructure nominal = new InterpolatedZeroCurve<Linear>(nomD, nomR, dcNominal);
+            YieldTermStructure nominal = new InterpolatedZeroCurve<Linear>(settings, nomD, nomR, dcNominal);
             nominalUK.linkTo(nominal);
 
             // now build the zero inflation curve
@@ -231,7 +228,7 @@ namespace TestSuite
             // we can use historical or first ZCIIS for this
             // we know historical is WAY off market-implied, so use market implied flat.
             double baseZeroRate = zciisData[0].rate / 100.0;
-            PiecewiseZeroInflationCurve<Linear> pCPIts = new PiecewiseZeroInflationCurve<Linear>(
+            PiecewiseZeroInflationCurve<Linear> pCPIts = new PiecewiseZeroInflationCurve<Linear>(settings,
                evaluationDate, calendar, dcZCIIS, observationLag, ii.frequency(), ii.interpolated(), baseZeroRate,
                new Handle<YieldTermStructure>(nominalUK), helpers);
             pCPIts.recalculate();
@@ -258,7 +255,7 @@ namespace TestSuite
          DayCounter floatDayCount = new Actual365Fixed();
          BusinessDayConvention floatPaymentConvention = BusinessDayConvention.ModifiedFollowing;
          int fixingDays = 0;
-         IborIndex floatIndex = new GBPLibor(new Period(6, TimeUnit.Months), common.nominalUK);
+         IborIndex floatIndex = new GBPLibor(new Period(6, TimeUnit.Months), common.settings, common.nominalUK);
 
          // fixed x inflation leg
          double fixedRate = 0.1;//1% would be 0.01
@@ -273,12 +270,12 @@ namespace TestSuite
          // set the schedules
          Date startDate = new Date(2, Month.October, 2007);
          Date endDate = new Date(2, Month.October, 2052);
-         Schedule floatSchedule = new MakeSchedule().from(startDate).to(endDate)
+         Schedule floatSchedule = new MakeSchedule(common.settings).from(startDate).to(endDate)
          .withTenor(new Period(6, TimeUnit.Months))
          .withCalendar(new UnitedKingdom())
          .withConvention(floatPaymentConvention)
          .backwards().value();
-         Schedule fixedSchedule = new MakeSchedule().from(startDate).to(endDate)
+         Schedule fixedSchedule = new MakeSchedule(common.settings).from(startDate).to(endDate)
          .withTenor(new Period(6, TimeUnit.Months))
          .withCalendar(new UnitedKingdom())
          .withConvention(BusinessDayConvention.Unadjusted)
@@ -291,7 +288,7 @@ namespace TestSuite
                                     fixedRate, baseCPI, fixedDayCount, fixedSchedule,
                                     fixedPaymentConvention, contractObservationLag,
                                     fixedIndex, observationInterpolation);
-         Date asofDate = Settings.Instance.evaluationDate();
+         Date asofDate = common.settings.evaluationDate();
 
          double[] floatFix = {0.06255, 0.05975, 0.0637, 0.018425, 0.0073438, -1, -1};
          double[] cpiFix = {211.4, 217.2, 211.4, 213.4, -2, -2};
@@ -369,7 +366,7 @@ namespace TestSuite
          Period observationLag = new Period(2, TimeUnit.Months);
 
          double quote = 0.03714;
-         ZeroCouponInflationSwap zciis = new ZeroCouponInflationSwap(ztype, nominal, startDate, endDate, cal,
+         ZeroCouponInflationSwap zciis = new ZeroCouponInflationSwap(common.settings, ztype, nominal, startDate, endDate, cal,
                                                                      paymentConvention, dc, quote, common.ii, observationLag);
 
          // simple structure so simple pricing engine - most work done by index
@@ -380,7 +377,7 @@ namespace TestSuite
 
          List<Date> oneDate = new List<Date>();
          oneDate.Add(endDate);
-         Schedule schOneDate = new Schedule(oneDate, cal, paymentConvention);
+         Schedule schOneDate = new Schedule(common.settings, oneDate, cal, paymentConvention);
 
          CPISwap.Type stype = CPISwap.Type.Payer;
          double inflationNominal = nominal;
@@ -426,7 +423,7 @@ namespace TestSuite
          DayCounter floatDayCount = new Actual365Fixed();
          BusinessDayConvention floatPaymentConvention = BusinessDayConvention.ModifiedFollowing;
          int fixingDays = 0;
-         IborIndex floatIndex = new GBPLibor(new Period(6, TimeUnit.Months), common.nominalUK);
+         IborIndex floatIndex = new GBPLibor(new Period(6, TimeUnit.Months), common.settings, common.nominalUK);
 
          // fixed x inflation leg
          double fixedRate = 0.1;//1% would be 0.01
@@ -441,12 +438,12 @@ namespace TestSuite
          // set the schedules
          Date startDate = new Date(2, Month.October, 2007);
          Date endDate = new Date(2, Month.October, 2052);
-         Schedule floatSchedule = new MakeSchedule().from(startDate).to(endDate)
+         Schedule floatSchedule = new MakeSchedule(common.settings).from(startDate).to(endDate)
          .withTenor(new Period(6, TimeUnit.Months))
          .withCalendar(new UnitedKingdom())
          .withConvention(floatPaymentConvention)
          .backwards().value();
-         Schedule fixedSchedule = new MakeSchedule().from(startDate).to(endDate)
+         Schedule fixedSchedule = new MakeSchedule(common.settings).from(startDate).to(endDate)
          .withTenor(new Period(6, TimeUnit.Months))
          .withCalendar(new UnitedKingdom())
          .withConvention(BusinessDayConvention.Unadjusted)

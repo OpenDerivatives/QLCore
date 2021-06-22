@@ -26,7 +26,6 @@ namespace QLCore
    public class InterpolatedZeroCurve<Interpolator> : ZeroYieldStructure, InterpolatedCurve
       where Interpolator : class, IInterpolationFactory, new ()
    {
-
       #region InterpolatedCurve
       public List<double> times_ { get; set; }
       public List<double> times() { return this.times_; }
@@ -72,37 +71,41 @@ namespace QLCore
       }
       #endregion
 
-      public InterpolatedZeroCurve(DayCounter dayCounter,
-                                   List<Handle<Quote>> jumps = null,
-                                   List<Date> jumpDates = null,
-                                   Interpolator interpolator = default(Interpolator))
-         : base(dayCounter, jumps, jumpDates)
-      {
-         interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
-      }
-
-      public InterpolatedZeroCurve(Date referenceDate,
+      public InterpolatedZeroCurve(Settings settings, 
                                    DayCounter dayCounter,
                                    List<Handle<Quote>> jumps = null,
                                    List<Date> jumpDates = null,
                                    Interpolator interpolator = default(Interpolator))
-         : base(referenceDate, null, dayCounter, jumps, jumpDates)
+         : base(settings, dayCounter, jumps, jumpDates)
       {
          interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
       }
 
-      public InterpolatedZeroCurve(int settlementDays,
+      public InterpolatedZeroCurve(Settings settings,
+                                   Date referenceDate,
+                                   DayCounter dayCounter,
+                                   List<Handle<Quote>> jumps = null,
+                                   List<Date> jumpDates = null,
+                                   Interpolator interpolator = default(Interpolator))
+         : base(settings, referenceDate, null, dayCounter, jumps, jumpDates)
+      {
+         interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
+      }
+
+      public InterpolatedZeroCurve(Settings settings,
+                                   int settlementDays,
                                    Calendar calendar,
                                    DayCounter dayCounter,
                                    List<Handle<Quote>> jumps = null,
                                    List<Date> jumpDates = null,
                                    Interpolator interpolator = default(Interpolator))
-         : base(settlementDays, calendar, dayCounter, jumps, jumpDates)
+         : base(settings, settlementDays, calendar, dayCounter, jumps, jumpDates)
       {
          interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
       }
 
-      public InterpolatedZeroCurve(List<Date> dates,
+      public InterpolatedZeroCurve(Settings settings,
+                                   List<Date> dates,
                                    List<double> yields,
                                    DayCounter dayCounter,
                                    Calendar calendar = null,
@@ -111,7 +114,7 @@ namespace QLCore
                                    Interpolator interpolator = default(Interpolator),
                                    Compounding compounding = Compounding.Continuous,
                                    Frequency frequency = Frequency.Annual)
-         : base(dates[0], calendar, dayCounter, jumps, jumpDates)
+         : base(settings, dates[0], calendar, dayCounter, jumps, jumpDates)
       {
          times_ = new List<double>();
          dates_ = dates;
@@ -120,14 +123,15 @@ namespace QLCore
          initialize(compounding, frequency);
       }
 
-      public InterpolatedZeroCurve(List<Date> dates,
+      public InterpolatedZeroCurve(Settings settings,
+                                   List<Date> dates,
                                    List<double> yields,
                                    DayCounter dayCounter,
                                    Calendar calendar,
                                    Interpolator interpolator,
                                    Compounding compounding = Compounding.Continuous,
                                    Frequency frequency = Frequency.Annual)
-         : base(dates[0], calendar, dayCounter)
+         : base(settings, dates[0], calendar, dayCounter)
       {
          times_ = new List<double>();
          dates_ = dates;
@@ -136,14 +140,15 @@ namespace QLCore
          initialize(compounding, frequency);
       }
 
-      public InterpolatedZeroCurve(List<Date> dates,
+      public InterpolatedZeroCurve(Settings settings,
+                                   List<Date> dates,
                                    List<double> yields,
                                    DayCounter dayCounter,
                                    Interpolator interpolator,
                                    Compounding compounding = Compounding.Continuous,
                                    Frequency frequency = Frequency.Annual,
                                    Date refDate = null)
-         : base(refDate ?? dates[0], null, dayCounter)
+         : base(settings, refDate ?? dates[0], null, dayCounter)
       {
          times_ = new List<double>();
          dates_ = dates;

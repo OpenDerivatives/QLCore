@@ -47,7 +47,8 @@ namespace QLCore
          InterpolatorDefaultExtrapolation
       }
 
-      public FixedLocalVolSurface(Date referenceDate,
+      public FixedLocalVolSurface(Settings settings,
+                                  Date referenceDate,
                                   List<Date> dates,
                                   List<double> strikes,
                                   Matrix localVolMatrix,
@@ -56,7 +57,7 @@ namespace QLCore
                                      Extrapolation.ConstantExtrapolation,
                                   Extrapolation upperExtrapolation =
                                      Extrapolation.ConstantExtrapolation)
-         : base(referenceDate, null, BusinessDayConvention.Following, dayCounter)
+         : base(settings, referenceDate, null, BusinessDayConvention.Following, dayCounter)
       {
          maxDate_ = dates.Last();
          localVolMatrix_ = localVolMatrix;
@@ -76,7 +77,8 @@ namespace QLCore
          setInterpolation<Linear>();
       }
 
-      public FixedLocalVolSurface(Date referenceDate,
+      public FixedLocalVolSurface(Settings settings,
+                                  Date referenceDate,
                                   List<double> times,
                                   List<double> strikes,
                                   Matrix localVolMatrix,
@@ -85,7 +87,7 @@ namespace QLCore
                                      Extrapolation.ConstantExtrapolation,
                                   Extrapolation upperExtrapolation =
                                      Extrapolation.ConstantExtrapolation)
-         : base(referenceDate, null, BusinessDayConvention.Following, dayCounter)
+         : base(settings, referenceDate, null, BusinessDayConvention.Following, dayCounter)
       {
          maxDate_ = Utils.time2Date(referenceDate, dayCounter, times.Last());
          times_ = times;
@@ -102,7 +104,8 @@ namespace QLCore
          setInterpolation<Linear>();
       }
 
-      public FixedLocalVolSurface(Date referenceDate,
+      public FixedLocalVolSurface(Settings settings,
+                                  Date referenceDate,
                                   List<double> times,
                                   List<List<double>> strikes,
                                   Matrix localVolMatrix,
@@ -111,7 +114,7 @@ namespace QLCore
                                      Extrapolation.ConstantExtrapolation,
                                   Extrapolation upperExtrapolation =
                                      Extrapolation.ConstantExtrapolation)
-         : base(referenceDate, null, BusinessDayConvention.Following, dayCounter)
+         : base(settings, referenceDate, null, BusinessDayConvention.Following, dayCounter)
       {
          maxDate_ = Utils.time2Date(referenceDate, dayCounter, times.Last());
          times_ = times;
@@ -130,7 +133,6 @@ namespace QLCore
          checkSurface();
          setInterpolation<Linear>();
       }
-
 
       public override Date maxDate() { return maxDate_; }
       public override double maxTime() { return times_.Last(); }

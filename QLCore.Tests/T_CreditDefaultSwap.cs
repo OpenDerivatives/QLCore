@@ -25,7 +25,6 @@ using System.Collections.Generic;
 
 namespace TestSuite
 {
-
    public class T_CreditDefaultSwap
    {
       [Fact]
@@ -33,21 +32,21 @@ namespace TestSuite
       {
          // Testing credit-default swap against cached values...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
 
             // Initialize curves
-            Settings.Instance.setEvaluationDate(new Date(9, Month.June, 2006));
-            Date today = Settings.Instance.evaluationDate();
+            settings.setEvaluationDate(new Date(9, Month.June, 2006));
+            Date today = settings.evaluationDate();
             Calendar calendar = new TARGET();
 
             Handle<Quote> hazardRate = new Handle<Quote>(new SimpleQuote(0.01234));
             RelinkableHandle<DefaultProbabilityTermStructure> probabilityCurve = new RelinkableHandle<DefaultProbabilityTermStructure>();
-            probabilityCurve.linkTo(new FlatHazardRate(0, calendar, hazardRate, new Actual360()));
+            probabilityCurve.linkTo(new FlatHazardRate(settings, 0, calendar, hazardRate, new Actual360()));
 
             RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
 
-            discountCurve.linkTo(new FlatForward(today, 0.06, new Actual360()));
+            discountCurve.linkTo(new FlatForward(settings, today, 0.06, new Actual360()));
 
             // Build the schedule
             Date issueDate = calendar.advance(today, -1, TimeUnit.Years);
@@ -55,7 +54,7 @@ namespace TestSuite
             Frequency frequency = Frequency.Semiannual;
             BusinessDayConvention convention = BusinessDayConvention.ModifiedFollowing;
 
-            Schedule schedule = new Schedule(issueDate, maturity, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, issueDate, maturity, new Period(frequency), calendar,
                                              convention, convention, DateGeneration.Rule.Forward, false);
 
             // Build the CDS
@@ -135,11 +134,10 @@ namespace TestSuite
       {
          // Testing credit-default swap against cached market values...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
-
-            Settings.Instance.setEvaluationDate(new Date(9, Month.June, 2006));
-            Date evalDate = Settings.Instance.evaluationDate();
+            settings.setEvaluationDate(new Date(9, Month.June, 2006));
+            Date evalDate = settings.evaluationDate();
             Calendar calendar = new UnitedStates();
 
             List<Date> discountDates = new List<Date>();
@@ -183,7 +181,7 @@ namespace TestSuite
             DayCounter curveDayCounter = new Actual360();
 
             RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
-            discountCurve.linkTo(new InterpolatedDiscountCurve<LogLinear>(discountDates, dfs, curveDayCounter, null, null, null, new LogLinear()));
+            discountCurve.linkTo(new InterpolatedDiscountCurve<LogLinear>(settings, discountDates, dfs, curveDayCounter, null, null, null, new LogLinear()));
 
             DayCounter dayCounter = new Thirty360();
             List<Date> dates = new List<Date>();
@@ -220,7 +218,7 @@ namespace TestSuite
             }
 
             RelinkableHandle<DefaultProbabilityTermStructure> piecewiseFlatHazardRate = new RelinkableHandle<DefaultProbabilityTermStructure>();
-            piecewiseFlatHazardRate.linkTo(new InterpolatedHazardRateCurve<BackwardFlat>(dates, hazardRates, new Thirty360()));
+            piecewiseFlatHazardRate.linkTo(new InterpolatedHazardRateCurve<BackwardFlat>(settings, dates, hazardRates, new Thirty360()));
 
             // Testing credit default swap
 
@@ -230,7 +228,7 @@ namespace TestSuite
             Frequency cdsFrequency = Frequency.Semiannual;
             BusinessDayConvention cdsConvention = BusinessDayConvention.ModifiedFollowing;
 
-            Schedule schedule = new Schedule(issueDate, maturity, new Period(cdsFrequency), calendar,
+            Schedule schedule = new Schedule(settings, issueDate, maturity, new Period(cdsFrequency), calendar,
                                              cdsConvention, cdsConvention,
                                              DateGeneration.Rule.Forward, false);
 
@@ -270,13 +268,13 @@ namespace TestSuite
       {
          // Testing implied hazard-rate for credit-default swaps...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
 
             // Initialize curves
             Calendar calendar = new TARGET();
             Date today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             double h1 = 0.30, h2 = 0.40;
             DayCounter dayCounter = new Actual365Fixed();
@@ -294,12 +292,12 @@ namespace TestSuite
 
             RelinkableHandle<DefaultProbabilityTermStructure> probabilityCurve =
                new RelinkableHandle<DefaultProbabilityTermStructure>();
-            probabilityCurve.linkTo(new InterpolatedHazardRateCurve<BackwardFlat>(dates,
+            probabilityCurve.linkTo(new InterpolatedHazardRateCurve<BackwardFlat>(settings, dates,
                                                                                   hazardRates,
                                                                                   dayCounter));
 
             RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
-            discountCurve.linkTo(new FlatForward(today, 0.03, new Actual360()));
+            discountCurve.linkTo(new FlatForward(settings, today, 0.03, new Actual360()));
 
             Frequency frequency = Frequency.Semiannual;
             BusinessDayConvention convention = BusinessDayConvention.ModifiedFollowing;
@@ -314,7 +312,7 @@ namespace TestSuite
             for (int n = 6; n <= 10; ++n)
             {
                Date maturity = calendar.advance(issueDate, n, TimeUnit.Years);
-               Schedule schedule = new Schedule(issueDate, maturity, new Period(frequency), calendar,
+               Schedule schedule = new Schedule(settings, issueDate, maturity, new Period(frequency), calendar,
                                                 convention, convention,
                                                 DateGeneration.Rule.Forward, false);
 
@@ -347,7 +345,7 @@ namespace TestSuite
                latestRate = flatRate;
 
                RelinkableHandle<DefaultProbabilityTermStructure> probability = new RelinkableHandle<DefaultProbabilityTermStructure>();
-               probability.linkTo(new FlatHazardRate(today, new Handle<Quote>(new SimpleQuote(flatRate)), dayCounter));
+               probability.linkTo(new FlatHazardRate(settings, today, new Handle<Quote>(new SimpleQuote(flatRate)), dayCounter));
 
                CreditDefaultSwap cds2 = new CreditDefaultSwap(CreditDefaultSwap.Protection.Side.Seller, notional, fixedRate,
                                                               schedule, convention, cdsDayCount, true, true);
@@ -370,22 +368,22 @@ namespace TestSuite
       {
          // Testing fair-spread calculation for credit-default swaps...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
 
             // Initialize curves
             Calendar calendar = new TARGET();
             Date today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             Handle<Quote> hazardRate = new Handle<Quote>(new SimpleQuote(0.01234));
             RelinkableHandle<DefaultProbabilityTermStructure> probabilityCurve =
                new RelinkableHandle<DefaultProbabilityTermStructure>();
-            probabilityCurve.linkTo(new FlatHazardRate(0, calendar, hazardRate, new Actual360()));
+            probabilityCurve.linkTo(new FlatHazardRate(settings, 0, calendar, hazardRate, new Actual360()));
 
             RelinkableHandle<YieldTermStructure> discountCurve =
                new RelinkableHandle<YieldTermStructure>();
-            discountCurve.linkTo(new FlatForward(today, 0.06, new Actual360()));
+            discountCurve.linkTo(new FlatForward(settings, today, 0.06, new Actual360()));
 
             // Build the schedule
             Date issueDate = calendar.advance(today, -1, TimeUnit.Years);
@@ -393,7 +391,7 @@ namespace TestSuite
             BusinessDayConvention convention = BusinessDayConvention.Following;
 
             Schedule schedule =
-               new MakeSchedule().from(issueDate)
+               new MakeSchedule(settings).from(issueDate)
             .to(maturity)
             .withFrequency(Frequency.Quarterly)
             .withCalendar(calendar)
@@ -434,21 +432,21 @@ namespace TestSuite
       {
          // Testing fair-upfront calculation for credit-default swaps...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             // Initialize curves
             Calendar calendar = new TARGET();
             Date today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             Handle<Quote> hazardRate = new Handle<Quote>(new SimpleQuote(0.01234));
             RelinkableHandle<DefaultProbabilityTermStructure> probabilityCurve =
                new RelinkableHandle<DefaultProbabilityTermStructure>();
-            probabilityCurve.linkTo(new FlatHazardRate(0, calendar, hazardRate, new Actual360()));
+            probabilityCurve.linkTo(new FlatHazardRate(settings, 0, calendar, hazardRate, new Actual360()));
 
             RelinkableHandle<YieldTermStructure> discountCurve =
                new RelinkableHandle<YieldTermStructure>();
-            discountCurve.linkTo(new FlatForward(today, 0.06, new Actual360()));
+            discountCurve.linkTo(new FlatForward(settings, today, 0.06, new Actual360()));
 
             // Build the schedule
             Date issueDate = today;
@@ -456,7 +454,7 @@ namespace TestSuite
             BusinessDayConvention convention = BusinessDayConvention.Following;
 
             Schedule schedule =
-               new MakeSchedule().from(issueDate)
+               new MakeSchedule(settings).from(issueDate)
             .to(maturity)
             .withFrequency(Frequency.Quarterly)
             .withCalendar(calendar)
@@ -517,12 +515,10 @@ namespace TestSuite
       public void testIsdaEngine()
       {
          // Testing ISDA engine calculations for credit-default swaps
-
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          Date tradeDate = new Date(21, Month.May, 2009);
-         Settings.Instance.setEvaluationDate(tradeDate);
-
+         settings.setEvaluationDate(tradeDate);
 
          //build an ISDA compliant yield curve
          //data comes from Markit published rates
@@ -539,7 +535,7 @@ namespace TestSuite
          for (int i = 0; i < dep_tenors.Length ; i++)
          {
             isdaRateHelpers.Add(new DepositRateHelper(dep_quotes[i], new Period(dep_tenors[i], TimeUnit.Months), 2,
-                                                      new WeekendsOnly(), BusinessDayConvention.ModifiedFollowing, false, new Actual360())
+                                                      new WeekendsOnly(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings)
                                );
          }
          int[] swap_tenors = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
@@ -560,7 +556,7 @@ namespace TestSuite
                                 };
 
          IborIndex isda_ibor = new IborIndex("IsdaIbor", new Period(3, TimeUnit.Months), 2, new USDCurrency(),
-                                             new WeekendsOnly(), BusinessDayConvention.ModifiedFollowing, false, new Actual360());
+                                             new WeekendsOnly(), BusinessDayConvention.ModifiedFollowing, false, new Actual360(), settings);
          for (int i = 0; i < swap_tenors.Length ; i++)
          {
             isdaRateHelpers.Add(new SwapRateHelper(swap_quotes[i], new Period(swap_tenors[i], TimeUnit.Years),
@@ -569,9 +565,8 @@ namespace TestSuite
          }
 
          RelinkableHandle<YieldTermStructure> discountCurve = new RelinkableHandle<YieldTermStructure>();
-         discountCurve.linkTo(new PiecewiseYieldCurve<Discount, LogLinear>(0, new WeekendsOnly(), isdaRateHelpers,
+         discountCurve.linkTo(new PiecewiseYieldCurve<Discount, LogLinear>(settings, 0, new WeekendsOnly(), isdaRateHelpers,
                                                                            new Actual365Fixed()));
-
 
          RelinkableHandle<DefaultProbabilityTermStructure> probabilityCurve = new RelinkableHandle<DefaultProbabilityTermStructure>();
          Date[] termDates = { new Date(20, Month.June, 2010),
@@ -605,7 +600,7 @@ namespace TestSuite
                                   -4042340.999
                                  };
 #if !QL_USE_INDEXED_COUPON
-         double tolerance = 1.0e-2; //TODO Check calculation , tolerance must be 1.0e-6;
+         double tolerance = 1.0e-2; //1e-6 on QuantLib
 #else
          /* The risk-free curve is a bit off. We might skip the tests
             altogether and rely on running them with indexed coupons
@@ -615,28 +610,28 @@ namespace TestSuite
 
          int l = 0;
 
-         for (int i = 0; i < termDates.Length ; i++)
+         foreach (Date termDate in termDates)
          {
-            for (int j = 0; j < 2; j++)
+            foreach (double spread in spreads)
             {
-               for (int k = 0; k < 2; k++)
+               foreach (double recoverie in recoveries)
                {
-
-                  CreditDefaultSwap quotedTrade = new MakeCreditDefaultSwap(termDates[i], spreads[j])
+                  CreditDefaultSwap quotedTrade = new MakeCreditDefaultSwap(settings, termDate, spread)
                   .withNominal(10000000.0).value();
 
                   double h = quotedTrade.impliedHazardRate(0.0,
                                                            discountCurve,
                                                            new Actual365Fixed(),
-                                                           recoveries[k],
+                                                           recoverie,
                                                            1e-10,
                                                            CreditDefaultSwap.PricingModel.ISDA);
 
-                  probabilityCurve.linkTo(new FlatHazardRate(0, new WeekendsOnly(), h, new Actual365Fixed()));
+                  probabilityCurve.linkTo(new FlatHazardRate(settings, 0, new WeekendsOnly(), h, new Actual365Fixed()));
 
-                  IsdaCdsEngine engine = new IsdaCdsEngine(probabilityCurve, recoveries[k], discountCurve);
+                  IsdaCdsEngine engine = new IsdaCdsEngine(probabilityCurve, recoverie, discountCurve, null, IsdaCdsEngine.NumericalFix.Taylor,
+                                                           IsdaCdsEngine.AccrualBias.HalfDayBias, IsdaCdsEngine.ForwardsInCouponPeriod.Piecewise);
 
-                  CreditDefaultSwap conventionalTrade = new MakeCreditDefaultSwap(termDates[i], 0.01)
+                  CreditDefaultSwap conventionalTrade = new MakeCreditDefaultSwap(settings, termDate, 0.01)
                   .withNominal(10000000.0)
                   .withPricingEngine(engine).value();
 
@@ -648,11 +643,9 @@ namespace TestSuite
                   QAssert.IsTrue(calculated <= tolerance);
 
                   l++;
-
                }
             }
          }
       }
-
    }
 }

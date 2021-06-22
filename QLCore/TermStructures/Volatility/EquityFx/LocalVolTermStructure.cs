@@ -36,18 +36,18 @@ namespace QLCore
                    by overriding the referenceDate() method.
       */
 
-      protected LocalVolTermStructure(BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(bdc, dc) {}
+      protected LocalVolTermStructure(Settings settings, BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
+         : base(settings, bdc, dc) {}
 
       //! initialize with a fixed reference date
-      protected LocalVolTermStructure(Date referenceDate, Calendar cal = null,
+      protected LocalVolTermStructure(Settings settings, Date referenceDate, Calendar cal = null,
                                       BusinessDayConvention bdc = BusinessDayConvention.Following, DayCounter dc = null)
-         : base(referenceDate, cal, bdc, dc) {}
+         : base(settings, referenceDate, cal, bdc, dc) {}
 
       //! calculate the reference date based on the global evaluation date
-      protected LocalVolTermStructure(int settlementDays, Calendar cal, BusinessDayConvention bdc = BusinessDayConvention.Following,
+      protected LocalVolTermStructure(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc = BusinessDayConvention.Following,
                                       DayCounter dc = null)
-         : base(settlementDays, cal, bdc, dc) {}
+         : base(settings, settlementDays, cal, bdc, dc) {}
 
       #endregion
 

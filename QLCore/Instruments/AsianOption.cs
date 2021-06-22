@@ -36,11 +36,13 @@ namespace QLCore
          {
             averageType = Average.Type.NULL;
          }
+
          public override void validate()
          {
             base.validate();
             Utils.QL_REQUIRE(averageType != Average.Type.NULL, () => "unspecified average type");
          }
+
          public Average.Type averageType { get; set; }
       }
 
@@ -48,10 +50,11 @@ namespace QLCore
       {
       }
 
-      public ContinuousAveragingAsianOption(Average.Type averageType, StrikedTypePayoff payoff, Exercise exercise) : base(payoff, exercise)
+      public ContinuousAveragingAsianOption(Settings settings, Average.Type averageType, StrikedTypePayoff payoff, Exercise exercise) : base(settings, payoff, exercise)
       {
          averageType_ = averageType;
       }
+
       public override void setupArguments(IPricingEngineArguments args)
       {
 
@@ -60,6 +63,7 @@ namespace QLCore
          ContinuousAveragingAsianOption.Arguments moreArgs = args as ContinuousAveragingAsianOption.Arguments;
          Utils.QL_REQUIRE(moreArgs != null, () => "wrong argument type");
          moreArgs.averageType = averageType_;
+         moreArgs.settings = settings_;
       }
       protected Average.Type averageType_;
    }
@@ -76,6 +80,7 @@ namespace QLCore
             runningAccumulator = null;
             pastFixings = null;
          }
+
          public override void validate()
          {
             base.validate();
@@ -101,6 +106,7 @@ namespace QLCore
 
             // check fixingTimes_ here
          }
+
          public Average.Type averageType { get; set; }
          public double? runningAccumulator { get; set; }
          public int? pastFixings { get; set; }
@@ -111,8 +117,8 @@ namespace QLCore
       {
       }
 
-      public DiscreteAveragingAsianOption(Average.Type averageType, double? runningAccumulator, int? pastFixings, List<Date> fixingDates, StrikedTypePayoff payoff, Exercise exercise)
-      : base(payoff, exercise)
+      public DiscreteAveragingAsianOption(Settings settings, Average.Type averageType, double? runningAccumulator, int? pastFixings, List<Date> fixingDates, StrikedTypePayoff payoff, Exercise exercise)
+      : base(settings, payoff, exercise)
       {
          averageType_ = averageType;
          runningAccumulator_ = runningAccumulator;
@@ -134,6 +140,7 @@ namespace QLCore
          moreArgs.runningAccumulator = runningAccumulator_;
          moreArgs.pastFixings = pastFixings_;
          moreArgs.fixingDates = fixingDates_;
+         moreArgs.settings = settings_;
       }
 
       protected Average.Type averageType_;

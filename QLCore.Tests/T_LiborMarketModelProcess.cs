@@ -27,30 +27,11 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_LiborMarketModelProcess : IDisposable
+   public class T_LiborMarketModelProcess
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_LiborMarketModelProcess()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       int len = 10;
 
-      IborIndex makeIndex()
+      IborIndex makeIndex(Settings settings)
       {
          DayCounter dayCounter = new Actual360();
          List<Date> dates = new List<Date>();
@@ -61,24 +42,24 @@ namespace TestSuite
          rates.Add(0.08);
          Linear Interpolator = new Linear();
          RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
-         //termStructure.linkTo(new InterpolatedZeroCurve<Linear>(dates, rates, dayCounter, Interpolator));
+         //termStructure.linkTo(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dayCounter, Interpolator));
 
-         IborIndex index = new Euribor1Y(termStructure);
+         IborIndex index = new Euribor1Y(settings, termStructure);
 
          Date todaysDate =
             index.fixingCalendar().adjust(new Date(4, 9, 2005));
-         Settings.Instance.setEvaluationDate(todaysDate);
+         settings.setEvaluationDate(todaysDate);
 
          dates[0] = index.fixingCalendar().advance(todaysDate,
                                                    index.fixingDays(), TimeUnit.Days);
 
          //termStructure.linkTo(new ZeroCurve(dates, rates, dayCounter));
-         termStructure.linkTo(new InterpolatedZeroCurve<Linear>(dates, rates, dayCounter, Interpolator));
+         termStructure.linkTo(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dayCounter, Interpolator));
 
          return index;
       }
 
-      CapletVarianceCurve makeCapVolCurve(Date todaysDate)
+      CapletVarianceCurve makeCapVolCurve(Settings settings, Date todaysDate)
       {
          double[] vols = {14.40, 17.15, 16.81, 16.64, 16.17,
                           15.78, 15.40, 15.21, 14.86, 14.54
@@ -86,7 +67,7 @@ namespace TestSuite
 
          List<Date> dates = new List<Date>();
          List<double> capletVols = new List<double>();
-         LiborForwardModelProcess process = new LiborForwardModelProcess(len + 1, makeIndex(), null);
+         LiborForwardModelProcess process = new LiborForwardModelProcess(len + 1, makeIndex(settings), null);
 
          for (int i = 0; i < len; ++i)
          {
@@ -94,26 +75,26 @@ namespace TestSuite
             dates.Add(process.fixingDates()[i + 1]);
          }
 
-         return new CapletVarianceCurve(todaysDate, dates,
+         return new CapletVarianceCurve(settings, todaysDate, dates,
                                         capletVols, new ActualActual());
       }
 
-      LiborForwardModelProcess makeProcess()
+      LiborForwardModelProcess makeProcess(Settings settings)
       {
          Matrix volaComp = new Matrix();
-         return makeProcess(volaComp);
+         return makeProcess(settings, volaComp);
       }
 
-      LiborForwardModelProcess makeProcess(Matrix volaComp)
+      LiborForwardModelProcess makeProcess(Settings settings, Matrix volaComp)
       {
          int factors = (volaComp.empty() ? 1 : volaComp.columns());
 
-         IborIndex index = makeIndex();
+         IborIndex index = makeIndex(settings);
          LiborForwardModelProcess process = new LiborForwardModelProcess(len, index, null);
 
          LfmCovarianceParameterization fct = new LfmHullWhiteParameterization(
             process,
-            makeCapVolCurve(Settings.Instance.evaluationDate()),
+            makeCapVolCurve(settings, settings.evaluationDate()),
             volaComp * Matrix.transpose(volaComp), factors);
 
          process.setCovarParam(fct);
@@ -125,12 +106,13 @@ namespace TestSuite
       public void testInitialisation()
       {
          // Testing caplet LMM process initialisation
+         Settings settings = new Settings();
          DayCounter dayCounter = new Actual360();
          RelinkableHandle<YieldTermStructure> termStructure = new RelinkableHandle<YieldTermStructure>();
-         termStructure.linkTo(Utilities.flatRate(Date.Today, 0.04, dayCounter));
+         termStructure.linkTo(Utilities.flatRate(settings, Date.Today, 0.04, dayCounter));
 
-         IborIndex index = new Euribor6M(termStructure);
-         OptionletVolatilityStructure capletVol = new ConstantOptionletVolatility(
+         IborIndex index = new Euribor6M(settings, termStructure);
+         OptionletVolatilityStructure capletVol = new ConstantOptionletVolatility(settings,
             termStructure.currentLink().referenceDate(),
             termStructure.currentLink().calendar(),
             BusinessDayConvention.Following,
@@ -142,11 +124,11 @@ namespace TestSuite
          for (int daysOffset = 0; daysOffset < 1825 /* 5 year*/; daysOffset += 8)
          {
             Date todaysDate = calendar.adjust(Date.Today + daysOffset);
-            Settings.Instance.setEvaluationDate(todaysDate);
+            settings.setEvaluationDate(todaysDate);
             Date settlementDate =
                calendar.advance(todaysDate, index.fixingDays(), TimeUnit.Days);
 
-            termStructure.linkTo(Utilities.flatRate(settlementDate, 0.04, dayCounter));
+            termStructure.linkTo(Utilities.flatRate(settings, settlementDate, 0.04, dayCounter));
 
             LiborForwardModelProcess process = new LiborForwardModelProcess(60, index);
 
@@ -170,13 +152,14 @@ namespace TestSuite
       public void testLambdaBootstrapping()
       {
          // Testing caplet LMM lambda bootstrapping
+         Settings settings = new Settings();
          double tolerance = 1e-10;
          double[] lambdaExpected = {14.3010297550, 19.3821411939, 15.9816590141,
                                     15.9953118303, 14.0570815635, 13.5687599894,
                                     12.7477197786, 13.7056638165, 11.6191989567
                                    };
 
-         LiborForwardModelProcess process = makeProcess();
+         LiborForwardModelProcess process = makeProcess(settings);
          Matrix covar = process.covariance(0.0, null, 1.0);
 
          for (int i = 0; i < 9; ++i)
@@ -220,6 +203,7 @@ namespace TestSuite
       public void testMonteCarloCapletPricing()
       {
          // Testing caplet LMM Monte-Carlo caplet pricing
+         Settings settings = new Settings();
 
          /* factor loadings are taken from Hull & White article
             plus extra normalisation to get orthogonal eigenvectors
@@ -246,8 +230,8 @@ namespace TestSuite
             for (int j = 0; j < 3; j++)
                volaComp[i, j] = ltemp[j];
          }
-         LiborForwardModelProcess process1 = makeProcess();
-         LiborForwardModelProcess process2 = makeProcess(volaComp);
+         LiborForwardModelProcess process1 = makeProcess(settings);
+         LiborForwardModelProcess process2 = makeProcess(settings, volaComp);
 
          List<double> tmp = process1.fixingTimes();
          TimeGrid grid = new TimeGrid(tmp, tmp.Count, 12);

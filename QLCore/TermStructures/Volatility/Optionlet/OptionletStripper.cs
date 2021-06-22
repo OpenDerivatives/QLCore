@@ -85,6 +85,8 @@ namespace QLCore
       public IborIndex iborIndex() { return iborIndex_; }
       public override double displacement() { return displacement_; }
       public override VolatilityType volatilityType() { return volatilityType_; }
+      public override Settings settings() { return termVolSurface().settings(); }
+      public override void setSettings(Settings s) { termVolSurface().setSettings(s); }  
 
       protected OptionletStripper(CapFloorTermVolSurface termVolSurface, IborIndex iborIndex,
                                   Handle<YieldTermStructure> discount = null,
@@ -97,7 +99,6 @@ namespace QLCore
          nStrikes_ = termVolSurface.strikes().Count;
          volatilityType_ = type;
          displacement_ = displacement;
-
 
          if (volatilityType_ ==  VolatilityType.Normal)
          {
@@ -159,6 +160,5 @@ namespace QLCore
       protected List<Period> capFloorLengths_ = new List<Period>();
       protected VolatilityType volatilityType_;
       protected double displacement_;
-
    }
 }

@@ -37,7 +37,7 @@ namespace QLCore
                    helper has sole ownership of it.
       */
       public BondHelper(Handle<Quote> price, Bond bond, bool useCleanPrice = true)
-         : base(price)
+         : base(bond.settings(), price)
       {
          bond_ = bond;
 

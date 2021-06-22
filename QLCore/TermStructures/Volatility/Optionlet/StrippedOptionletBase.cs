@@ -42,5 +42,7 @@ namespace QLCore
       public abstract BusinessDayConvention businessDayConvention() ;
       public abstract VolatilityType volatilityType() ;
       public abstract double displacement() ;
+      public abstract Settings settings() ;
+      public abstract void setSettings(Settings s) ;
    }
 }

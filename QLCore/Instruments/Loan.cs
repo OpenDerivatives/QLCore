@@ -38,7 +38,8 @@ namespace QLCore
       protected List<double> notionals_;
       protected List < double? > legNPV_;
 
-      public Loan(int legs)
+      public Loan(Settings settings, int legs)
+         : base(settings)
       {
          legs_ = new InitializedList<List<CashFlow>>(legs);
          payer_ = new InitializedList<double>(legs);
@@ -50,7 +51,7 @@ namespace QLCore
       // Instrument interface
       public override bool isExpired()
       {
-         Date today = Settings.Instance.evaluationDate();
+         Date today = settings().evaluationDate();
          return !legs_.Any<List<CashFlow>>(leg => leg.Any<CashFlow>(cf => !cf.hasOccurred(today)));
       }
 
@@ -68,6 +69,7 @@ namespace QLCore
 
          arguments.legs = legs_;
          arguments.payer = payer_;
+         arguments.settings = settings_;
       }
 
       public override void fetchResults(IPricingEngineResults r)
@@ -97,6 +99,8 @@ namespace QLCore
       {
          public List<List<CashFlow>> legs { get; set; }
          public List<double> payer { get; set; }
+         public Settings settings { get; set; }
+
          public virtual void validate()
          {
             if (legs.Count != payer.Count)
@@ -136,7 +140,7 @@ namespace QLCore
       public FixedLoan(Type type, double nominal,
                        Schedule fixedSchedule, double fixedRate, DayCounter fixedDayCount,
                        Schedule principalSchedule, BusinessDayConvention ? paymentConvention) :
-      base(2)
+      base(fixedSchedule.settings(), 2)
       {
 
          type_ = type;
@@ -201,7 +205,7 @@ namespace QLCore
       public FloatingLoan(Type type, double nominal,
                           Schedule floatingSchedule, double floatingSpread, DayCounter floatingDayCount,
                           Schedule principalSchedule, BusinessDayConvention ? paymentConvention, IborIndex index) :
-      base(2)
+      base(floatingSchedule.settings(), 2)
       {
 
          type_ = type;
@@ -267,7 +271,7 @@ namespace QLCore
       public CommercialPaper(Type type, double nominal,
                              Schedule fixedSchedule, double fixedRate, DayCounter fixedDayCount,
                              Schedule principalSchedule, BusinessDayConvention ? paymentConvention) :
-      base(2)
+      base(fixedSchedule.settings(), 2)
       {
 
          type_ = type;
@@ -345,7 +349,7 @@ namespace QLCore
 
       public Cash(Type type, double nominal,
                   Schedule principalSchedule, BusinessDayConvention ? paymentConvention) :
-      base(1)
+      base(principalSchedule.settings(), 1)
       {
 
          type_ = type;

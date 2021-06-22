@@ -60,9 +60,10 @@ namespace QLCore
       /*! must set this in derived classes, based on particular underlying */
       protected Handle<YieldTermStructure> incomeDiscountCurve_;
 
-      protected Forward(DayCounter dayCounter, Calendar calendar, BusinessDayConvention businessDayConvention,
+      protected Forward(Settings settings, DayCounter dayCounter, Calendar calendar, BusinessDayConvention businessDayConvention,
                         int settlementDays, Payoff payoff, Date valueDate, Date maturityDate,
                         Handle<YieldTermStructure> discountCurve)
+               : base(settings)
       {
          dayCounter_ = dayCounter;
          calendar_ = calendar;
@@ -78,13 +79,13 @@ namespace QLCore
 
       public virtual Date settlementDate()
       {
-         Date d = calendar_.advance(Settings.Instance.evaluationDate(), settlementDays_, TimeUnit.Days);
+         Date d = calendar_.advance(settings().evaluationDate(), settlementDays_, TimeUnit.Days);
          return Date.Max(d, valueDate_);
       }
 
       public override bool isExpired()
       {
-         return new simple_event(maturityDate_).hasOccurred(settlementDate());
+         return new simple_event(settings(), maturityDate_).hasOccurred(settlementDate());
       }
 
 

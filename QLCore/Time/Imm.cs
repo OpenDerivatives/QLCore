@@ -89,13 +89,13 @@ namespace QLCore
       }
 
       // returns the IMM date for the given IMM code (e.g. March 20th, 2013 for H3).
-      public static Date date(string immCode) { return date(immCode, null); }
-      public static Date date(string immCode, Date refDate)
+      public static Date date(Settings settings, string immCode) { return date(settings, immCode, null); }
+      public static Date date(Settings settings, string immCode, Date refDate)
       {
          if (!isIMMcode(immCode, false))
             throw new ArgumentException(immCode + " is not a valid IMM code");
 
-         Date referenceDate = (refDate ?? Settings.Instance.evaluationDate());
+         Date referenceDate = (refDate ?? settings.evaluationDate());
 
          int m = "FGHJKMNQUVXZ".IndexOf(immCode.ToUpper()[0]) + 1;
          if (m == 0)
@@ -112,9 +112,9 @@ namespace QLCore
          if (y == 0 && referenceDate.Year <= 1909)
             y += 10;
 
-         Date result = IMM.nextDate(new Date(1, m, y), false);
+         Date result = IMM.nextDate(settings, new Date(1, m, y), false);
          if (result < referenceDate)
-            result = IMM.nextDate(new Date(1, m, y + 10), false);
+            result = IMM.nextDate(settings, new Date(1, m, y + 10), false);
 
          return result;
       }
@@ -122,11 +122,11 @@ namespace QLCore
       //! next IMM date following the given date
       /*! returns the 1st delivery date for next contract listed in the
           International Money Market section of the Chicago Mercantile Exchange. */
-      public static Date nextDate() { return nextDate((Date)null, true); }
-      public static Date nextDate(Date d) { return nextDate(d, true); }
-      public static Date nextDate(Date date, bool mainCycle)
+      public static Date nextDate(Settings settings) { return nextDate(settings, (Date)null, true); }
+      public static Date nextDate(Settings settings, Date d) { return nextDate(settings, d, true); }
+      public static Date nextDate(Settings settings, Date date, bool mainCycle)
       {
-         Date refDate = (date ?? Settings.Instance.evaluationDate());
+         Date refDate = (date ?? settings.evaluationDate());
 
          int y = refDate.Year;
          int m = refDate.Month;
@@ -149,38 +149,38 @@ namespace QLCore
 
          Date result = Date.nthWeekday(3, DayOfWeek.Wednesday, m, y);
          if (result <= refDate)
-            result = nextDate(new Date(22, m, y), mainCycle);
+            result = nextDate(settings, new Date(22, m, y), mainCycle);
          return result;
       }
 
       //! next IMM date following the given IMM code
       /*! returns the 1st delivery date for next contract listed in the
           International Money Market section of the Chicago Mercantile Exchange. */
-      public static Date nextDate(string immCode) { return nextDate(immCode, true, null); }
-      public static Date nextDate(string immCode, bool mainCycle) { return nextDate(immCode, mainCycle, null); }
-      public static Date nextDate(string immCode, bool mainCycle, Date referenceDate)
+      public static Date nextDate(Settings settings, string immCode) { return nextDate(settings, immCode, true, null); }
+      public static Date nextDate(Settings settings, string immCode, bool mainCycle) { return nextDate(settings, immCode, mainCycle, null); }
+      public static Date nextDate(Settings settings, string immCode, bool mainCycle, Date referenceDate)
       {
-         Date immDate = date(immCode, referenceDate);
-         return nextDate(immDate + 1, mainCycle);
+         Date immDate = date(settings, immCode, referenceDate);
+         return nextDate(settings, immDate + 1, mainCycle);
       }
 
       /*! returns the IMM code for next contract listed in the
           International Money Market section of the Chicago Mercantile Exchange.*/
-      public static string nextCode() { return nextCode((Date)null, true); }
-      public static string nextCode(Date d) { return nextCode(d, true); }
-      public static string nextCode(Date d, bool mainCycle)
+      public static string nextCode(Settings settings) { return nextCode(settings, (Date)null, true); }
+      public static string nextCode(Settings settings, Date d) { return nextCode(settings, d, true); }
+      public static string nextCode(Settings settings, Date d, bool mainCycle)
       {
-         Date date = nextDate(d, mainCycle);
+         Date date = nextDate(settings, d, mainCycle);
          return code(date);
       }
 
       /*! returns the IMM code for next contract listed in the
           International Money Market section of the Chicago Mercantile Exchange. */
-      public static string nextCode(string immCode) { return nextCode(immCode, true, null); }
-      public static string nextCode(string immCode, bool mainCycle) { return nextCode(immCode, mainCycle, null); }
-      public static string nextCode(string immCode, bool mainCycle, Date referenceDate)
+      public static string nextCode(Settings settings, string immCode) { return nextCode(settings, immCode, true, null); }
+      public static string nextCode(Settings settings, string immCode, bool mainCycle) { return nextCode(settings, immCode, mainCycle, null); }
+      public static string nextCode(Settings settings, string immCode, bool mainCycle, Date referenceDate)
       {
-         Date date = nextDate(immCode, mainCycle, referenceDate);
+         Date date = nextDate(settings, immCode, mainCycle, referenceDate);
          return code(date);
       }
    }

@@ -38,7 +38,7 @@ namespace QLCore
                                    List < double? > floors = null,
                                    bool inArrears = false,
                                    Date issueDate = null)
-      : base(settlementDays, schedule.calendar(), issueDate)
+      : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          // Optional value check
          if (gearings == null)

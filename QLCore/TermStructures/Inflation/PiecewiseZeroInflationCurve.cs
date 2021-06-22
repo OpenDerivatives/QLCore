@@ -202,23 +202,22 @@ protected ZeroInflationTermStructure base_curve;
 
 
 
-      public PiecewiseZeroInflationCurve(DayCounter dayCounter, double baseZeroRate, Period observationLag, Frequency frequency,
+      public PiecewiseZeroInflationCurve(Settings settings, DayCounter dayCounter, double baseZeroRate, Period observationLag, Frequency frequency,
                                          bool indexIsInterpolated, Handle<YieldTermStructure> yTS)
-         : base(dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
+         : base(settings, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
 
-      public PiecewiseZeroInflationCurve(Date referenceDate, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
+      public PiecewiseZeroInflationCurve(Settings settings, Date referenceDate, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
                                          Period observationLag, Frequency frequency, bool indexIsInterpolated,
                                          Handle<YieldTermStructure> yTS)
-         : base(referenceDate, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
+         : base(settings, referenceDate, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
 
-      public PiecewiseZeroInflationCurve(int settlementDays, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
+      public PiecewiseZeroInflationCurve(Settings settings, int settlementDays, Calendar calendar, DayCounter dayCounter, double baseZeroRate,
                                          Period observationLag, Frequency frequency, bool indexIsInterpolated,
                                          Handle<YieldTermStructure> yTS)
-         : base(settlementDays, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
+         : base(settings, settlementDays, calendar, dayCounter, baseZeroRate, observationLag, frequency, indexIsInterpolated, yTS) { }
 
 
-      public PiecewiseZeroInflationCurve()
-         : base()
+      public PiecewiseZeroInflationCurve() : base()
       { }
    }
 
@@ -228,8 +227,8 @@ protected ZeroInflationTermStructure base_curve;
       where Interpolator : class, IInterpolationFactory, new()
       where Bootstrap : IBootStrap<PiecewiseZeroInflationCurve>, new()
    {
-
-      public PiecewiseZeroInflationCurve(Date referenceDate,
+      public PiecewiseZeroInflationCurve(Settings settings, 
+                                         Date referenceDate,
                                          Calendar calendar,
                                          DayCounter dayCounter,
                                          Period lag,
@@ -241,11 +240,11 @@ protected ZeroInflationTermStructure base_curve;
                                          double accuracy = 1.0e-12,
                                          Interpolator i = default(Interpolator),
                                          Bootstrap bootstrap = default(Bootstrap))
-         : base(referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, nominalTS)
+         : base(settings, referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, nominalTS)
       {
          _instruments_ = instruments;
             _traits_ = FastActivator<Traits>.Create();
-            base_curve = _traits_.factory(referenceDate, calendar, dayCounter, lag, frequency,
+            base_curve = _traits_.factory(settings, referenceDate, calendar, dayCounter, lag, frequency,
                                           indexIsInterpolated, baseZeroRate, nominalTS, i);
 			accuracy_ = accuracy;
 
@@ -281,7 +280,8 @@ protected ZeroInflationTermStructure base_curve;
    public class PiecewiseZeroInflationCurve<Interpolator> : PiecewiseZeroInflationCurve<Interpolator, IterativeBootstrapForInflation, ZeroInflationTraits>
       where Interpolator : class, IInterpolationFactory, new()
    {
-      public PiecewiseZeroInflationCurve(Date referenceDate,
+      public PiecewiseZeroInflationCurve(Settings settings, 
+                                         Date referenceDate,
                                          Calendar calendar,
                                          DayCounter dayCounter,
                                          Period lag,
@@ -292,7 +292,7 @@ protected ZeroInflationTermStructure base_curve;
                                          List<BootstrapHelper<ZeroInflationTermStructure>> instruments,
                                          double accuracy = 1.0e-12,
                                          Interpolator i = default(Interpolator))
-         : base(referenceDate, calendar, dayCounter, lag, frequency, indexIsInterpolated, baseZeroRate, nominalTS,
-                instruments, accuracy, i) { }
+         : base(settings, referenceDate, calendar, dayCounter, lag, frequency, indexIsInterpolated, 
+                baseZeroRate, nominalTS, instruments, accuracy, i) { }
    }
 }

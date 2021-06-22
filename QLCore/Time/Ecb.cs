@@ -78,7 +78,7 @@ namespace QLCore
       }
 
       //! maintenance period start date in the given month/year
-      public static Date date(Month m, int y) { return nextDate(new Date(1, m, y) - 1); }
+      public static Date date(Settings settings, Month m, int y) { return nextDate(settings, new Date(1, m, y) - 1); }
 
       /*! returns the ECB date for the given ECB code
          (e.g. March xxth, 2013 for MAR10).
@@ -86,7 +86,7 @@ namespace QLCore
          \warning It raises an exception if the input
                   string is not an ECB code
       */
-      public static Date date(string ecbCode, Date refDate = null)
+      public static Date date(Settings settings, string ecbCode, Date refDate = null)
       {
          Utils.QL_REQUIRE(isECBcode(ecbCode), () => ecbCode + " is not a valid ECB code");
 
@@ -122,13 +122,13 @@ namespace QLCore
 
          // lexical_cast causes compilation errors with x64
          int y = int.Parse(code.Substring(3, 2));
-         Date referenceDate = (refDate ?? Settings.Instance.evaluationDate());
+         Date referenceDate = (refDate ?? settings.evaluationDate());
          int referenceYear = (referenceDate.year() % 100);
          y += referenceDate.year() - referenceYear;
          if (y < Date.minDate().year())
-            return ECB.nextDate(Date.minDate());
+            return ECB.nextDate(settings, Date.minDate());
 
-         return ECB.nextDate(new Date(1, m, y));
+         return ECB.nextDate(settings, new Date(1, m, y));
       }
 
       /*! returns the ECB code for the given date
@@ -137,9 +137,9 @@ namespace QLCore
          \warning It raises an exception if the input
                   date is not an ECB date
       */
-      public static string code(Date ecbDate)
+      public static string code(Settings settings, Date ecbDate)
       {
-         Utils.QL_REQUIRE(isECBdate(ecbDate), () => ecbDate + " is not a valid ECB date");
+         Utils.QL_REQUIRE(isECBdate(settings, ecbDate), () => ecbDate + " is not a valid ECB date");
 
          string ECBcode = string.Empty;
          int y = ecbDate.year() % 100;
@@ -198,9 +198,9 @@ namespace QLCore
       }
 
       //! next maintenance period start date following the given date
-      public static Date nextDate(Date date = null)
+      public static Date nextDate(Settings settings, Date date = null)
       {
-         Date d = (date ?? Settings.Instance.evaluationDate());
+         Date d = (date ?? settings.evaluationDate());
 
          int i = knownDates().FindIndex(x => x > d);
 
@@ -210,15 +210,15 @@ namespace QLCore
       }
 
       //! next maintenance period start date following the given ECB code
-      public static Date nextDate(string ecbCode, Date referenceDate = null)
+      public static Date nextDate(Settings settings, string ecbCode, Date referenceDate = null)
       {
-         return nextDate(date(ecbCode, referenceDate));
+         return nextDate(settings, date(settings, ecbCode, referenceDate));
       }
 
       //! next maintenance period start dates following the given date
-      public static List<Date> nextDates(Date date = null)
+      public static List<Date> nextDates(Settings settings, Date date = null)
       {
-         Date d = (date ?? Settings.Instance.evaluationDate());
+         Date d = (date ?? settings.evaluationDate());
 
          int i = knownDates(). FindIndex(x => x > d);
 
@@ -229,16 +229,16 @@ namespace QLCore
       }
 
       //! next maintenance period start dates following the given code
-      public static List<Date> nextDates(string ecbCode, Date referenceDate = null)
+      public static List<Date> nextDates(Settings settings, string ecbCode, Date referenceDate = null)
       {
-         return nextDates(date(ecbCode, referenceDate));
+         return nextDates(settings, date(settings, ecbCode, referenceDate));
       }
 
       /*! returns whether or not the given date is
          a maintenance period start date */
-      public static bool isECBdate(Date d)
+      public static bool isECBdate(Settings settings, Date d)
       {
-         Date date = nextDate(d - 1);
+         Date date = nextDate(settings, d - 1);
          return d == date;
       }
 
@@ -286,9 +286,9 @@ namespace QLCore
       }
 
       //! next ECB code following the given date
-      public static string nextCode(Date d = null)
+      public static string nextCode(Settings settings, Date d = null)
       {
-         return code(nextDate(d));
+         return code(settings, nextDate(settings, d));
       }
 
       //! next ECB code following the given code

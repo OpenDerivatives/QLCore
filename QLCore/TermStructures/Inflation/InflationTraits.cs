@@ -97,14 +97,14 @@ namespace QLCore
 
    public static class ITraitsZeroInflationTermStructure
     {
-        public static ZeroInflationTermStructure factory<Interpolator>(this ITraits<ZeroInflationTermStructure> self,
+        public static ZeroInflationTermStructure factory<Interpolator>(this ITraits<ZeroInflationTermStructure> self, Settings settings, 
                                                         Date referenceDate, Calendar calendar, DayCounter dayCounter, Period lag,
                                                         Frequency frequency, bool indexIsInterpolated, double baseZeroRate, 
                                                         Handle<YieldTermStructure> yTS,
                                                         Interpolator interpolator = default(Interpolator))
              where Interpolator : class, IInterpolationFactory, new()
         {
-            return new InterpolatedZeroInflationCurve<Interpolator>(referenceDate, calendar, dayCounter, lag, frequency,
+            return new InterpolatedZeroInflationCurve<Interpolator>(settings, referenceDate, calendar, dayCounter, lag, frequency,
                                                                     indexIsInterpolated, baseZeroRate, yTS, interpolator);
         }
     }
@@ -182,14 +182,14 @@ namespace QLCore
 
     public static class ITraitsYoYInflationTermStructure
     {
-        public static YoYInflationTermStructure factory<Interpolator>(this ITraits<YoYInflationTermStructure> self,
+        public static YoYInflationTermStructure factory<Interpolator>(this ITraits<YoYInflationTermStructure> self, Settings settings, 
                                                         Date referenceDate, Calendar calendar, DayCounter dayCounter, Period lag,
                                                         Frequency frequency, bool indexIsInterpolated, double baseZeroRate,
                                                         Handle<YieldTermStructure> yTS,
                                                         Interpolator interpolator = default(Interpolator))
              where Interpolator : class, IInterpolationFactory, new()
         {
-            return new InterpolatedYoYInflationCurve<Interpolator>(referenceDate, calendar, dayCounter, lag, frequency,
+            return new InterpolatedYoYInflationCurve<Interpolator>(settings, referenceDate, calendar, dayCounter, lag, frequency,
                                                                     indexIsInterpolated, baseZeroRate, yTS, interpolator);
         }
     }

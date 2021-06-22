@@ -148,14 +148,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings =  new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.01);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.25);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -181,7 +181,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticBinaryBarrierEngine(stochProcess);
 
-            BarrierOption opt = new BarrierOption(values[i].barrierType, values[i].barrier, 0, payoff, amExercise);
+            BarrierOption opt = new BarrierOption(settings, values[i].barrierType, values[i].barrier, 0, payoff, amExercise);
 
             opt.setPricingEngine(engine);
 
@@ -234,14 +234,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings =  new Settings();
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.01);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.25);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -262,7 +262,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticBinaryBarrierEngine(stochProcess);
 
-            BarrierOption opt = new BarrierOption(values[i].barrierType, values[i].barrier, 0, payoff, amExercise);
+            BarrierOption opt = new BarrierOption(settings, values[i].barrierType, values[i].barrier, 0, payoff, amExercise);
 
             opt.setPricingEngine(engine);
 

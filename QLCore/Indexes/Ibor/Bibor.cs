@@ -58,10 +58,10 @@ namespace QLCore
          }
       }
 
-      public Bibor(Period tenor, Handle<YieldTermStructure> h = null)
+      public Bibor(Period tenor, Settings settings, Handle<YieldTermStructure> h = null)
          : base("Bibor", tenor, 2, new THBCurrency(), new Thailand(),
                 BiborConvention(tenor), BiborEOM(tenor),
-                new Actual365Fixed(), h ?? new Handle<YieldTermStructure>())
+                new Actual365Fixed(), settings, h ?? new Handle<YieldTermStructure>())
       {
          Utils.QL_REQUIRE(this.tenor().units() != TimeUnit.Days, () =>
                           "for daily tenors (" + this.tenor() + ") dedicated DailyTenor constructor must be used");
@@ -72,8 +72,8 @@ namespace QLCore
       /// </summary>
       public class BiborSW : Bibor
       {
-         public BiborSW(Handle<YieldTermStructure> h = null)
-            : base(new Period(1, TimeUnit.Weeks), h ?? new Handle<YieldTermStructure>())
+         public BiborSW(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(1, TimeUnit.Weeks), settings, h ?? new Handle<YieldTermStructure>())
          {}
       }
 
@@ -82,8 +82,8 @@ namespace QLCore
       /// </summary>
       public class Bibor1M : Bibor
       {
-         public Bibor1M(Handle<YieldTermStructure> h = null)
-            : base(new Period(1, TimeUnit.Months), h ?? new Handle<YieldTermStructure>())
+         public Bibor1M(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(1, TimeUnit.Months), settings, h ?? new Handle<YieldTermStructure>())
          {}
       }
 
@@ -92,8 +92,8 @@ namespace QLCore
       /// </summary>
       public class Bibor2M : Bibor
       {
-         public Bibor2M(Handle<YieldTermStructure> h = null)
-            : base(new Period(2, TimeUnit.Months), h ?? new Handle<YieldTermStructure>())
+         public Bibor2M(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(2, TimeUnit.Months), settings, h ?? new Handle<YieldTermStructure>())
          { }
       }
 
@@ -102,8 +102,8 @@ namespace QLCore
       /// </summary>
       public class Bibor3M : Bibor
       {
-         public Bibor3M(Handle<YieldTermStructure> h = null)
-            : base(new Period(3, TimeUnit.Months), h ?? new Handle<YieldTermStructure>())
+         public Bibor3M(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(3, TimeUnit.Months), settings, h ?? new Handle<YieldTermStructure>())
          { }
       }
 
@@ -112,8 +112,8 @@ namespace QLCore
       /// </summary>
       public class Bibor6M : Bibor
       {
-         public Bibor6M(Handle<YieldTermStructure> h = null)
-            : base(new Period(6, TimeUnit.Months), h ?? new Handle<YieldTermStructure>())
+         public Bibor6M(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(6, TimeUnit.Months), settings, h ?? new Handle<YieldTermStructure>())
          { }
       }
 
@@ -122,8 +122,8 @@ namespace QLCore
       /// </summary>
       public class Bibor9M : Bibor
       {
-         public Bibor9M(Handle<YieldTermStructure> h = null)
-            : base(new Period(9, TimeUnit.Months), h ?? new Handle<YieldTermStructure>())
+         public Bibor9M(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(9, TimeUnit.Months), settings, h ?? new Handle<YieldTermStructure>())
          { }
       }
 
@@ -132,8 +132,8 @@ namespace QLCore
       /// </summary>
       public class Bibor1Y : Bibor
       {
-         public Bibor1Y(Handle<YieldTermStructure> h = null)
-            : base(new Period(1, TimeUnit.Years), h ?? new Handle<YieldTermStructure>())
+         public Bibor1Y(Settings settings, Handle<YieldTermStructure> h = null)
+            : base(new Period(1, TimeUnit.Years), settings, h ?? new Handle<YieldTermStructure>())
          { }
       }
    }

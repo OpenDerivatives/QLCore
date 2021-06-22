@@ -32,8 +32,10 @@ namespace QLCore
    {
       #region Constructors
 
-      protected DefaultProbabilityTermStructure(DayCounter dc = null, List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(dc)
+      public DefaultProbabilityTermStructure() : base(new Settings()) {}
+
+      protected DefaultProbabilityTermStructure(Settings settings, DayCounter dc = null, List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
+         : base(settings, dc)
       {
          if (jumps != null)
             jumps_ = jumps;
@@ -50,9 +52,9 @@ namespace QLCore
          setJumps();
       }
 
-      protected DefaultProbabilityTermStructure(Date referenceDate, Calendar cal = null, DayCounter dc = null,
+      protected DefaultProbabilityTermStructure(Settings settings, Date referenceDate, Calendar cal = null, DayCounter dc = null,
                                                 List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(referenceDate, cal, dc)
+         : base(settings, referenceDate, cal, dc)
       {
          if (jumps != null)
             jumps_ = jumps;
@@ -69,9 +71,9 @@ namespace QLCore
          setJumps();
       }
 
-      protected DefaultProbabilityTermStructure(int settlementDays, Calendar cal, DayCounter dc = null,
+      protected DefaultProbabilityTermStructure(Settings settings, int settlementDays, Calendar cal, DayCounter dc = null,
                                                 List<Handle<Quote> > jumps = null, List<Date> jumpDates = null)
-         : base(settlementDays, cal, dc)
+         : base(settings, settlementDays, cal, dc)
       {
          if (jumps != null)
             jumps_ = jumps;

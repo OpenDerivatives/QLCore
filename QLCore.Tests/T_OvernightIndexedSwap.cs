@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_OvernightIndexedSwap : IDisposable
+   public class T_OvernightIndexedSwap
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_OvernightIndexedSwap()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-      
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       public struct Datum
       {
          public int settlementDays;
@@ -190,13 +171,15 @@ namespace TestSuite
          public BusinessDayConvention fixedSwapConvention;
          public IborIndex swapIndex;
          public RelinkableHandle<YieldTermStructure> swapTermStructure = new RelinkableHandle<YieldTermStructure>();
+         public Settings settings;
 
          // utilities
          public OvernightIndexedSwap makeSwap(Period length,
                                               double fixedRate,
-                                              double spread)
+                                              double spread,
+                                              Settings settings)
          {
-            return new MakeOIS(length, eoniaIndex, fixedRate)
+            return new MakeOIS(settings, length, eoniaIndex, fixedRate)
                    .withEffectiveDate(settlement)
                    .withOvernightLegSpread(spread)
                    .withNominal(nominal)
@@ -205,6 +188,7 @@ namespace TestSuite
 
          public CommonVars()
          {
+            settings = new Settings();
             type = OvernightIndexedSwap.Type.Payer;
             settlementDays = 2;
             nominal = 100.0;
@@ -213,17 +197,17 @@ namespace TestSuite
             fixedEoniaPeriod = new Period(1, TimeUnit.Years);
             floatingEoniaPeriod = new Period(1, TimeUnit.Years);
             fixedEoniaDayCount = new Actual360();
-            eoniaIndex = new Eonia(eoniaTermStructure);
+            eoniaIndex = new Eonia(settings, eoniaTermStructure);
             fixedSwapConvention = BusinessDayConvention.ModifiedFollowing;
             fixedSwapFrequency = Frequency.Annual;
             fixedSwapDayCount = new Thirty360();
-            swapIndex = (IborIndex) new Euribor3M(swapTermStructure);
+            swapIndex = (IborIndex) new Euribor3M(settings, swapTermStructure);
             calendar = eoniaIndex.fixingCalendar();
             today = new Date(5, Month.February, 2009);
             //today = calendar.adjust(Date::todaysDate());
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             settlement = calendar.advance(today, new Period(settlementDays, TimeUnit.Days), BusinessDayConvention.Following);
-            eoniaTermStructure.linkTo(Utilities.flatRate(settlement, 0.05, new Actual365Fixed()));
+            eoniaTermStructure.linkTo(Utilities.flatRate(settings, settlement, 0.05, new Actual365Fixed()));
          }
       }
 
@@ -242,9 +226,9 @@ namespace TestSuite
          {
             for (int j = 0; j < spreads.Length; j++)
             {
-               OvernightIndexedSwap swap = vars.makeSwap(lengths[i], 0.0, spreads[j]);
+               OvernightIndexedSwap swap = vars.makeSwap(lengths[i], 0.0, spreads[j], vars.settings);
 
-               swap = vars.makeSwap(lengths[i], swap.fairRate().Value, spreads[j]);
+               swap = vars.makeSwap(lengths[i], swap.fairRate().Value, spreads[j], vars.settings);
 
                if (Math.Abs(swap.NPV()) > 1.0e-10)
                {
@@ -278,9 +262,9 @@ namespace TestSuite
          {
             for (int j = 0; j < rates.Length; j++)
             {
-               OvernightIndexedSwap swap = vars.makeSwap(lengths[i], rates[j], 0.0);
+               OvernightIndexedSwap swap = vars.makeSwap(lengths[i], rates[j], 0.0, vars.settings);
                double? fairSpread = swap.fairSpread();
-               swap = vars.makeSwap(lengths[i], rates[j], fairSpread.Value);
+               swap = vars.makeSwap(lengths[i], rates[j], fairSpread.Value, vars.settings);
 
                if (Math.Abs(swap.NPV()) > 1.0e-10)
                {
@@ -300,12 +284,12 @@ namespace TestSuite
          // Testing Eonia-swap calculation against cached value...
          CommonVars vars = new CommonVars();
 
-         Settings.Instance.setEvaluationDate(vars.today);
+         vars.settings.setEvaluationDate(vars.today);
          vars.settlement = vars.calendar.advance(vars.today, vars.settlementDays, TimeUnit.Days);
          double flat = 0.05;
-         vars.eoniaTermStructure.linkTo(Utilities.flatRate(vars.settlement, flat, new Actual360()));
+         vars.eoniaTermStructure.linkTo(Utilities.flatRate(vars.settings, vars.settlement, flat, new Actual360()));
          double fixedRate = Math.Exp(flat) - 1;
-         OvernightIndexedSwap swap = vars.makeSwap(new Period(1, TimeUnit.Years), fixedRate, 0.0);
+         OvernightIndexedSwap swap = vars.makeSwap(new Period(1, TimeUnit.Years), fixedRate, 0.0, vars.settings);
          double cachedNPV   = 0.001730450147;
          double tolerance = 1.0e-11;
 
@@ -325,8 +309,8 @@ namespace TestSuite
          List<RateHelper> eoniaHelpers = new List<RateHelper>();
          List<RateHelper> swap3mHelpers = new List<RateHelper>();
 
-         IborIndex euribor3m = new Euribor3M();
-         Eonia eonia = new Eonia();
+         IborIndex euribor3m = new Euribor3M(vars.settings);
+         Eonia eonia = new Eonia(vars.settings);
 
          for (int i = 0; i < depositData.Length; i++)
          {
@@ -341,7 +325,8 @@ namespace TestSuite
                                                       euribor3m.fixingCalendar(),
                                                       euribor3m.businessDayConvention(),
                                                       euribor3m.endOfMonth(),
-                                                      euribor3m.dayCounter());
+                                                      euribor3m.dayCounter(),
+                                                      vars.settings);
 
 
             if (term <= new Period(2, TimeUnit.Days))
@@ -364,7 +349,8 @@ namespace TestSuite
                                                   euribor3m.fixingCalendar(),
                                                   euribor3m.businessDayConvention(),
                                                   euribor3m.endOfMonth(),
-                                                  euribor3m.dayCounter());
+                                                  euribor3m.dayCounter(),
+                                                  vars.settings);
             swap3mHelpers.Add(helper);
          }
 
@@ -403,11 +389,11 @@ namespace TestSuite
          }
 
 
-         PiecewiseYieldCurve<Discount, LogLinear> eoniaTS = new PiecewiseYieldCurve<Discount, LogLinear>(vars.today,
+         PiecewiseYieldCurve<Discount, LogLinear> eoniaTS = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settings, vars.today,
                eoniaHelpers,
                new Actual365Fixed());
 
-         PiecewiseYieldCurve<Discount, LogLinear> swapTS = new PiecewiseYieldCurve<Discount, LogLinear>(vars.today,
+         PiecewiseYieldCurve<Discount, LogLinear> swapTS = new PiecewiseYieldCurve<Discount, LogLinear>(vars.settings, vars.today,
                swap3mHelpers,
                new Actual365Fixed());
 
@@ -417,10 +403,9 @@ namespace TestSuite
          double tolerance = 1.0e-10;
          for (int i = 0; i < eoniaSwapData.Length; i++)
          {
-
             double expected = eoniaSwapData[i].rate;
             Period term = new Period(eoniaSwapData[i].n, eoniaSwapData[i].unit);
-            OvernightIndexedSwap swap = vars.makeSwap(term, 0.0, 0.0);
+            OvernightIndexedSwap swap = vars.makeSwap(term, 0.0, 0.0, vars.settings);
             double? calculated = 100.0 * swap.fairRate();
 
             if (Math.Abs(expected - calculated.Value) > tolerance)

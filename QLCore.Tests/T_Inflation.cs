@@ -44,10 +44,10 @@ namespace TestSuite
 
    public class T_Inflation
    {
-      private YieldTermStructure nominalTermStructure()
+      private YieldTermStructure nominalTermStructure(Settings settings)
       {
          Date evaluationDate = new Date(13, Month.August, 2007);
-         return new FlatForward(evaluationDate, 0.05, new Actual360());
+         return new FlatForward(settings, evaluationDate, 0.05, new Actual360());
       }
 
       private List<BootstrapHelper<ZeroInflationTermStructure>> makeHelpers(Datum[] iiData, int N,
@@ -89,8 +89,16 @@ namespace TestSuite
       [Fact]
       public void testZeroIndex()
       {
+         // Retrieval test.
+         //----------------
+         // make sure of the evaluation date
+         Settings settings = new Settings();
+         Date evaluationDate = new Date(13, Month.August, 2007);
+         evaluationDate = new UnitedKingdom().adjust(evaluationDate);
+         settings.setEvaluationDate(evaluationDate);
+
          // Testing zero inflation indices...
-         EUHICP euhicp = new EUHICP(true);
+         EUHICP euhicp = new EUHICP(true, settings);
 
          if (euhicp.name() != "EU HICP"
              || euhicp.frequency() != Frequency.Monthly
@@ -106,7 +114,7 @@ namespace TestSuite
                          + euhicp.availabilityLag() + ")");
          }
 
-         UKRPI ukrpi = new UKRPI(false);
+         UKRPI ukrpi = new UKRPI(false, settings);
          if (ukrpi.name() != "UK RPI"
              || ukrpi.frequency() != Frequency.Monthly
              || ukrpi.revised()
@@ -121,17 +129,10 @@ namespace TestSuite
                          + ukrpi.availabilityLag() + ")");
          }
 
-         // Retrieval test.
-         //----------------
-         // make sure of the evaluation date
-         Date evaluationDate = new Date(13, Month.August, 2007);
-         evaluationDate = new UnitedKingdom().adjust(evaluationDate);
-         Settings.Instance.setEvaluationDate(evaluationDate);
-
          // fixing data
          Date from = new Date(1, Month.January, 2005);
          Date to = new Date(13, Month.August, 2007);
-         Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+         Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
          .withTenor(new Period(1, TimeUnit.Months))
          .withCalendar(new UnitedKingdom())
          .withConvention(BusinessDayConvention.ModifiedFollowing)
@@ -146,7 +147,7 @@ namespace TestSuite
                             };
 
          bool interp = false;
-         UKRPI iir = new UKRPI(interp);
+         UKRPI iir = new UKRPI(interp, settings);
 
          for (int i = 0; i < rpiSchedule.Count - 1; i++)
          {
@@ -183,19 +184,19 @@ namespace TestSuite
       {
          // Testing zero inflation term structure...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             // try the Zero UK
             Calendar calendar = new UnitedKingdom();
             BusinessDayConvention bdc = BusinessDayConvention.ModifiedFollowing;
             Date evaluationDate = new Date(13, Month.August, 2007);
             evaluationDate = calendar.adjust(evaluationDate);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
 
             // fixing data
             Date from = new Date(1, Month.January, 2005);
             Date to = new Date(13, Month.August, 2007);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing)
@@ -211,14 +212,14 @@ namespace TestSuite
 
             RelinkableHandle<ZeroInflationTermStructure> hz = new RelinkableHandle<ZeroInflationTermStructure>();
             bool interp = false;
-            UKRPI iiUKRPI = new UKRPI(interp, hz);
+            UKRPI iiUKRPI = new UKRPI(interp, settings, hz);
             for (int i = 0; i < fixData.Length; i++)
             {
                iiUKRPI.addFixing(rpiSchedule[i], fixData[i]);
             }
 
             ZeroInflationIndex ii = iiUKRPI as ZeroInflationIndex;
-            YieldTermStructure nominalTS = nominalTermStructure();
+            YieldTermStructure nominalTS = nominalTermStructure(settings);
 
             // now build the zero inflation curve
 
@@ -249,7 +250,7 @@ namespace TestSuite
                            calendar, bdc, dc);
 
             double baseZeroRate = zcData[0].rate / 100.0;
-            PiecewiseZeroInflationCurve<Linear> pZITS = new PiecewiseZeroInflationCurve<Linear>(
+            PiecewiseZeroInflationCurve<Linear> pZITS = new PiecewiseZeroInflationCurve<Linear>(settings, 
                evaluationDate, calendar, dc, observationLag,
                frequency, ii.interpolated(), baseZeroRate,
                new Handle<YieldTermStructure>(nominalTS), helpers);
@@ -280,7 +281,7 @@ namespace TestSuite
             hz.linkTo(pZITS);
             from = hz.link.baseDate();
             to = hz.link.maxDate() - new Period(1, TimeUnit.Months); // a bit of margin for adjustments
-            Schedule testIndex = new MakeSchedule().from(from).to(to)
+            Schedule testIndex = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -334,7 +335,7 @@ namespace TestSuite
             ZeroInflationIndex zii = ii as ZeroInflationIndex;
             Utils.QL_REQUIRE(zii != null, () => "dynamic_pointer_cast to ZeroInflationIndex from UKRPI failed");
             ZeroCouponInflationSwap nzcis =
-               new ZeroCouponInflationSwap(ZeroCouponInflationSwap.Type.Payer,
+               new ZeroCouponInflationSwap(settings, ZeroCouponInflationSwap.Type.Payer,
                                            1000000.0,
                                            evaluationDate,
                                            zcData[6].date,    // end date = maturity
@@ -514,7 +515,7 @@ namespace TestSuite
             // UKRPI (to save making another term structure)
 
             bool interpYES = true;
-            UKRPI iiUKRPIyes = new UKRPI(interpYES, hz);
+            UKRPI iiUKRPIyes = new UKRPI(interpYES, settings, hz);
             for (int i = 0; i < fixData.Length; i++)
             {
                iiUKRPIyes.addFixing(rpiSchedule[i], fixData[i]);
@@ -530,7 +531,7 @@ namespace TestSuite
                            iiyes, observationLagyes, calendar, bdc, dc);
 
             PiecewiseZeroInflationCurve<Linear> pZITSyes =
-               new PiecewiseZeroInflationCurve<Linear>(
+               new PiecewiseZeroInflationCurve<Linear>(settings,
                evaluationDate, calendar, dc, observationLagyes,
                frequency, iiyes.interpolated(), baseZeroRate,
                new Handle<YieldTermStructure>(nominalTS), helpersyes);
@@ -561,7 +562,7 @@ namespace TestSuite
             hz.linkTo(pZITSyes);
             from = hz.link.baseDate() + new Period(1, TimeUnit.Months); // to avoid historical linear bit for rest of base month
             to = hz.link.maxDate() - new Period(1, TimeUnit.Months); // a bit of margin for adjustments
-            testIndex = new MakeSchedule().from(from).to(to)
+            testIndex = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -592,7 +593,7 @@ namespace TestSuite
 
             ZeroInflationIndex ziiyes = iiyes as ZeroInflationIndex;
             Utils.QL_REQUIRE(ziiyes != null, () => "dynamic_pointer_cast to ZeroInflationIndex from UKRPI-I failed");
-            ZeroCouponInflationSwap nzcisyes = new ZeroCouponInflationSwap(ZeroCouponInflationSwap.Type.Payer,
+            ZeroCouponInflationSwap nzcisyes = new ZeroCouponInflationSwap(settings, ZeroCouponInflationSwap.Type.Payer,
                                                                            1000000.0,
                                                                            evaluationDate,
                                                                            zcData[6].date,    // end date = maturity
@@ -626,9 +627,9 @@ namespace TestSuite
       {
          // Testing year-on-year inflation indices
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
-            YYEUHICP yyeuhicp = new YYEUHICP(true);
+            YYEUHICP yyeuhicp = new YYEUHICP(true, settings);
             if (yyeuhicp.name() != "EU YY_HICP"
                 || yyeuhicp.frequency() != Frequency.Monthly
                 || yyeuhicp.revised()
@@ -645,7 +646,7 @@ namespace TestSuite
                             + yyeuhicp.availabilityLag() + ")");
             }
 
-            YYEUHICPr yyeuhicpr = new YYEUHICPr(true);
+            YYEUHICPr yyeuhicpr = new YYEUHICPr(true, settings);
             if (yyeuhicpr.name() != "EU YYR_HICP"
                 || yyeuhicpr.frequency() != Frequency.Monthly
                 || yyeuhicpr.revised()
@@ -662,7 +663,7 @@ namespace TestSuite
                             + yyeuhicpr.availabilityLag() + ")");
             }
 
-            YYUKRPI yyukrpi = new YYUKRPI(false);
+            YYUKRPI yyukrpi = new YYUKRPI(false, settings);
             if (yyukrpi.name() != "UK YY_RPI"
                 || yyukrpi.frequency() != Frequency.Monthly
                 || yyukrpi.revised()
@@ -679,7 +680,7 @@ namespace TestSuite
                             + yyukrpi.availabilityLag() + ")");
             }
 
-            YYUKRPIr yyukrpir = new YYUKRPIr(false);
+            YYUKRPIr yyukrpir = new YYUKRPIr(false, settings);
             if (yyukrpir.name() != "UK YYR_RPI"
                 || yyukrpir.frequency() != Frequency.Monthly
                 || yyukrpir.revised()
@@ -701,12 +702,12 @@ namespace TestSuite
             // make sure of the evaluation date
             Date evaluationDate = new Date(13, Month.August, 2007);
             evaluationDate = new UnitedKingdom().adjust(evaluationDate);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
 
             // fixing data
             Date from = new Date(1, Month.January, 2005);
             Date to = new Date(13, Month.August, 2007);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -720,8 +721,8 @@ namespace TestSuite
                                };
 
             bool interp = false;
-            YYUKRPIr iir = new YYUKRPIr(interp);
-            YYUKRPIr iirYES = new YYUKRPIr(true);
+            YYUKRPIr iir = new YYUKRPIr(interp, settings);
+            YYUKRPIr iirYES = new YYUKRPIr(true, settings);
             for (int i = 0; i < fixData.Length; i++)
             {
                iir.addFixing(rpiSchedule[i], fixData[i]);
@@ -786,19 +787,19 @@ namespace TestSuite
       {
          // Testing year-on-year inflation term structure...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             // try the YY UK
             Calendar calendar = new UnitedKingdom();
             BusinessDayConvention bdc = BusinessDayConvention.ModifiedFollowing;
             Date evaluationDate = new Date(13, Month.August, 2007);
             evaluationDate = calendar.adjust(evaluationDate);
-            Settings.Instance.setEvaluationDate(evaluationDate);
+            settings.setEvaluationDate(evaluationDate);
 
             // fixing data
             Date from = new Date(1, Month.January, 2005);
             Date to = new Date(13, Month.August, 2007);
-            Schedule rpiSchedule = new MakeSchedule().from(from).to(to)
+            Schedule rpiSchedule = new MakeSchedule(settings).from(from).to(to)
             .withTenor(new Period(1, TimeUnit.Months))
             .withCalendar(new UnitedKingdom())
             .withConvention(BusinessDayConvention.ModifiedFollowing).value();
@@ -812,13 +813,13 @@ namespace TestSuite
 
             RelinkableHandle<YoYInflationTermStructure> hy = new RelinkableHandle<YoYInflationTermStructure>();
             bool interp = false;
-            YYUKRPIr iir = new YYUKRPIr(interp, hy);
+            YYUKRPIr iir = new YYUKRPIr(interp, settings, hy);
             for (int i = 0; i < fixData.Length; i++)
             {
                iir.addFixing(rpiSchedule[i], fixData[i]);
             }
 
-            YieldTermStructure nominalTS = nominalTermStructure();
+            YieldTermStructure nominalTS = nominalTermStructure(settings);
 
             // now build the YoY inflation curve
             Datum[] yyData =
@@ -848,7 +849,7 @@ namespace TestSuite
                makeHelpers(yyData, yyData.Length, iir, observationLag, calendar, bdc, dc);
 
             double baseYYRate = yyData[0].rate / 100.0;
-            PiecewiseYoYInflationCurve<Linear> pYYTS = new PiecewiseYoYInflationCurve<Linear>(
+            PiecewiseYoYInflationCurve<Linear> pYYTS = new PiecewiseYoYInflationCurve<Linear>(settings, 
                evaluationDate, calendar, dc, observationLag,
                iir.frequency(), iir.interpolated(), baseYYRate,
                new Handle<YieldTermStructure>(nominalTS), helpers);
@@ -869,7 +870,7 @@ namespace TestSuite
             {
                from = nominalTS.referenceDate();
                to = yyData[j].date;
-               Schedule yoySchedule = new MakeSchedule().from(from).to(to)
+               Schedule yoySchedule = new MakeSchedule(settings).from(from).to(to)
                .withConvention(BusinessDayConvention.Unadjusted) // fixed leg gets calendar from
                .withCalendar(calendar)     // schedule
                .withTenor(new Period(1, TimeUnit.Years)).value(); // .back
@@ -904,7 +905,7 @@ namespace TestSuite
             {
                from = nominalTS.referenceDate() - new Period(k, TimeUnit.Months);
                to = yyData[jj].date - new Period(k, TimeUnit.Months);
-               Schedule yoySchedule = new MakeSchedule().from(from).to(to)
+               Schedule yoySchedule = new MakeSchedule(settings).from(from).to(to)
                .withConvention(BusinessDayConvention.Unadjusted) // fixed leg gets calendar from
                .withCalendar(calendar)     // schedule
                .withTenor(new Period(1, TimeUnit.Years))

@@ -26,12 +26,12 @@ namespace QLCore
    */
    public class NZDLibor : Libor
    {
-      public NZDLibor(Period tenor)
-         : base("NZDLibor", tenor, 2, new NZDCurrency(), new NewZealand(), new Actual360(), new Handle<YieldTermStructure>())
+      public NZDLibor(Period tenor, Settings settings)
+         : base("NZDLibor", tenor, 2, new NZDCurrency(), new NewZealand(), new Actual360(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public NZDLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("NZDLibor", tenor, 2, new NZDCurrency(), new NewZealand(), new Actual360(), h)
+      public NZDLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("NZDLibor", tenor, 2, new NZDCurrency(), new NewZealand(), new Actual360(), settings, h)
       {}
 
    }

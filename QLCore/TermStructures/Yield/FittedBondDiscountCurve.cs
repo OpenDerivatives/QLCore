@@ -75,7 +75,8 @@ namespace QLCore
    {
       // Constructors
       //! reference date based on current evaluation date
-      public FittedBondDiscountCurve(int settlementDays,
+      public FittedBondDiscountCurve(Settings settings, 
+                                     int settlementDays,
                                      Calendar calendar,
                                      List<BondHelper> bondHelpers,
                                      DayCounter dayCounter,
@@ -85,7 +86,7 @@ namespace QLCore
                                      Vector guess = null,
                                      double simplexLambda = 1.0,
                                      int maxStationaryStateIterations = 100)
-         : base(settlementDays, calendar, dayCounter)
+         : base(settings, settlementDays, calendar, dayCounter)
       {
          accuracy_ = accuracy;
          maxEvaluations_ = maxEvaluations;
@@ -99,7 +100,8 @@ namespace QLCore
       }
 
       //! curve reference date fixed for life of curve
-      public FittedBondDiscountCurve(Date referenceDate,
+      public FittedBondDiscountCurve(Settings settings, 
+                                     Date referenceDate,
                                      List<BondHelper> bondHelpers,
                                      DayCounter dayCounter,
                                      FittingMethod fittingMethod,
@@ -108,7 +110,7 @@ namespace QLCore
                                      Vector guess = null,
                                      double simplexLambda = 1.0,
                                      int maxStationaryStateIterations = 100)
-         : base(referenceDate, new Calendar(), dayCounter)
+         : base(settings, referenceDate, new Calendar(), dayCounter)
       {
          accuracy_ = accuracy;
          maxEvaluations_ = maxEvaluations;
@@ -239,6 +241,7 @@ namespace QLCore
                }
                return squaredError;
             }
+
             public override Vector values(Vector x)
             {
                Date refDate  = fittingMethod_.curve_.referenceDate();
@@ -279,8 +282,6 @@ namespace QLCore
 
             private FittedBondDiscountCurve.FittingMethod fittingMethod_;
             internal List<int> firstCashFlow_;
-
-
          }
 
          //! total number of coefficients to fit/solve for
@@ -301,12 +302,14 @@ namespace QLCore
          public OptimizationMethod optimizationMethod() {return optimizationMethod_;}
          //! open discountFunction to public
          public double discount(Vector x, double t) {return discountFunction(x, t);}
-
+         public Settings settings() { return settings_; }
          //! constructor
-         protected FittingMethod(bool constrainAtZero = true,
+         protected FittingMethod(Settings settings,
+                                 bool constrainAtZero = true,
                                  Vector weights = null,
                                  OptimizationMethod optimizationMethod = null)
          {
+            settings_ = settings;
             constrainAtZero_ = constrainAtZero;
             weights_ = weights ?? new Vector();
             calculateWeights_ = weights_.empty();
@@ -436,6 +439,7 @@ namespace QLCore
             curve_.guessSolution_ = solution_;
          }
 
+         private Settings settings_;
          // array of normalized (duration) weights, one for each bond helper
          private Vector weights_;
          // whether or not the weights should be calculated internally

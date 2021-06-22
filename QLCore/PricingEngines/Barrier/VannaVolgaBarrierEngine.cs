@@ -71,7 +71,8 @@ namespace QLCore
          Handle<Quote> x0Quote = new Handle<Quote>(new SimpleQuote(spotFX_.link.value())); //used for shift
          Handle<Quote> atmVolQuote = new Handle<Quote>(new SimpleQuote(atmVol_.link.value())); //used for shift
 
-         BlackVolTermStructure blackVolTS = new BlackConstantVol(Settings.Instance.evaluationDate(),
+         BlackVolTermStructure blackVolTS = new BlackConstantVol(arguments_.settings, 
+                                                                 arguments_.settings.evaluationDate(),
                                                                  new NullCalendar(), atmVolQuote, new Actual365Fixed());
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(x0Quote, foreignTS_, domesticTS_,
                                                                                 new Handle<BlackVolTermStructure>(blackVolTS));
@@ -167,7 +168,7 @@ namespace QLCore
             else
                barrierType = Barrier.Type.DownOut;
 
-            BarrierOption barrierOption = new BarrierOption(barrierType,
+            BarrierOption barrierOption = new BarrierOption(arguments_.settings, barrierType,
                                                             arguments_.barrier.GetValueOrDefault(),
                                                             arguments_.rebate.GetValueOrDefault(),
                                                             (StrikedTypePayoff)arguments_.payoff,

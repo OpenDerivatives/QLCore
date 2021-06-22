@@ -87,7 +87,7 @@ namespace QLCore
             if (Utils.Get(gearings, i, 1).IsEqual(0.0))
             {
                // fixed coupon
-               leg.Add(new FixedRateCoupon(paymentDate, Utils.Get(nominals, i),
+               leg.Add(new FixedRateCoupon(schedule.settings(), paymentDate, Utils.Get(nominals, i),
                                            Utils.effectiveFixedRate(spreads, caps, floors, i),
                                            paymentDayCounter,
                                            start, end, refStart, refEnd));
@@ -186,7 +186,8 @@ namespace QLCore
             if (Utils.Get(gearings, i, 1.0).IsEqual(0.0))
             {
                // fixed coupon
-               leg.Add(new FixedRateCoupon(paymentDate, Utils.Get(nominals, i, 1.0),
+               leg.Add(new FixedRateCoupon(schedule.settings(), 
+                                           paymentDate, Utils.Get(nominals, i, 1.0),
                                            Utils.Get(spreads, i, 1.0),
                                            paymentDayCounter,
                                            start, end, refStart, refEnd));
@@ -314,7 +315,8 @@ namespace QLCore
             if (Utils.Get(gearings_, i, 1.0).IsEqual(0.0))
             {
                // fixed coupon
-               leg.Add(new FixedRateCoupon(paymentDate, Utils.Get(notionals_, i, 1.0),
+               leg.Add(new FixedRateCoupon(schedule_.settings(), 
+                                           paymentDate, Utils.Get(notionals_, i, 1.0),
                                            Utils.effectiveFixedRate(spreads_, caps_, floors_, i),
                                            paymentDayCounter_,
                                            start, end, refStart, refEnd));

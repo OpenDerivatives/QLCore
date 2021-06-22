@@ -59,17 +59,17 @@ namespace TestSuite
       public void testValues()
       {
          // Testing Cliquet option values
-
+         Settings settings = new Settings();
          Date today = Date.Today;
          DayCounter dc = new Actual360();
 
          SimpleQuote spot = new SimpleQuote(60.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.08);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.30);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          BlackScholesMertonProcess process = new BlackScholesMertonProcess(
             new Handle<Quote>(spot),
@@ -87,7 +87,7 @@ namespace TestSuite
          PercentageStrikePayoff payoff = new PercentageStrikePayoff(type, moneyness);
          EuropeanExercise exercise = new EuropeanExercise(maturity);
 
-         CliquetOption option = new CliquetOption(payoff, exercise, reset);
+         CliquetOption option = new CliquetOption(settings, payoff, exercise, reset);
          option.setPricingEngine(engine);
 
          double calculated = option.NPV();
@@ -120,7 +120,7 @@ namespace TestSuite
       private void testOptionGreeks(ForwardVanillaEngine.GetOriginalEngine getEngine)
       {
 
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          Dictionary<String, double> calculated = new Dictionary<string, double>(),
          expected = new Dictionary<string, double>(),
@@ -143,15 +143,15 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.0);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
          BlackScholesMertonProcess process = new BlackScholesMertonProcess(new Handle<Quote>(spot), qTS, rTS, volTS);
 
@@ -175,7 +175,7 @@ namespace TestSuite
 
                      IPricingEngine engine = getEngine(process);
 
-                     CliquetOption option = new CliquetOption(payoff, maturity, reset);
+                     CliquetOption option = new CliquetOption(settings, payoff, maturity, reset);
                      option.setPricingEngine(engine);
 
                      for (int l = 0; l < underlyings.Length; l++)
@@ -259,13 +259,13 @@ namespace TestSuite
 
                                     // perturb date and get theta
                                     double dT = dc.yearFraction(today - 1, today + 1);
-                                    Settings.Instance.setEvaluationDate(today - 1);
+                                    settings.setEvaluationDate(today - 1);
                                     option.update();
                                     value_m = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today + 1);
+                                    settings.setEvaluationDate(today + 1);
                                     option.update();
                                     value_p = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today);
+                                    settings.setEvaluationDate(today);
                                     option.update();
                                     expected["theta"] = (value_p - value_m) / dT;
 

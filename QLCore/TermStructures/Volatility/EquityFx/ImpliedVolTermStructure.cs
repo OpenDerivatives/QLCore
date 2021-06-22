@@ -36,7 +36,7 @@ namespace QLCore
    public class ImpliedVolTermStructure : BlackVarianceTermStructure
    {
       public ImpliedVolTermStructure(Handle<BlackVolTermStructure> originalTS, Date referenceDate)
-         : base(referenceDate)
+         : base(originalTS.link.settings(), referenceDate)
       {
          originalTS_ = originalTS;
       }

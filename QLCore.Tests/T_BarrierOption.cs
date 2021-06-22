@@ -341,14 +341,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol = new SimpleQuote(0.0);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, vol, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, vol, dc);
 
          for (int i = 0; i < values.Length; i++)
          {
@@ -371,7 +371,7 @@ namespace TestSuite
             else
                exercise = new AmericanExercise(exDate);
 
-            BarrierOption barrierOption = new BarrierOption(values[i].barrierType, values[i].barrier, values[i].rebate,
+            BarrierOption barrierOption = new BarrierOption(settings, values[i].barrierType, values[i].barrier, values[i].rebate,
                                                             payoff, exercise);
 
             IPricingEngine engine;
@@ -484,18 +484,19 @@ namespace TestSuite
          double r = 0.05;
          double q = 0.02;
 
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
          SimpleQuote underlying = new SimpleQuote(underlyingPrice);
 
          SimpleQuote qH_SME = new SimpleQuote(q);
-         YieldTermStructure qTS = Utilities.flatRate(today, qH_SME, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qH_SME, dc);
 
          SimpleQuote rH_SME = new SimpleQuote(r);
-         YieldTermStructure rTS = Utilities.flatRate(today, rH_SME, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rH_SME, dc);
 
          SimpleQuote volatility = new SimpleQuote(0.10);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, volatility, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, volatility, dc);
 
          Date exDate = today + 360;
          Exercise exercise = new EuropeanExercise(exDate);
@@ -516,7 +517,7 @@ namespace TestSuite
             IPricingEngine engine = new AnalyticBarrierEngine(stochProcess);
 
             // analytic
-            BarrierOption barrierCallOption = new BarrierOption(values[i].type, values[i].barrier, rebate, callPayoff, exercise);
+            BarrierOption barrierCallOption = new BarrierOption(settings, values[i].type, values[i].barrier, rebate, callPayoff, exercise);
             barrierCallOption.setPricingEngine(engine);
             double calculated = barrierCallOption.NPV();
             double expected = values[i].callValue;
@@ -582,17 +583,17 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote underlying = new SimpleQuote(underlyingPrice);
 
          SimpleQuote qH_SME = new SimpleQuote(q);
-         YieldTermStructure qTS = Utilities.flatRate(today, qH_SME, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qH_SME, dc);
 
          SimpleQuote rH_SME = new SimpleQuote(r);
-         YieldTermStructure rTS = Utilities.flatRate(today, rH_SME, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rH_SME, dc);
 
          SimpleQuote volatility = new SimpleQuote(0.10);
-         BlackVolTermStructure volTS = Utilities.flatVol(today, volatility, dc);
+         BlackVolTermStructure volTS = Utilities.flatVol(settings, today, volatility, dc);
 
 
          Date exDate = today + 360;
@@ -612,7 +613,7 @@ namespace TestSuite
 
             IPricingEngine engine = new AnalyticBarrierEngine(stochProcess);
 
-            BarrierOption barrierCallOption = new BarrierOption(values[i].type, values[i].barrier, rebate, callPayoff, exercise);
+            BarrierOption barrierCallOption = new BarrierOption(settings, values[i].type, values[i].barrier, rebate, callPayoff, exercise);
             barrierCallOption.setPricingEngine(engine);
             double calculated = barrierCallOption.NPV();
             double expected = values[i].callValue;
@@ -654,10 +655,10 @@ namespace TestSuite
       public void testLocalVolAndHestonComparison()
       {
          // Testing local volatility and Heston FD engines for barrier options
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          Date settlementDate = new Date(5, Month.July, 2002);
-         Settings.Instance.setEvaluationDate(settlementDate);
+         settings.setEvaluationDate(settlementDate);
 
          DayCounter dayCounter = new Actual365Fixed();
          Calendar calendar = new TARGET();
@@ -673,8 +674,8 @@ namespace TestSuite
             rates.Add(r[i]);
          }
 
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(dates, rates, dayCounter));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settlementDate, 0.0, dayCounter));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(new InterpolatedZeroCurve<Linear>(settings, dates, rates, dayCounter));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, settlementDate, 0.0, dayCounter));
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(4500.00));
 
@@ -714,7 +715,7 @@ namespace TestSuite
                blackVolMatrix[i, j - 1] = v[i * (dates.Count - 1) + j - 1];
             }
 
-         BlackVarianceSurface volTS = new BlackVarianceSurface(settlementDate, calendar,
+         BlackVarianceSurface volTS = new BlackVarianceSurface(settings, settlementDate, calendar,
                                                                dates.GetRange(1, dates.Count - 1), strikes, blackVolMatrix, dayCounter);
          volTS.setInterpolation<Bicubic>();
          GeneralizedBlackScholesProcess localVolProcess = new BlackScholesMertonProcess(s0, qTS, rTS,
@@ -741,7 +742,7 @@ namespace TestSuite
 
          Exercise exercise = new EuropeanExercise(exDate);
 
-         BarrierOption barrierOption = new BarrierOption(Barrier.Type.DownOut, barrier, rebate, payoff, exercise);
+         BarrierOption barrierOption = new BarrierOption(settings, Barrier.Type.DownOut, barrier, rebate, payoff, exercise);
 
          barrierOption.setPricingEngine(fdHestonEngine);
          double expectedHestonNPV = 111.5;
@@ -777,7 +778,7 @@ namespace TestSuite
       public void testVannaVolgaSimpleBarrierValues()
       {
          // Testing barrier FX options against Vanna/Volga values
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          BarrierFxOptionData[] values =
          {
@@ -931,13 +932,13 @@ namespace TestSuite
 
          DayCounter dc = new Actual365Fixed();
          Date today = new Date(5, Month.March, 2013);
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         YieldTermStructure qTS = Utilities.flatRate(today, qRate, dc);
+         YieldTermStructure qTS = Utilities.flatRate(settings, today, qRate, dc);
          SimpleQuote rRate = new SimpleQuote(0.0);
-         YieldTermStructure rTS = Utilities.flatRate(today, rRate, dc);
+         YieldTermStructure rTS = Utilities.flatRate(settings, today, rRate, dc);
          SimpleQuote vol25Put = new SimpleQuote(0.0);
          SimpleQuote volAtm = new SimpleQuote(0.0);
          SimpleQuote vol25Call = new SimpleQuote(0.0);
@@ -976,7 +977,7 @@ namespace TestSuite
                                  values[i].t,
                                  DeltaVolQuote.DeltaType.Fwd));
 
-            BarrierOption barrierOption = new BarrierOption(values[i].barrierType, values[i].barrier, values[i].rebate,
+            BarrierOption barrierOption = new BarrierOption(settings, values[i].barrierType, values[i].barrier, values[i].rebate,
                                                             payoff, exercise);
 
             double bsVanillaPrice = Utils.blackFormula(values[i].type, values[i].strike,
@@ -1008,13 +1009,13 @@ namespace TestSuite
       public void testDividendBarrierOption()
       {
          //Testing barrier option pricing with discrete dividends...
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          DayCounter dc = new Actual365Fixed();
 
          Date today = new Date(11, Month.February, 2018);
          Date maturity = today + new Period(1, TimeUnit.Years);
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          double spot = 100.0;
          double strike = 105.0;
@@ -1028,9 +1029,9 @@ namespace TestSuite
          double v = 0.02;
 
          Handle<Quote> s0 = new Handle<Quote>(new SimpleQuote(spot));
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, q, dc));
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, r, dc));
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, v, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, q, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, r, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, v, dc));
 
          BlackScholesMertonProcess bsProcess = new
                BlackScholesMertonProcess(s0, qTS, rTS, volTS);
@@ -1094,7 +1095,7 @@ namespace TestSuite
                   double barrier = barriers[i];
                   Barrier.Type barrierType = barrierTypes[i];
 
-                  DividendBarrierOption barrierOption = new DividendBarrierOption(
+                  DividendBarrierOption barrierOption = new DividendBarrierOption(settings, 
                      barrierType, barrier, rebate, payoff, exercise,
                      new InitializedList<Date>(1, divDate),
                      new InitializedList<double>(1, divAmount));

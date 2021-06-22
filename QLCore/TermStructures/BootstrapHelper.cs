@@ -38,30 +38,36 @@ namespace QLCore
       It is advised that a bootstrap helper for an instrument contains an instance of the actual instrument
     * class to ensure consistancy between the algorithms used during bootstrapping
       and later instrument pricing. This is not yet fully enforced in the available rate helpers. */
-   public class BootstrapHelper<TS>
+   public class BootstrapHelper<TS> where TS : TermStructure
    {
       protected Handle<Quote> quote_;
       protected TS termStructure_;
       protected Date earliestDate_, latestDate_;
       protected Date maturityDate_, latestRelevantDate_, pillarDate_;
+      protected Settings settings_;
 
-      public BootstrapHelper() { } // required for generics
+      public BootstrapHelper(Settings settings) { settings_ = settings; } // required for generics
 
-      public BootstrapHelper(Handle<Quote> quote)
+      public BootstrapHelper(Settings settings, Handle<Quote> quote)
       {
+         settings_ = settings;
          quote_ = quote;
       }
-      public BootstrapHelper(double quote)
+      public BootstrapHelper(Settings settings, double quote)
       {
+         settings_ = settings;
          quote_ = new Handle<Quote>(new SimpleQuote(quote));
       }
 
+      public Settings settings() { return settings_; }
+      public void setSettings(Settings s) { settings_ = s; }
 
       //! BootstrapHelper interface
       public Handle<Quote> quote() { return quote_; }
       public double quoteError() { return quote_.link.value() - impliedQuote(); }
       public double quoteValue() { return quote_.link.value(); }
       public bool quoteIsValid() { return quote_.link.isValid(); }
+      public TS termStructure() { return termStructure_; }
       public virtual double impliedQuote() { throw new NotSupportedException(); }
 
 
@@ -129,25 +135,25 @@ namespace QLCore
     /*! Derived classes must takes care of rebuilding the date schedule when
         the global evaluation date changes
     */
-    public class RelativeDateBootstrapHelper<TS> : BootstrapHelper<TS> {
-        public RelativeDateBootstrapHelper(Handle<Quote> quote)
-            : base(quote)
+    public class RelativeDateBootstrapHelper<TS> : BootstrapHelper<TS> where TS : TermStructure {
+        public RelativeDateBootstrapHelper(Settings settings, Handle<Quote> quote)
+            : base(settings, quote)
         {
-            evaluationDate_ = Settings.Instance.evaluationDate();
+            evaluationDate_ = settings.evaluationDate();
         }
 
-        public RelativeDateBootstrapHelper(double quote)
-            : base(quote)
+        public RelativeDateBootstrapHelper(Settings settings, double quote)
+            : base(settings, quote)
         {
-            evaluationDate_ = Settings.Instance.evaluationDate();
+            evaluationDate_ = settings.evaluationDate();
         }
 
         //! \name Observer interface
         //@{
         public void update()
         {
-            if (evaluationDate_ != Settings.Instance.evaluationDate()) {
-                evaluationDate_ = Settings.Instance.evaluationDate();
+            if (evaluationDate_ != settings().evaluationDate()) {
+                evaluationDate_ = settings().evaluationDate();
                 initializeDates();
             }
         }
@@ -158,15 +164,15 @@ namespace QLCore
 
    public class RateHelper : BootstrapHelper<YieldTermStructure>
    {
-      public RateHelper() : base() { } // required for generics
-      public RateHelper(Handle<Quote> quote) : base(quote) {}
-      public RateHelper(double quote) : base(quote) {}
+      public RateHelper(Settings settings) : base(settings) { } // required for generics
+      public RateHelper(Settings settings, Handle<Quote> quote) : base(settings, quote) {}
+      public RateHelper(Settings settings, double quote) : base(settings, quote) {}
    }
 
    public class InflationHelper : BootstrapHelper<ZeroInflationTermStructure>
     {
-        public InflationHelper() : base() { } // required for generics
-        public InflationHelper(Handle<Quote> quote) : base(quote) { }
-        public InflationHelper(double quote) : base(quote) { }
+        public InflationHelper(Settings settings) : base(settings) { } // required for generics
+        public InflationHelper(Settings settings, Handle<Quote> quote) : base(settings, quote) { }
+        public InflationHelper(Settings settings, double quote) : base(settings, quote) { }
     }
 }

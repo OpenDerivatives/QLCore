@@ -30,7 +30,8 @@ namespace QLCore
       // Event interface
       public override Date date() { return date_; }
 
-      protected Dividend(Date date)
+      protected Dividend(Settings settings, Date date)
+      : base(settings)
       {
          date_ = date;
       }
@@ -46,8 +47,8 @@ namespace QLCore
       public override double amount() { return amount_; }
       public override double amount(double d) { return amount_; }
 
-      public FixedDividend(double amount, Date date)
-         : base(date)
+      public FixedDividend(Settings settings, double amount, Date date)
+         : base(settings, date)
       {
          amount_ = amount;
       }
@@ -63,15 +64,15 @@ namespace QLCore
       protected double? nominal_;
       public double? nominal() { return nominal_; }
 
-      public FractionalDividend(double rate, Date date)
-         : base(date)
+      public FractionalDividend(Settings settings, double rate, Date date)
+         : base(settings, date)
       {
          rate_ = rate;
          nominal_ = null;
       }
 
-      public FractionalDividend(double rate, double nominal, Date date)
-         : base(date)
+      public FractionalDividend(Settings settings, double rate, double nominal, Date date)
+         : base(settings, date)
       {
          rate_ = rate;
          nominal_ = nominal;
@@ -93,13 +94,13 @@ namespace QLCore
    public static partial class Utils
    {
       //! helper function building a sequence of fixed dividends
-      public static DividendSchedule DividendVector(List<Date> dividendDates, List<double> dividends)
+      public static DividendSchedule DividendVector(Settings settings, List<Date> dividendDates, List<double> dividends)
       {
          QL_REQUIRE(dividendDates.Count == dividends.Count, () => "size mismatch between dividend dates and amounts");
 
          DividendSchedule items = new DividendSchedule();
          for (int i = 0; i < dividendDates.Count; i++)
-            items.Add(new FixedDividend(dividends[i], dividendDates[i]));
+            items.Add(new FixedDividend(settings, dividends[i], dividendDates[i]));
          return items;
       }
    }

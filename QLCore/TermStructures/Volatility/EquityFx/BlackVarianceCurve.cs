@@ -49,9 +49,9 @@ namespace QLCore
       Interpolation varianceCurve_;
 
       // required for Handle
-      public BlackVarianceCurve(Date referenceDate, List<Date> dates, List<double> blackVolCurve, DayCounter dayCounter,
+      public BlackVarianceCurve(Settings settings, Date referenceDate, List<Date> dates, List<double> blackVolCurve, DayCounter dayCounter,
                                 bool forceMonotoneVariance)
-         : base(referenceDate)
+         : base(settings, referenceDate, null, BusinessDayConvention.Following, null)
       {
 
          dayCounter_ = dayCounter;

@@ -64,11 +64,11 @@ namespace QLCore
 
          Handle<Quote> underlying = new Handle<Quote>(new SimpleQuote(s0));
          Handle<YieldTermStructure> flatRiskFree =
-            new Handle<YieldTermStructure>(new FlatForward(referenceDate, riskFreeRate, rfdc));
+            new Handle<YieldTermStructure>(new FlatForward(arguments_.settings, referenceDate, riskFreeRate, rfdc));
          Handle<YieldTermStructure> flatDividends =
-            new Handle<YieldTermStructure>(new FlatForward(referenceDate, q, divdc));
+            new Handle<YieldTermStructure>(new FlatForward(arguments_.settings, referenceDate, q, divdc));
          Handle<BlackVolTermStructure> flatVol =
-            new Handle<BlackVolTermStructure>(new BlackConstantVol(referenceDate, volcal, v, voldc));
+            new Handle<BlackVolTermStructure>(new BlackConstantVol(arguments_.settings, referenceDate, volcal, v, voldc));
          PlainVanillaPayoff payoff = args.payoff as PlainVanillaPayoff;
 
          Utils.QL_REQUIRE(payoff != null, () => " non-plain payoff given ");

@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_BermudanSwaption : IDisposable
+   public class T_BermudanSwaption
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_BermudanSwaption()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       public class CommonVars
       {
          // global data
@@ -62,6 +43,7 @@ namespace TestSuite
          public DayCounter fixedDayCount;
          public IborIndex index;
          public int settlementDays;
+         public Settings settings;
 
          public RelinkableHandle<YieldTermStructure> termStructure;
 
@@ -78,11 +60,11 @@ namespace TestSuite
             fixedFrequency = Frequency.Annual;
             floatingFrequency = Frequency.Semiannual;
             fixedDayCount = new Thirty360();
-
+            settings = new Settings();
             termStructure = new RelinkableHandle<YieldTermStructure>();
-            termStructure.linkTo(Utilities.flatRate(new Date(19, Month.February, 2002), 0.04875825, new Actual365Fixed()));
+            termStructure.linkTo(Utilities.flatRate(settings, new Date(19, Month.February, 2002), 0.04875825, new Actual365Fixed()));
 
-            index = new Euribor6M(termStructure);
+            index = new Euribor6M(settings, termStructure);
             calendar = index.fixingCalendar();
             today = calendar.adjust(Date.Today);
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
@@ -93,13 +75,15 @@ namespace TestSuite
          {
             Date start = calendar.advance(settlement, startYears, TimeUnit.Years);
             Date maturity = calendar.advance(start, length, TimeUnit.Years);
-            Schedule fixedSchedule = new Schedule(start, maturity,
+            Schedule fixedSchedule = new Schedule(settings,
+                                                  start, maturity,
                                                   new Period(fixedFrequency),
                                                   calendar,
                                                   fixedConvention,
                                                   fixedConvention,
                                                   DateGeneration.Rule.Forward, false);
-            Schedule floatSchedule = new Schedule(start, maturity,
+            Schedule floatSchedule = new Schedule(settings,
+                                                  start, maturity,
                                                   new Period(floatingFrequency),
                                                   calendar,
                                                   floatingConvention,
@@ -125,11 +109,11 @@ namespace TestSuite
 
          vars.today = new Date(15, Month.February, 2002);
 
-         Settings.Instance.setEvaluationDate(vars.today);
+         vars.settings.setEvaluationDate(vars.today);
 
          vars.settlement = new Date(19, Month.February, 2002);
          // flat yield term structure impling 1x5 swap at 5%
-         vars.termStructure.linkTo(Utilities.flatRate(vars.settlement,
+         vars.termStructure.linkTo(Utilities.flatRate(vars.settings, vars.settlement,
                                                       0.04875825,
                                                       new Actual365Fixed()));
 

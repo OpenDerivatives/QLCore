@@ -37,23 +37,26 @@ namespace QLCore
    /// </summary>
    public abstract class SurvivalProbabilityStructure : DefaultProbabilityTermStructure
    {
-      public SurvivalProbabilityStructure(DayCounter dayCounter = null,
+      public SurvivalProbabilityStructure(Settings settings, 
+                                          DayCounter dayCounter = null,
                                           List<Handle<Quote>> jumps = null,
                                           List<Date> jumpDates = null)
-         : base(dayCounter, jumps, jumpDates) {}
-      public SurvivalProbabilityStructure(Date referenceDate,
+         : base(settings, dayCounter, jumps, jumpDates) {}
+      public SurvivalProbabilityStructure(Settings settings, 
+                                          Date referenceDate,
                                           Calendar cal = null,
                                           DayCounter dayCounter = null,
                                           List<Handle<Quote>> jumps = null,
                                           List<Date> jumpDates = null)
-         : base(referenceDate, cal, dayCounter, jumps, jumpDates) { }
+         : base(settings, referenceDate, cal, dayCounter, jumps, jumpDates) { }
 
-      public SurvivalProbabilityStructure(int settlementDays,
+      public SurvivalProbabilityStructure(Settings settings, 
+                                          int settlementDays,
                                           Calendar cal,
                                           DayCounter dayCounter = null,
                                           List<Handle<Quote>> jumps = null,
                                           List<Date> jumpDates = null)
-         : base(settlementDays, cal, dayCounter, jumps, jumpDates) { }
+         : base(settings, settlementDays, cal, dayCounter, jumps, jumpDates) { }
 
       /// <summary>
       /// DefaultProbabilityTermStructure implementation

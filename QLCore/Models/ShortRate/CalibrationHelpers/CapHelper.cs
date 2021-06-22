@@ -33,7 +33,7 @@ namespace QLCore
                        bool includeFirstSwaplet,
                        Handle<YieldTermStructure> termStructure,
                        CalibrationErrorType errorType = CalibrationErrorType.RelativePriceError)
-         : base(volatility, termStructure, errorType)
+         : base(volatility, termStructure, index.settings(), errorType)
       {
          length_ = length;
          index_ = index;
@@ -97,11 +97,12 @@ namespace QLCore
                                               index_.businessDayConvention(),
                                               index_.endOfMonth(),
                                               termStructure_.link.dayCounter(),
+                                              index_.settings(),
                                               termStructure_);
 
          List<double> nominals = new InitializedList<double>(1, 1.0);
 
-         Schedule floatSchedule = new Schedule(startDate, maturity,
+         Schedule floatSchedule = new Schedule(index_.settings(), startDate, maturity,
                                                index_.tenor(), index_.fixingCalendar(),
                                                index_.businessDayConvention(),
                                                index_.businessDayConvention(),
@@ -111,7 +112,7 @@ namespace QLCore
          .withNotionals(nominals)
          .withPaymentAdjustment(index_.businessDayConvention());
 
-         Schedule fixedSchedule = new Schedule(startDate, maturity, new Period(fixedLegFrequency_),
+         Schedule fixedSchedule = new Schedule(index_.settings(), startDate, maturity, new Period(fixedLegFrequency_),
                                                index_.fixingCalendar(),
                                                BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                                DateGeneration.Rule.Forward, false);
@@ -120,13 +121,12 @@ namespace QLCore
          .withNotionals(nominals)
          .withPaymentAdjustment(index_.businessDayConvention());
 
-         Swap swap = new Swap(floatingLeg, fixedLeg);
+         Swap swap = new Swap(index_.settings(), floatingLeg, fixedLeg);
          swap.setPricingEngine(new DiscountingSwapEngine(termStructure_, false));
          double fairRate = fixedRate - (double)(swap.NPV() / (swap.legBPS(1) / 1.0e-4));
-         cap_ = new Cap(floatingLeg, new InitializedList<double>(1, fairRate));
+         cap_ = new Cap(termStructure_.link.settings(), floatingLeg, new InitializedList<double>(1, fairRate));
 
          base.performCalculations();
-
       }
 
       private Cap cap_;

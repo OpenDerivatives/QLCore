@@ -28,18 +28,18 @@ namespace QLCore
    public class FixedRateCoupon : Coupon
    {
       // constructors
-      public FixedRateCoupon(Date paymentDate, double nominal, double rate, DayCounter dayCounter,
+      public FixedRateCoupon(Settings settings, Date paymentDate, double nominal, double rate, DayCounter dayCounter,
                              Date accrualStartDate, Date accrualEndDate,
                              Date refPeriodStart = null, Date refPeriodEnd = null, Date exCouponDate = null)
-         : base(paymentDate, nominal, accrualStartDate, accrualEndDate, refPeriodStart, refPeriodEnd, exCouponDate)
+         : base(settings, paymentDate, nominal, accrualStartDate, accrualEndDate, refPeriodStart, refPeriodEnd, exCouponDate)
       {
          rate_ = new InterestRate(rate, dayCounter, Compounding.Simple, Frequency.Annual);
       }
 
-      public FixedRateCoupon(Date paymentDate, double nominal, InterestRate interestRate,
+      public FixedRateCoupon(Settings settings, Date paymentDate, double nominal, InterestRate interestRate,
                              Date accrualStartDate, Date accrualEndDate,
                              Date refPeriodStart = null, Date refPeriodEnd = null, Date exCouponDate = null, double? amount = null)
-      : base(paymentDate, nominal, accrualStartDate, accrualEndDate, refPeriodStart, refPeriodEnd, exCouponDate)
+      : base(settings, paymentDate, nominal, accrualStartDate, accrualEndDate, refPeriodStart, refPeriodEnd, exCouponDate)
       {
          amount_ = amount;
          rate_ = interestRate;
@@ -179,7 +179,6 @@ namespace QLCore
       // creator
       public override List<CashFlow> value()
       {
-
          if (couponRates_.Count == 0)
             throw new ArgumentException("no coupon rates given");
          if (notionals_.Count == 0)
@@ -207,7 +206,7 @@ namespace QLCore
          {
             if (!(firstPeriodDC_ == null || firstPeriodDC_ == rate.dayCounter()))
                throw new ArgumentException("regular first coupon does not allow a first-period day count");
-            leg.Add(new FixedRateCoupon(paymentDate, nominal, rate, start, end, start, end, exCouponDate));
+            leg.Add(new FixedRateCoupon(schedule_.settings(), paymentDate, nominal, rate, start, end, start, end, exCouponDate));
          }
          else
          {
@@ -216,7 +215,7 @@ namespace QLCore
             InterestRate r = new InterestRate(rate.rate(),
                                               (firstPeriodDC_ == null || firstPeriodDC_.empty()) ? rate.dayCounter() : firstPeriodDC_,
                                               rate.compounding(), rate.frequency());
-            leg.Add(new FixedRateCoupon(paymentDate, nominal, r, start, end, refer, end, exCouponDate));
+            leg.Add(new FixedRateCoupon(schedule_.settings(), paymentDate, nominal, r, start, end, refer, end, exCouponDate));
          }
 
          // regular periods
@@ -240,7 +239,7 @@ namespace QLCore
             else
                nominal = notionals_.Last();
 
-            leg.Add(new FixedRateCoupon(paymentDate, nominal, rate, start, end, start, end, exCouponDate));
+            leg.Add(new FixedRateCoupon(schedule_.settings(), paymentDate, nominal, rate, start, end, start, end, exCouponDate));
          }
 
          if (schedule_.Count > 2)
@@ -269,12 +268,12 @@ namespace QLCore
             InterestRate r = new InterestRate(rate.rate(),
                                               lastPeriodDC_ == null ? rate.dayCounter() : lastPeriodDC_, rate.compounding(), rate.frequency());
             if (schedule_.isRegular(N - 1))
-               leg.Add(new FixedRateCoupon(paymentDate, nominal, r, start, end, start, end, exCouponDate));
+               leg.Add(new FixedRateCoupon(schedule_.settings(), paymentDate, nominal, r, start, end, start, end, exCouponDate));
             else
             {
                Date refer = start + schedule_.tenor();
                refer = schCalendar.adjust(refer, schedule_.businessDayConvention());
-               leg.Add(new FixedRateCoupon(paymentDate, nominal, r, start, end, start, refer, exCouponDate));
+               leg.Add(new FixedRateCoupon(schedule_.settings(), paymentDate, nominal, r, start, end, start, refer, exCouponDate));
             }
          }
          return leg;

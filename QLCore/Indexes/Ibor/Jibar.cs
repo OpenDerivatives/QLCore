@@ -28,12 +28,12 @@ namespace QLCore
 //
    public class Jibar : IborIndex
    {
-      public Jibar(Period tenor)
-         : base("Jibar", tenor, 0, new ZARCurrency(), new SouthAfrica(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), new Handle<YieldTermStructure>())
+      public Jibar(Period tenor, Settings settings)
+         : base("Jibar", tenor, 0, new ZARCurrency(), new SouthAfrica(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), settings, new Handle<YieldTermStructure>())
       {
       }
-      public Jibar(Period tenor, Handle<YieldTermStructure> h)
-         : base("Jibar", tenor, 0, new ZARCurrency(), new SouthAfrica(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), h)
+      public Jibar(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("Jibar", tenor, 0, new ZARCurrency(), new SouthAfrica(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), settings, h)
       {
       }
    }

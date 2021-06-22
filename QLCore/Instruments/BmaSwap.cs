@@ -46,7 +46,7 @@ namespace QLCore
                      Schedule liborSchedule, double liborFraction, double liborSpread, IborIndex liborIndex, DayCounter liborDayCount,
                      // BMA leg
                      Schedule bmaSchedule, BMAIndex bmaIndex, DayCounter bmaDayCount)
-         : base(2)
+         : base(liborSchedule.settings(), 2)
       {
          type_ = type;
          nominal_ = nominal;

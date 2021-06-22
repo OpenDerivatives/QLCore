@@ -26,19 +26,19 @@ namespace QLCore
 {
    public class SviSmileSection : SmileSection
    {
-      public SviSmileSection(double timeToExpiry, double forward,
+      public SviSmileSection(Settings settings, double timeToExpiry, double forward,
                              List<double> sviParameters)
-         : base(timeToExpiry, null)
+         : base(settings, timeToExpiry, null)
       {
          forward_ = forward;
          param_ = sviParameters;
          init();
       }
 
-      public SviSmileSection(Date d, double forward,
+      public SviSmileSection(Settings settings, Date d, double forward,
                              List<double> sviParameters,
                              DayCounter dc = null)
-         : base(d, dc)
+         : base(settings, d, dc)
       {
          forward_ = forward;
          param_ = sviParameters;

@@ -70,6 +70,7 @@ namespace QLCore
          cmsDayCount_ = new Actual360();
          floatDayCount_ = iborIndex.dayCounter();
          engine_ = new DiscountingSwapEngine(swapIndex.forwardingTermStructure());
+         settings_ = new Settings();
       }
 
       public MakeCms(Period swapTenor,
@@ -113,6 +114,7 @@ namespace QLCore
          cmsDayCount_ = new Actual360();
          floatDayCount_ = iborIndex_.dayCounter();
          engine_ = new DiscountingSwapEngine(swapIndex.forwardingTermStructure());
+         settings_ = new Settings();
       }
 
       public Swap value()
@@ -123,7 +125,7 @@ namespace QLCore
          else
          {
             int fixingDays = iborIndex_.fixingDays();
-            Date refDate = Settings.Instance.evaluationDate();
+            Date refDate = settings_.evaluationDate();
             // if the evaluation date is not a business day
             // then move to the next business day
             refDate = floatCalendar_.adjust(refDate);
@@ -133,14 +135,16 @@ namespace QLCore
 
          Date terminationDate = maturityDate_ == null ? startDate + swapTenor_ : maturityDate_;
 
-         Schedule cmsSchedule = new Schedule(startDate, terminationDate,
+         Schedule cmsSchedule = new Schedule(settings_, 
+                                             startDate, terminationDate,
                                              cmsTenor_, cmsCalendar_,
                                              cmsConvention_,
                                              cmsTerminationDateConvention_,
                                              cmsRule_, cmsEndOfMonth_,
                                              cmsFirstDate_, cmsNextToLastDate_);
 
-         Schedule floatSchedule = new Schedule(startDate, terminationDate,
+         Schedule floatSchedule = new Schedule(settings_,
+                                               startDate, terminationDate,
                                                floatTenor_, floatCalendar_,
                                                floatConvention_,
                                                floatTerminationDateConvention_,
@@ -179,7 +183,7 @@ namespace QLCore
             if (iborCouponPricer_ != null)
                Utils.setCouponPricer(fLeg, iborCouponPricer_);
 
-            Swap temp = new Swap(cmsLeg, fLeg);
+            Swap temp = new Swap(settings_, cmsLeg, fLeg);
             temp.setPricingEngine(engine_);
 
             double? npv = temp.legNPV(0) + temp.legNPV(1);
@@ -206,9 +210,9 @@ namespace QLCore
 
          Swap swap;
          if (payCms_)
-            swap = new Swap(cmsLeg, floatLeg);
+            swap = new Swap(settings_, cmsLeg, floatLeg);
          else
-            swap = new Swap(floatLeg, cmsLeg);
+            swap = new Swap(settings_, floatLeg, cmsLeg);
          swap.setPricingEngine(engine_);
          return swap;
       }
@@ -218,91 +222,109 @@ namespace QLCore
          payCms_ = !flag;
          return this;
       }
+
       public MakeCms withNominal(double n)
       {
          nominal_ = n;
          return this;
       }
+
       public MakeCms withEffectiveDate(Date effectiveDate)
       {
          effectiveDate_ = effectiveDate;
          return this;
       }
+
       public MakeCms withCmsLegTenor(Period t)
       {
          cmsTenor_ = t;
          return this;
       }
+
       public MakeCms withCmsLegCalendar(Calendar cal)
       {
          cmsCalendar_ = cal;
          return this;
       }
+
       public MakeCms withCmsLegConvention(BusinessDayConvention bdc)
       {
          cmsConvention_ = bdc;
          return this;
       }
+
       public MakeCms withCmsLegTerminationDateConvention(BusinessDayConvention bdc)
       {
          cmsTerminationDateConvention_ = bdc;
          return this;
       }
+
       public MakeCms withCmsLegRule(DateGeneration.Rule r)
       {
          cmsRule_ = r;
          return this;
       }
+
       public MakeCms withCmsLegEndOfMonth(bool flag = true)
       {
          cmsEndOfMonth_ = flag;
          return this;
       }
+
       public MakeCms withCmsLegFirstDate(Date d)
       {
          cmsFirstDate_ = d;
          return this;
       }
+
       public MakeCms withCmsLegNextToLastDate(Date d)
       {
          cmsNextToLastDate_ = d;
          return this;
       }
+
       public MakeCms withCmsLegDayCount(DayCounter dc)
       {
          cmsDayCount_ = dc;
          return this;
       }
+
       public MakeCms withFloatingLegTenor(Period t)
       {
          floatTenor_ = t;
          return this;
       }
+
       public MakeCms withFloatingLegCalendar(Calendar cal)
       {
          floatCalendar_ = cal;
          return this;
       }
+
       public MakeCms withFloatingLegConvention(BusinessDayConvention bdc)
       {
          floatConvention_ = bdc;
          return this;
       }
+
       public MakeCms withFloatingLegTerminationDateConvention(BusinessDayConvention bdc)
       {
          floatTerminationDateConvention_ = bdc;
          return this;
       }
+
       public MakeCms withFloatingLegRule(DateGeneration.Rule r)
       {
          floatRule_ = r;
          return this;
       }
+
       public MakeCms withFloatingLegEndOfMonth(bool flag = true)
       {
          floatEndOfMonth_ = flag;
          return this;
       }
+
       public MakeCms withFloatingLegFirstDate(Date d)
       {
          floatFirstDate_ = d;
@@ -313,64 +335,82 @@ namespace QLCore
          floatNextToLastDate_ = d;
          return this;
       }
+
       public MakeCms withFloatingLegDayCount(DayCounter dc)
       {
          floatDayCount_ = dc;
          return this;
       }
+
       public MakeCms withFloatingCouponPricer(IborCouponPricer couponPricer)
       {
          iborCouponPricer_ = couponPricer;
          return this;
       }
+
       public MakeCms withFloatingLegGearing(double iborGearing)
       {
          iborGearing_ = iborGearing;
          return this;
       }
+
       public MakeCms withAtmSpread(bool flag = true)
       {
          useAtmSpread_ = flag;
          return this;
       }
+
       public MakeCms withDiscountingTermStructure(Handle<YieldTermStructure> discountingTermStructure)
       {
          engine_ = new DiscountingSwapEngine(discountingTermStructure);
          return this;
       }
+
       public MakeCms withCmsCouponPricer(CmsCouponPricer couponPricer)
       {
          couponPricer_ = couponPricer;
          return this;
       }
+
       public MakeCms withCmsGearing(double cmsGearing)
       {
          cmsGearing_ = cmsGearing;
          return this;
       }
+
       public MakeCms withCmsSpread(double cmsSpread)
       {
          cmsSpread_ = cmsSpread;
          return this;
       }
+
       public MakeCms withCmsCap(double? cmsCap)
       {
          cmsCap_ = cmsCap;
          return this;
       }
+
       public MakeCms withCmsFloor(double? cmsFloor)
       {
          cmsFloor_ = cmsFloor;
          return this;
       }
+
       public MakeCms withIborCap(double? iborCap)
       {
          iborCap_ = iborCap;
          return this;
       }
+
       public MakeCms withIborFloor(double? iborFloor)
       {
          iborFloor_ = iborFloor;
+         return this;
+      }
+
+      public MakeCms withSettings(Settings s)
+      {
+         settings_ = s;
          return this;
       }
 
@@ -405,6 +445,6 @@ namespace QLCore
       private IPricingEngine engine_;
       private CmsCouponPricer couponPricer_;
       private IborCouponPricer iborCouponPricer_;
-
+      private Settings settings_;
    }
 }

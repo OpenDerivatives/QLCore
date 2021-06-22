@@ -36,12 +36,12 @@ namespace QLCore
    /// </summary>
    public class CADLibor : Libor
    {
-      public CADLibor(Period tenor)
-         : base("CADLibor", tenor, 0, new CADCurrency(), new Canada(), new Actual365Fixed(), new Handle<YieldTermStructure>())
+      public CADLibor(Period tenor, Settings settings)
+         : base("CADLibor", tenor, 0, new CADCurrency(), new Canada(), new Actual365Fixed(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public CADLibor(Period tenor, Handle<YieldTermStructure> h)
-         : base("CADLibor", tenor, 0, new CADCurrency(), new Canada(), new Actual365Fixed(), h)
+      public CADLibor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("CADLibor", tenor, 0, new CADCurrency(), new Canada(), new Actual365Fixed(), settings, h)
       {}
    }
 
@@ -50,12 +50,12 @@ namespace QLCore
    /// </summary>
    public class CADLiborON : DailyTenorLibor
    {
-      public CADLiborON()
-         : base("CADLibor", 0, new CADCurrency(), new Canada(), new Actual365Fixed(), new Handle<YieldTermStructure>())
+      public CADLiborON(Settings settings)
+         : base("CADLibor", 0, new CADCurrency(), new Canada(), new Actual365Fixed(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public CADLiborON(Handle<YieldTermStructure> h)
-         : base("CADLibor", 0, new CADCurrency(), new Canada(), new Actual365Fixed(), h)
+      public CADLiborON(Settings settings, Handle<YieldTermStructure> h)
+         : base("CADLibor", 0, new CADCurrency(), new Canada(), new Actual365Fixed(), settings, h)
       {}
    }
 

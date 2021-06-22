@@ -100,7 +100,7 @@ namespace QLCore
          Actual360 dc1 = new Actual360();
          Actual360 dc2 = new Actual360(true);
 
-         Date evalDate = Settings.Instance.evaluationDate();
+         Date evalDate = arguments_.settings.evaluationDate();
 
          // check if given curves are ISDA compatible
          // (the interpolation is checked below)
@@ -129,10 +129,10 @@ namespace QLCore
          // collect nodes from both curves and sort them
          List<Date> yDates = new List<Date>(), cDates = new List<Date>();
 
-         var castY1 =  discountCurve_.link as PiecewiseYieldCurve<Discount, LogLinear>;
+         var castY1 = discountCurve_.link as PiecewiseYieldCurve<Discount, LogLinear>;
          var castY2 = discountCurve_.link as InterpolatedForwardCurve<BackwardFlat>;
          var castY3 = discountCurve_.link as InterpolatedForwardCurve<ForwardFlat>;
-         var castY4 =  discountCurve_.link as FlatForward;
+         var castY4 = discountCurve_.link as FlatForward;
          if (castY1 != null)
          {
             if (castY1.dates() != null)
@@ -148,13 +148,14 @@ namespace QLCore
          }
          else if (castY4 != null)
          {
+             // no dates to extract
          }
          else
          {
             Utils.QL_FAIL("Yield curve must be flat forward interpolated");
          }
 
-         var castC1 =  probability_.link as InterpolatedSurvivalProbabilityCurve<LogLinear>;
+         var castC1 = probability_.link as InterpolatedSurvivalProbabilityCurve<LogLinear>;
          var castC2 = probability_.link as InterpolatedHazardRateCurve<BackwardFlat>;
          var castC3 = probability_.link as FlatHazardRate;
 
@@ -168,13 +169,13 @@ namespace QLCore
          }
          else if (castC3 != null)
          {
+             // no dates to extract
          }
          else
          {
             Utils.QL_FAIL("Credit curve must be flat forward interpolated");
          }
 
-         // Todo check
          List<Date> nodes = yDates.Union(cDates).ToList();
 
          if (nodes.empty())
@@ -233,7 +234,6 @@ namespace QLCore
          // premium leg pricing (npv is always positive at this stage)
 
          double premiumNpv = 0.0, defaultAccrualNpv = 0.0;
-         double? accruedAmount = null;
          for (int i = 0; i < arguments_.leg.Count; ++i)
          {
             FixedRateCoupon coupon = arguments_.leg[i] as FixedRateCoupon;
@@ -245,35 +245,17 @@ namespace QLCore
                              + "or Act/360 (" + coupon.dayCounter() + ")");
 
             // premium coupons
-
-            if (!arguments_.leg[i].hasOccurred(evalDate, includeSettlementDateFlows_))
+            if (!arguments_.leg[i].hasOccurred(effectiveProtectionStart, includeSettlementDateFlows_))
             {
                double x1 = coupon.amount();
                double x2 = discountCurve_.link.discount(coupon.date());
                double x3 = probability_.link.survivalProbability(coupon.date() - 1);
 
-               // accrual
-               if (accruedAmount == null)
-               {
-                  if (evalDate + 1 == coupon.date())
-                  {
-                        accruedAmount = 0.0;
-                        premiumNpv -=  coupon.accruedPeriod(evalDate + 1) *
-                                       coupon.nominal() *
-                                       coupon.rate();
-                  }
-                  else
-                        accruedAmount = coupon.accruedPeriod(evalDate + 1) *
-                                       coupon.nominal() *
-                                       coupon.rate();
-               }
-
                premiumNpv += x1 * x2 * x3;
             }
 
             // default accruals
-
-            if (!new simple_event(coupon.accrualEndDate())
+            if (!new simple_event(arguments_.settings, coupon.accrualEndDate())
                 .hasOccurred(effectiveProtectionStart, false))
             {
                Date start = Date.Max(coupon.accrualStartDate(), effectiveProtectionStart) - 1;
@@ -285,16 +267,7 @@ namespace QLCore
                //add intermediary nodes, if any
                if (forwardsInCouponPeriod_ == ForwardsInCouponPeriod.Piecewise)
                {
-                  foreach (Date node in nodes)
-                  {
-                     if (node > start && node < end)
-                     {
-                        localNodes.Add(node);
-                     }
-                  }
-                  //std::vector<Date>::const_iterator it0 = std::upper_bound(nodes.begin(), nodes.end(), start);
-                  //std::vector<Date>::const_iterator it1 = std::lower_bound(nodes.begin(), nodes.end(), end);
-                  //localNodes.insert(localNodes.end(), it0, it1);
+                  localNodes.AddRange(nodes.Where(x => x > start && x < end).ToList());
                }
                localNodes.Add(end);
 
@@ -346,7 +319,6 @@ namespace QLCore
          }
 
          results_.couponLegNPV = premiumNpv + defaultAccrualNpv;
-         results_.accruedAmountNPV = accruedAmount;
 
          // upfront flow npv
 
@@ -373,13 +345,12 @@ namespace QLCore
                arguments_.accrualRebate.amount();
          }
 
-         double upfrontSign = 1;
+         double upfrontSign = arguments_.side == CreditDefaultSwap.Protection.Side.Seller ? -1.0 : 1.0;
 
          if (arguments_.side == CreditDefaultSwap.Protection.Side.Seller)
          {
             results_.defaultLegNPV *= -1.0;
             results_.accrualRebateNPV *= -1.0;
-            results_.accruedAmountNPV *= -1.0;
          }
          else
          {
@@ -396,7 +367,7 @@ namespace QLCore
          {
             results_.fairSpread =
                -results_.defaultLegNPV * arguments_.spread /
-               (results_.couponLegNPV + results_.accruedAmountNPV + results_.accrualRebateNPV);
+               (results_.couponLegNPV + results_.accrualRebateNPV);
          }
          else
          {

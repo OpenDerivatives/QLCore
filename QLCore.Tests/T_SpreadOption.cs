@@ -79,7 +79,8 @@ namespace TestSuite
       public void testKirkEngine()
       {
          // Testing Kirk approximation for spread options
-
+         Settings settings = new Settings();
+         
          /* The example data below are from "complete guide to option
             pricing formulas", Espen Gaarder Haug, p 60
 
@@ -125,7 +126,7 @@ namespace TestSuite
 
             // Risk-free interest rate
             double riskFreeRate = cases[i].r;
-            YieldTermStructure forwardRate = Utilities.flatRate(today, riskFreeRate, dc);
+            YieldTermStructure forwardRate = Utilities.flatRate(settings, today, riskFreeRate, dc);
 
             // Correlation
             Quote rho = new SimpleQuote(cases[i].rho);
@@ -133,8 +134,8 @@ namespace TestSuite
             // Volatilities
             double vol1 = cases[i].sigma1;
             double vol2 = cases[i].sigma2;
-            BlackVolTermStructure volTS1 = Utilities.flatVol(today, vol1, dc);
-            BlackVolTermStructure volTS2 = Utilities.flatVol(today, vol2, dc);
+            BlackVolTermStructure volTS1 = Utilities.flatVol(settings, today, vol1, dc);
+            BlackVolTermStructure volTS2 = Utilities.flatVol(settings, today, vol2, dc);
 
             // Black-Scholes Processes
             // The BlackProcess is the relevant class for futures contracts
@@ -156,7 +157,7 @@ namespace TestSuite
             PlainVanillaPayoff payoff = new PlainVanillaPayoff(type, strike);
             Exercise exercise = new EuropeanExercise(exerciseDate);
 
-            SpreadOption option = new SpreadOption(payoff, exercise);
+            SpreadOption option = new SpreadOption(settings, payoff, exercise);
             option.setPricingEngine(engine);
 
             // And test the data

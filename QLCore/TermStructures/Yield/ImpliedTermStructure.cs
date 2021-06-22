@@ -36,8 +36,8 @@ namespace QLCore
    {
       private Handle<YieldTermStructure> originalCurve_;
 
-      public ImpliedTermStructure(Handle<YieldTermStructure> h, Date referenceDate)
-         : base(referenceDate)
+      public ImpliedTermStructure(Settings settings, Handle<YieldTermStructure> h, Date referenceDate)
+         : base(settings, referenceDate)
       {
          originalCurve_ = h;
       }

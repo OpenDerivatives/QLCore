@@ -49,13 +49,14 @@ namespace QLCore
                         DayCounter dayCounter,
                         double recoveryRate,
                         Handle<YieldTermStructure> discountCurve,
+                        Settings settings,
                         bool settlesAccrual = true,
                         bool paysAtDefaultTime = true,
                         Date startDate = null,
                         DayCounter lastPeriodDayCounter = null,
                         bool rebatesAccrual = true,
                         CreditDefaultSwap.PricingModel model = CreditDefaultSwap.PricingModel.Midpoint)
-            : base(quote)
+            : base(settings, quote)
         {
             tenor_ = tenor;
             settlementDays_ = settlementDays; 
@@ -87,13 +88,14 @@ namespace QLCore
                         DayCounter dayCounter,
                         double recoveryRate,
                         Handle<YieldTermStructure> discountCurve,
+                        Settings settings,
                         bool settlesAccrual = true,
                         bool paysAtDefaultTime = true,
                         Date startDate = null,
                         DayCounter lastPeriodDayCounter = null,
                         bool rebatesAccrual = true,
                         CreditDefaultSwap.PricingModel model = CreditDefaultSwap.PricingModel.Midpoint)
-            : base(quote)
+            : base(settings, quote)
         {
             tenor_ = tenor;
             settlementDays_ = settlementDays; 
@@ -129,26 +131,28 @@ namespace QLCore
         protected override void initializeDates()
         {
             protectionStart_ = evaluationDate_ + settlementDays_;
-            Date startDate, endDate;
-            if(startDate_ == null) {
-                startDate = calendar_.adjust(protectionStart_,
-                                             paymentConvention_);
-                if (rule_ == DateGeneration.Rule.CDS || rule_ == DateGeneration.Rule.CDS2015) { // for standard CDS ..
-                    // .. the start date is not adjusted
-                    startDate = protectionStart_;
-                }
-                // .. and (in any case) the end date rolls by 3 month as
-                //  soon as the trade date falls on an IMM date,
-                // or the March or September IMM date in case of the CDS2015 rule.
-                endDate = protectionStart_ + tenor_;
-
-            } else {
-                if(!schedule_.empty()) return; //no need to update schedule
-                startDate = calendar_.adjust(startDate_, paymentConvention_);
-                endDate = startDate_ + settlementDays_ + tenor_;
+            Date startDate = startDate_ == null ? protectionStart_ : startDate_;
+            
+            // Only adjust start date if rule is not CDS or CDS2015. Unsure about OldCDS.
+            if (rule_ != DateGeneration.Rule.CDS && rule_ != DateGeneration.Rule.CDS2015) {
+                startDate = calendar_.adjust(startDate, paymentConvention_);
             }
+
+            Date endDate;
+            if (rule_ == DateGeneration.Rule.CDS || rule_ == DateGeneration.Rule.CDS2015 || rule_ == DateGeneration.Rule.OldCDS) 
+            {
+                Date refDate = startDate_ == null ? evaluationDate_ : startDate_;
+                endDate = Utils.cdsMaturity(refDate, tenor_, rule_);
+            }
+            else
+            {
+                //keep the old logic here
+                Date refDate = startDate_ == null ? evaluationDate_ : startDate_;
+                endDate = refDate + tenor_;
+            }
+            
             schedule_ =
-                new MakeSchedule().from(startDate)
+                new MakeSchedule(settings_).from(startDate)
                                   .to(endDate)
                                   .withFrequency(frequency_)
                                   .withCalendar(calendar_)
@@ -156,16 +160,13 @@ namespace QLCore
                                   .withTerminationDateConvention(BusinessDayConvention.Unadjusted)
                                   .withRule(rule_)
                                   .value();
-            
-            //add protection start date
-            schedule_.isRegular().Insert(0, schedule_.isRegular()[0]);
-            schedule_.dates().Insert(0, protectionStart_);
 
             earliestDate_ = schedule_.dates().First();
             latestDate_   = calendar_.adjust(schedule_.dates().Last(),
                                              paymentConvention_);
-            /*if (model_ == CreditDefaultSwap.PricingModel.ISDA)
-                ++latestDate_;*/
+            
+            if (model_ == CreditDefaultSwap.PricingModel.ISDA)
+                ++latestDate_;
         }
 
         protected virtual void resetEngine() { }
@@ -205,6 +206,7 @@ namespace QLCore
                                 DayCounter dayCounter,
                                 double recoveryRate,
                                 Handle<YieldTermStructure> discountCurve,
+                                Settings settings,
                                 bool settlesAccrual = true,
                                 bool paysAtDefaultTime = true,
                                 Date startDate = null,
@@ -213,7 +215,7 @@ namespace QLCore
                                 CreditDefaultSwap.PricingModel model = CreditDefaultSwap.PricingModel.Midpoint)
             : base (runningSpread, tenor, settlementDays, calendar,
                     frequency, paymentConvention, rule, dayCounter,
-                    recoveryRate, discountCurve, settlesAccrual, paysAtDefaultTime,
+                    recoveryRate, discountCurve, settings, settlesAccrual, paysAtDefaultTime,
                     startDate, lastPeriodDayCounter, rebatesAccrual, model)
         { }
 
@@ -227,6 +229,7 @@ namespace QLCore
                                 DayCounter dayCounter, // ISDA: Actual/360
                                 double recoveryRate,
                                 Handle<YieldTermStructure> discountCurve,
+                                Settings settings,
                                 bool settlesAccrual = true,
                                 bool paysAtDefaultTime = true,
                                 Date startDate = null,
@@ -235,7 +238,7 @@ namespace QLCore
                                 CreditDefaultSwap.PricingModel model = CreditDefaultSwap.PricingModel.Midpoint)
             : base(runningSpread, tenor, settlementDays, calendar,
                     frequency, paymentConvention, rule, dayCounter,
-                    recoveryRate, discountCurve, settlesAccrual, paysAtDefaultTime,
+                    recoveryRate, discountCurve, settings, settlesAccrual, paysAtDefaultTime,
                     startDate, lastPeriodDayCounter, rebatesAccrual, model)
         { }
 
@@ -249,7 +252,7 @@ namespace QLCore
         {
             swap_ = new CreditDefaultSwap(CreditDefaultSwap.Protection.Side.Buyer, 100.0, 0.01, schedule_, paymentConvention_,
                                           dayCounter_, settlesAccrual_, paysAtDefaultTime_, protectionStart_,
-                                          null, lastPeriodDC_, rebatesAccrual_);
+                                          null, lastPeriodDC_, rebatesAccrual_, evaluationDate_);
 
             switch (model_) {
               case CreditDefaultSwap.PricingModel.ISDA:
@@ -283,6 +286,7 @@ namespace QLCore
                                 DayCounter dayCounter,
                                 double recoveryRate,
                                 Handle<YieldTermStructure> discountCurve,
+                                Settings settings,
                                 int upfrontSettlementDays = 0,
                                 bool settlesAccrual = true,
                                 bool paysAtDefaultTime = true,
@@ -293,7 +297,7 @@ namespace QLCore
                                                     CreditDefaultSwap.PricingModel.Midpoint)
              : base(upfront, tenor, settlementDays, calendar,
                     frequency, paymentConvention, rule, dayCounter,
-                    recoveryRate, discountCurve, settlesAccrual, paysAtDefaultTime,
+                    recoveryRate, discountCurve, settings, settlesAccrual, paysAtDefaultTime,
                     startDate, lastPeriodDayCounter, rebatesAccrual, model)
        {
            upfrontSettlementDays_ = upfrontSettlementDays;
@@ -313,6 +317,7 @@ namespace QLCore
                                 DayCounter dayCounter,
                                 double recoveryRate,
                                 Handle<YieldTermStructure> discountCurve,
+                                Settings settings,
                                 int upfrontSettlementDays = 0,
                                 bool settlesAccrual = true,
                                 bool paysAtDefaultTime = true,
@@ -323,7 +328,7 @@ namespace QLCore
                                                     CreditDefaultSwap.PricingModel.Midpoint)
             : base (upfront, tenor, settlementDays, calendar,
                     frequency, paymentConvention, rule, dayCounter,
-                    recoveryRate, discountCurve, settlesAccrual, paysAtDefaultTime,
+                    recoveryRate, discountCurve, settings, settlesAccrual, paysAtDefaultTime,
                     startDate, lastPeriodDayCounter, rebatesAccrual, model)
        {
            upfrontSettlementDays_ = upfrontSettlementDays;
@@ -333,7 +338,7 @@ namespace QLCore
 
         public override double impliedQuote()
         {
-            Settings.Instance.includeTodaysCashFlows = true;
+            settings_.includeTodaysCashFlows = true;
             swap_.recalculate();
             return swap_.fairUpfront();
         }
@@ -352,7 +357,7 @@ namespace QLCore
                             CreditDefaultSwap.Protection.Side.Buyer, 100.0, 0.01, runningSpread_, schedule_,
                             paymentConvention_, dayCounter_, settlesAccrual_,
                             paysAtDefaultTime_, protectionStart_, upfrontDate_,
-                            null, lastPeriodDC_, rebatesAccrual_);
+                            null, lastPeriodDC_, rebatesAccrual_, evaluationDate_);
             switch (model_) {
               case CreditDefaultSwap.PricingModel.ISDA:
                     swap_.setPricingEngine(new IsdaCdsEngine(

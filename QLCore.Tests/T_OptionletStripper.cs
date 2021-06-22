@@ -26,27 +26,8 @@ using QLCore;
 namespace TestSuite
 {
 
-   public class T_OptionletStripper : IDisposable
+   public class T_OptionletStripper
    {
-      #region Initialize&Cleanup
-      private SavedSettings backup;
-
-      public T_OptionletStripper()
-      {
-         backup = new SavedSettings();
-      }
-
-      protected void testCleanup()
-      {
-         Dispose();
-      }
-
-      public void Dispose()
-      {
-         backup.Dispose();
-      }
-      #endregion
-
       class CommonVars
       {
          // global data
@@ -70,10 +51,13 @@ namespace TestSuite
          public double accuracy;
          public double tolerance;
 
+         public Settings settings;
+
          public CommonVars()
          {
             accuracy = 1.0e-6;
             tolerance = 2.5e-8;
+            settings = new Settings();
          }
 
          public void setTermStructure()
@@ -83,7 +67,7 @@ namespace TestSuite
             dayCounter = new Actual365Fixed();
 
             double flatFwdRate = 0.04;
-            yieldTermStructure.linkTo(new FlatForward(0, calendar, flatFwdRate, dayCounter));
+            yieldTermStructure.linkTo(new FlatForward(settings, 0, calendar, flatFwdRate, dayCounter));
          }
 
          public void setFlatTermVolCurve()
@@ -100,7 +84,7 @@ namespace TestSuite
             for (int i = 0; i < optionTenors.Count; ++i)
                curveVHandle[i] = new Handle<Quote>(new SimpleQuote(flatVol));
 
-            flatTermVolCurve = new Handle<CapFloorTermVolCurve>(new CapFloorTermVolCurve(0, calendar, BusinessDayConvention.Following, optionTenors,
+            flatTermVolCurve = new Handle<CapFloorTermVolCurve>(new CapFloorTermVolCurve(settings, 0, calendar, BusinessDayConvention.Following, optionTenors,
                                                                                          curveVHandle, dayCounter));
 
          }
@@ -120,7 +104,7 @@ namespace TestSuite
 
             double flatVol = .18;
             termV = new Matrix(optionTenors.Count, strikes.Count, flatVol);
-            flatTermVolSurface = new CapFloorTermVolSurface(0, calendar, BusinessDayConvention.Following,
+            flatTermVolSurface = new CapFloorTermVolSurface(settings, 0, calendar, BusinessDayConvention.Following,
                                                             optionTenors, strikes, termV, dayCounter);
          }
 
@@ -173,7 +157,7 @@ namespace TestSuite
                atmTermVolHandle[i] = new Handle<Quote>(new SimpleQuote(atmTermV[i]));
             }
 
-            capFloorVolCurve = new Handle<CapFloorTermVolCurve>(new CapFloorTermVolCurve(0, calendar, BusinessDayConvention.Following,
+            capFloorVolCurve = new Handle<CapFloorTermVolCurve>(new CapFloorTermVolCurve(settings, 0, calendar, BusinessDayConvention.Following,
                                                                                          optionTenors, atmTermVolHandle, dayCounter));
 
          }
@@ -234,7 +218,7 @@ namespace TestSuite
             termV[14, 0] = 0.204; termV[14, 1] = 0.192; termV[14, 2] = 0.18;  termV[14, 3] = 0.171; termV[14, 4] = 0.164; termV[14, 5] = 0.152; termV[14, 6] = 0.143; termV[14, 7] = 0.138; termV[14, 8] = 0.134; termV[14, 9] = 0.134; termV[14, 10] = 0.137; termV[14, 11] = 0.14;  termV[14, 12] = 0.148;
             termV[15, 0] = 0.2;   termV[15, 1] = 0.187; termV[15, 2] = 0.176; termV[15, 3] = 0.167; termV[15, 4] = 0.16;  termV[15, 5] = 0.148; termV[15, 6] = 0.14;  termV[15, 7] = 0.135; termV[15, 8] = 0.131; termV[15, 9] = 0.132; termV[15, 10] = 0.135; termV[15, 11] = 0.139; termV[15, 12] = 0.146;
 
-            capFloorVolSurface = new CapFloorTermVolSurface(0, calendar, BusinessDayConvention.Following, optionTenors, strikes,
+            capFloorVolSurface = new CapFloorTermVolSurface(settings, 0, calendar, BusinessDayConvention.Following, optionTenors, strikes,
                                                             termV, dayCounter);
          }
       }
@@ -246,11 +230,11 @@ namespace TestSuite
          // surface using OptionletStripper1 class...
 
          CommonVars vars = new CommonVars();
-         Settings.Instance.setEvaluationDate(new Date(28, Month.October, 2013));
+         vars.settings.setEvaluationDate(new Date(28, Month.October, 2013));
 
          vars.setFlatTermVolSurface();
 
-         IborIndex iborIndex = new Euribor6M(vars.yieldTermStructure);
+         IborIndex iborIndex = new Euribor6M(vars.settings, vars.yieldTermStructure);
 
          OptionletStripper optionletStripper1 = new OptionletStripper1(vars.flatTermVolSurface,
                                                                        iborIndex, null, vars.accuracy);
@@ -270,6 +254,7 @@ namespace TestSuite
             {
                cap = new MakeCapFloor(CapFloorType.Cap, vars.optionTenors[tenorIndex], iborIndex,
                                       vars.strikes[strikeIndex], new Period(0, TimeUnit.Days))
+                                      
                .withPricingEngine(strippedVolEngine);
 
                double priceFromStrippedVolatility = cap.NPV();
@@ -299,11 +284,11 @@ namespace TestSuite
          // vol surface using OptionletStripper1 class
 
          CommonVars vars = new CommonVars();
-         Settings.Instance.setEvaluationDate(new Date(28, Month.October, 2013));
+         vars.settings.setEvaluationDate(new Date(28, Month.October, 2013));
 
          vars.setCapFloorTermVolSurface();
 
-         IborIndex iborIndex = new Euribor6M(vars.yieldTermStructure);
+         IborIndex iborIndex = new Euribor6M(vars.settings, vars.yieldTermStructure);
 
          OptionletStripper optionletStripper1 = new OptionletStripper1(vars.capFloorVolSurface, iborIndex, null, vars.accuracy);
 
@@ -352,12 +337,12 @@ namespace TestSuite
          // surface using OptionletStripper2 class...");
 
          CommonVars vars = new CommonVars();
-         Settings.Instance.setEvaluationDate(Date.Today);
+         vars.settings.setEvaluationDate(Date.Today);
 
          vars.setFlatTermVolCurve();
          vars.setFlatTermVolSurface();
 
-         IborIndex iborIndex = new Euribor6M(vars.yieldTermStructure);
+         IborIndex iborIndex = new Euribor6M(vars.settings, vars.yieldTermStructure);
 
          // optionletstripper1
          OptionletStripper1 optionletStripper1 = new OptionletStripper1(vars.flatTermVolSurface,
@@ -410,12 +395,12 @@ namespace TestSuite
          // surface using OptionletStripper2 class...");
 
          CommonVars vars = new CommonVars();
-         Settings.Instance.setEvaluationDate(Date.Today);
+         vars.settings.setEvaluationDate(Date.Today);
 
          vars.setCapFloorTermVolCurve();
          vars.setCapFloorTermVolSurface();
 
-         IborIndex iborIndex = new Euribor6M(vars.yieldTermStructure);
+         IborIndex iborIndex = new Euribor6M(vars.settings, vars.yieldTermStructure);
 
          // optionletstripper1
          OptionletStripper1 optionletStripper1 = new OptionletStripper1(vars.capFloorVolSurface, iborIndex, null, vars.accuracy);

@@ -22,10 +22,10 @@ namespace QLCore
 {
    public class GbpLiborSwapIsdaFix : SwapIndex
    {
-      public GbpLiborSwapIsdaFix(Period tenor)
-         : this(tenor, new Handle<YieldTermStructure>()) { }
+      public GbpLiborSwapIsdaFix(Period tenor, Settings settings)
+         : this(tenor, settings, new Handle<YieldTermStructure>()) { }
 
-      public GbpLiborSwapIsdaFix(Period tenor, Handle<YieldTermStructure> h)
+      public GbpLiborSwapIsdaFix(Period tenor, Settings settings, Handle<YieldTermStructure> h)
          : base("GbpLiborSwapIsdaFix", // familyName
                 tenor,
                 2, // settlementDays
@@ -36,7 +36,8 @@ namespace QLCore
                 BusinessDayConvention.ModifiedFollowing, // fixedLegConvention
                 new Actual365Fixed(), // fixedLegDaycounter
                 tenor > new Period(1, TimeUnit.Years) ?
-                new GBPLibor(new Period(6, TimeUnit.Months), h) :
-                new GBPLibor(new Period(3, TimeUnit.Months), h)) { }
+                new GBPLibor(new Period(6, TimeUnit.Months), settings, h) :
+                new GBPLibor(new Period(3, TimeUnit.Months), settings, h),
+                settings) { }
    }
 }

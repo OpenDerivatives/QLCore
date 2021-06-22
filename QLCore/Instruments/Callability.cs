@@ -56,7 +56,8 @@ namespace QLCore
       //! type of the callability
       public enum Type { Call, Put }
 
-      public Callability(Price price, Type type, Date date)
+      public Callability(Settings settings, Price price, Type type, Date date)
+      : base(settings)
       {
          price_ = price;
          type_ = type;

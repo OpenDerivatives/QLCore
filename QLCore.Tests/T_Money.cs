@@ -30,7 +30,7 @@ namespace TestSuite
       public void testNone()
       {
          Currency EUR = new EURCurrency();
-
+         Settings settings = new Settings();
          Money m1 = 50000.0 * EUR;
          Money m2 = 100000.0 * EUR;
          Money m3 = 500000.0 * EUR;
@@ -39,7 +39,7 @@ namespace TestSuite
 
          Money calculated = m1 * 3.0 + 2.5 * m2 - m3 / 5.0;
          double x = m1.value * 3.0 + 2.5 * m2.value - m3.value / 5.0;
-         Money expected = new Money(x, EUR);
+         Money expected = new Money(settings, x, EUR);
 
          if (calculated != expected)
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
@@ -48,6 +48,7 @@ namespace TestSuite
       [Fact]
       public void testBaseCurrency()
       {
+         Settings settings =  new Settings();
          Currency EUR = new EURCurrency(), GBP = new GBPCurrency(), USD = new USDCurrency();
 
          Money m1 = 50000.0 * GBP;
@@ -68,7 +69,7 @@ namespace TestSuite
          Rounding round = Money.baseCurrency.rounding;
          double x = round.Round(m1.value * 3.0 / eur_gbp.rate) + 2.5 * m2.value
                     - round.Round(m3.value / (5.0 * eur_usd.rate));
-         Money expected = new Money(x, EUR);
+         Money expected = new Money(settings, x, EUR);
 
          Money.conversionType = Money.ConversionType.NoConversion;
 
@@ -81,6 +82,7 @@ namespace TestSuite
       [Fact]
       public void testAutomated()
       {
+         Settings settings = new Settings();
          Currency EUR = new EURCurrency(), GBP = new GBPCurrency(), USD = new USDCurrency();
 
          Money m1 = 50000.0 * GBP;
@@ -100,7 +102,7 @@ namespace TestSuite
          Rounding round = m1.currency.rounding;
          double x = m1.value * 3.0 + round.Round(2.5 * m2.value * eur_gbp.rate)
                     - round.Round((m3.value / 5.0) * eur_gbp.rate / eur_usd.rate);
-         Money expected = new Money(x, GBP);
+         Money expected = new Money(settings, x, GBP);
 
          Money.conversionType = Money.ConversionType.NoConversion;
 

@@ -71,44 +71,48 @@ namespace QLCore
       }
       #endregion
 
-      public InterpolatedForwardCurve(DayCounter dayCounter,
-                                      List<Handle<Quote>> jumps = null,
-                                      List<Date> jumpDates = null,
-                                      Interpolator interpolator = default(Interpolator))
-         : base(dayCounter, jumps, jumpDates)
-      {
-         interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
-      }
-
-      public InterpolatedForwardCurve(Date referenceDate,
+      public InterpolatedForwardCurve(Settings settings, 
                                       DayCounter dayCounter,
                                       List<Handle<Quote>> jumps = null,
                                       List<Date> jumpDates = null,
                                       Interpolator interpolator = default(Interpolator))
-         : base(referenceDate, null, dayCounter, jumps, jumpDates)
+         : base(settings, dayCounter, jumps, jumpDates)
       {
          interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
       }
 
-      public InterpolatedForwardCurve(int settlementDays,
+      public InterpolatedForwardCurve(Settings settings, 
+                                      Date referenceDate,
+                                      DayCounter dayCounter,
+                                      List<Handle<Quote>> jumps = null,
+                                      List<Date> jumpDates = null,
+                                      Interpolator interpolator = default(Interpolator))
+         : base(settings, referenceDate, null, dayCounter, jumps, jumpDates)
+      {
+         interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
+      }
+
+      public InterpolatedForwardCurve(Settings settings, 
+                                      int settlementDays,
                                       Calendar calendar,
                                       DayCounter dayCounter,
                                       List<Handle<Quote>> jumps = null,
                                       List<Date> jumpDates = null,
                                       Interpolator interpolator = default(Interpolator))
-         : base(settlementDays, calendar, dayCounter, jumps, jumpDates)
+         : base(settings, settlementDays, calendar, dayCounter, jumps, jumpDates)
       {
          interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
       }
 
-      public InterpolatedForwardCurve(List<Date> dates,
+      public InterpolatedForwardCurve(Settings settings, 
+                                      List<Date> dates,
                                       List<double> forwards,
                                       DayCounter dayCounter,
                                       Calendar calendar = null,
                                       List<Handle<Quote>> jumps = null,
                                       List<Date> jumpDates = null,
                                       Interpolator interpolator = default(Interpolator))
-         : base(dates[0], calendar, dayCounter, jumps, jumpDates)
+         : base(settings, dates[0], calendar, dayCounter, jumps, jumpDates)
       {
          times_ = new List<double>();
          data_ = forwards;
@@ -117,12 +121,13 @@ namespace QLCore
          initialize();
       }
 
-      public InterpolatedForwardCurve(List<Date> dates,
+      public InterpolatedForwardCurve(Settings settings, 
+                                      List<Date> dates,
                                       List<double> forwards,
                                       DayCounter dayCounter,
                                       Calendar calendar,
                                       Interpolator interpolator)
-         : base(dates[0], calendar, dayCounter)
+         : base(settings, dates[0], calendar, dayCounter)
       {
          times_ = new List<double>();
          data_ = forwards;
@@ -131,11 +136,12 @@ namespace QLCore
          initialize();
       }
 
-      public InterpolatedForwardCurve(List<Date> dates,
+      public InterpolatedForwardCurve(Settings settings, 
+                                      List<Date> dates,
                                       List<double> forwards,
                                       DayCounter dayCounter,
                                       Interpolator interpolator)
-         : base(dates[0], null, dayCounter)
+         : base(settings, dates[0], null, dayCounter)
       {
          times_ = new List<double>();
          data_ = forwards;
@@ -144,13 +150,14 @@ namespace QLCore
          initialize();
       }
 
-      public InterpolatedForwardCurve(List<Date> dates,
+      public InterpolatedForwardCurve(Settings settings, 
+                                      List<Date> dates,
                                       List<double> forwards,
                                       DayCounter dayCounter,
                                       List<Handle<Quote>> jumps,
                                       List<Date> jumpDates,
                                       Interpolator interpolator = default(Interpolator))
-         : base(dates[0], null, dayCounter, jumps, jumpDates)
+         : base(settings, dates[0], null, dayCounter, jumps, jumpDates)
       {
          times_ = new List<double>();
          dates_ = dates;

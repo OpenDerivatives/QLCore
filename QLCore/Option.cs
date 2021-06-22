@@ -44,7 +44,8 @@ namespace QLCore
          return exercise_;
       }
 
-      public Option(Payoff payoff, Exercise exercise)
+      public Option(Settings settings, Payoff payoff, Exercise exercise)
+      : base(settings)
       {
          payoff_ = payoff;
          exercise_ = exercise;
@@ -58,6 +59,7 @@ namespace QLCore
 
          arguments.payoff = payoff_;
          arguments.exercise = exercise_;
+         arguments.settings = settings_;
       }
 
       //! basic %option %arguments
@@ -65,6 +67,7 @@ namespace QLCore
       {
          public Payoff payoff { get; set; }
          public Exercise exercise { get; set; }
+         public Settings settings { get; set; }
 
          public virtual void validate()
          {

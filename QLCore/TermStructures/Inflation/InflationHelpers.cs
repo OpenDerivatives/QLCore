@@ -34,7 +34,7 @@ namespace QLCore
          BusinessDayConvention paymentConvention,
          DayCounter dayCounter,
          ZeroInflationIndex zii)
-         : base(quote)
+         : base(zii.settings(), quote)
       {
          swapObsLag_ = swapObsLag;
          maturity_ = maturity;
@@ -95,6 +95,7 @@ namespace QLCore
          double nominal = 1000000.0;   // has to be something but doesn't matter what
          Date start = z.nominalTermStructure().link.referenceDate();
          zciis_ = new ZeroCouponInflationSwap(
+            z.settings(),
             ZeroCouponInflationSwap.Type.Payer,
             nominal, start, maturity_,
             calendar_, paymentConvention_, dayCounter_, K, // fixed side & fixed rate
@@ -133,7 +134,7 @@ namespace QLCore
                                            BusinessDayConvention paymentConvention,
                                            DayCounter dayCounter,
                                            YoYInflationIndex yii)
-         : base(quote)
+         : base(yii.settings(), quote)
       {
          swapObsLag_ = swapObsLag;
          maturity_ = maturity;
@@ -189,9 +190,9 @@ namespace QLCore
 
          // always works because tenor is always 1 year so
          // no problem with different days-in-month
-         Date from = Settings.Instance.evaluationDate();
+         Date from = y.settings().evaluationDate();
          Date to = maturity_;
-         Schedule fixedSchedule = new MakeSchedule().from(from).to(to)
+         Schedule fixedSchedule = new MakeSchedule(y.settings()).from(from).to(to)
          .withTenor(new Period(1, TimeUnit.Years))
          .withConvention(BusinessDayConvention.Unadjusted)
          .withCalendar(calendar_)// fixed leg gets cal from sched

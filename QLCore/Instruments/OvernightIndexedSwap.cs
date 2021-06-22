@@ -44,7 +44,7 @@ namespace QLCore
                                   DayCounter fixedDC,
                                   OvernightIndex overnightIndex,
                                   double spread) :
-         base(2)
+         base(schedule.settings(), 2)
       {
 
          type_ = type;
@@ -93,7 +93,7 @@ namespace QLCore
                                   Schedule overnightSchedule,
                                   OvernightIndex overnightIndex,
                                   double spread) :
-         base(2)
+         base(fixedSchedule.settings(), 2)
       {
 
          type_ = type;

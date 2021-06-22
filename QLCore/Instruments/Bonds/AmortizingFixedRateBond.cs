@@ -37,7 +37,7 @@ namespace QLCore
          DayCounter accrualDayCounter,
          BusinessDayConvention paymentConvention = BusinessDayConvention.Following,
          Date issueDate = null)
-         : base(settlementDays, schedule.calendar(), issueDate)
+         : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          frequency_ = schedule.tenor().frequency();
          dayCounter_ = accrualDayCounter;
@@ -64,7 +64,7 @@ namespace QLCore
          DayCounter accrualDayCounter,
          BusinessDayConvention paymentConvention = BusinessDayConvention.Following,
          Date issueDate = null)
-         : base(settlementDays, schedule.calendar(), issueDate)
+         : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          frequency_ = schedule.tenor().frequency();
          dayCounter_ = accrualDayCounter;
@@ -84,6 +84,7 @@ namespace QLCore
       }
 
       public AmortizingFixedRateBond(
+         Settings settings,
          int settlementDays,
          Calendar calendar,
          double faceAmount,
@@ -94,7 +95,7 @@ namespace QLCore
          DayCounter accrualDayCounter,
          BusinessDayConvention paymentConvention = BusinessDayConvention.Following,
          Date issueDate = null)
-         : base(settlementDays, calendar, issueDate)
+         : base(settings, settlementDays, calendar, issueDate)
       {
          frequency_ = sinkingFrequency;
          dayCounter_ = accrualDayCounter;
@@ -124,7 +125,7 @@ namespace QLCore
       {
          Period freqPeriod = new Period(sinkingFrequency);
          Date maturityDate = new Date(startDate + maturityTenor);
-         Schedule retVal = new Schedule(startDate, maturityDate, freqPeriod,
+         Schedule retVal = new Schedule(settings(), startDate, maturityDate, freqPeriod,
                                         paymentCalendar, BusinessDayConvention.Unadjusted, BusinessDayConvention.Unadjusted,
                                         DateGeneration.Rule.Backward, false);
          return retVal;

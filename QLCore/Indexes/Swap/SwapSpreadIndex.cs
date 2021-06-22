@@ -33,7 +33,7 @@ namespace QLCore
                              double gearing1 = 1.0,
                              double gearing2 = -1.0)
          : base(familyName, swapIndex1.tenor(), // does not make sense, but we have to provide one
-                swapIndex1.fixingDays(), swapIndex1.currency(), swapIndex1.fixingCalendar(), swapIndex1.dayCounter())
+                swapIndex1.fixingDays(), swapIndex1.currency(), swapIndex1.fixingCalendar(), swapIndex1.dayCounter(), swapIndex1.settings())
       {
          swapIndex1_ = swapIndex1;
          swapIndex2_ = swapIndex2;

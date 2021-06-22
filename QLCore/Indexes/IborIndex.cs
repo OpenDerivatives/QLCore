@@ -34,10 +34,10 @@ namespace QLCore
                        BusinessDayConvention convention,
                        bool endOfMonth,
                        DayCounter dayCounter,
+                       Settings settings,
                        Handle<YieldTermStructure> h = null)
-         : base(familyName, tenor, settlementDays, currency, fixingCalendar, dayCounter)
+         : base(familyName, tenor, settlementDays, currency, fixingCalendar, dayCounter, settings)
       {
-
          convention_ = convention;
          termStructure_ = h ?? new Handle<YieldTermStructure>();
          endOfMonth_ = endOfMonth;
@@ -70,7 +70,7 @@ namespace QLCore
       public virtual IborIndex clone(Handle<YieldTermStructure> forwarding)
       {
          IborIndex tmp = new IborIndex(familyName(), tenor(), fixingDays(), currency(), fixingCalendar(),
-                                       businessDayConvention(), endOfMonth(), dayCounter(), forwarding);
+                                       businessDayConvention(), endOfMonth(), dayCounter(), settings(), forwarding);
          tmp.data_ = data_;
          return tmp;
       }
@@ -118,17 +118,18 @@ namespace QLCore
                             Currency currency,
                             Calendar fixingCalendar,
                             DayCounter dayCounter,
+                            Settings settings,
                             Handle<YieldTermStructure> h = null) :
 
          base(familyName, new Period(1, TimeUnit.Days), settlementDays,
-              currency, fixingCalendar, BusinessDayConvention.Following, false, dayCounter, h)
+              currency, fixingCalendar, BusinessDayConvention.Following, false, dayCounter, settings, h)
       {}
 
       //! returns a copy of itself linked to a different forwarding curve
       public new OvernightIndex clone(Handle<YieldTermStructure> h)
       {
          OvernightIndex tmp = new OvernightIndex(familyName(), fixingDays(), currency(), fixingCalendar(),
-                                   dayCounter(), h);
+                                   dayCounter(), settings(), h);
          tmp.data_ = data_;
          return tmp;
       }

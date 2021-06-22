@@ -45,7 +45,7 @@ namespace QLCore
 
          bool includeRefDateFlows = includeSettlementDateFlows_.HasValue ?
                                     includeSettlementDateFlows_.Value :
-                                    Settings.Instance.includeReferenceDateEvents;
+                                    discountCurve_.currentLink().settings().includeReferenceDateEvents;
 
          results_.value = npv(includeRefDateFlows,
                               results_.valuationDate,
@@ -99,7 +99,7 @@ namespace QLCore
             return 0.0;
 
          if (settlementDate == null)
-            settlementDate = Settings.Instance.evaluationDate();
+            settlementDate = discountCurve_.currentLink().settings().evaluationDate();
 
          if (npvDate == null)
             npvDate = settlementDate;

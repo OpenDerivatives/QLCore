@@ -30,7 +30,9 @@ namespace QLCore
    public class CmsCoupon : FloatingRateCoupon
    {
       // need by CashFlowVectors
-      public CmsCoupon() { }
+      public CmsCoupon() : base(new Settings()) { }
+
+      public CmsCoupon(Settings settings) : base(settings) { }
 
       public CmsCoupon(double nominal,
                        Date paymentDate,

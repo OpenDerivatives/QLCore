@@ -78,9 +78,9 @@ namespace QLCore
          Date referenceDate = process_.riskFreeRate().link.referenceDate();
 
          // binomial trees with constant coefficient
-         Handle<YieldTermStructure> flatRiskFree = new Handle<YieldTermStructure>(new FlatForward(referenceDate, r, rfdc));
-         Handle<YieldTermStructure> flatDividends = new Handle<YieldTermStructure>(new FlatForward(referenceDate, q, divdc));
-         Handle<BlackVolTermStructure> flatVol = new Handle<BlackVolTermStructure>(new BlackConstantVol(referenceDate, volcal, v, voldc));
+         Handle<YieldTermStructure> flatRiskFree = new Handle<YieldTermStructure>(new FlatForward(arguments_.settings, referenceDate, r, rfdc));
+         Handle<YieldTermStructure> flatDividends = new Handle<YieldTermStructure>(new FlatForward(arguments_.settings, referenceDate, q, divdc));
+         Handle<BlackVolTermStructure> flatVol = new Handle<BlackVolTermStructure>(new BlackConstantVol(arguments_.settings, referenceDate, volcal, v, voldc));
 
          StrikedTypePayoff payoff = arguments_.payoff as StrikedTypePayoff;
          Utils.QL_REQUIRE(payoff != null, () => "non-striked payoff given");

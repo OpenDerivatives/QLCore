@@ -304,7 +304,7 @@ namespace QLCore
          // only the price member function in this class will be dependent on the
          // coupon discount curve.
 
-         today_ = QLCore.Settings.Instance.evaluationDate();
+         today_ = coupon_.settings().evaluationDate();
 
          if (paymentDate_ > today_ && !couponDiscountCurve_.empty())
             couponDiscountRatio_ = couponDiscountCurve_.link.discount(paymentDate_) /

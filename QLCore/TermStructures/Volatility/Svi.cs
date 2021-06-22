@@ -45,13 +45,13 @@ namespace QLCore
          return a + b * (rho * (k - m) + Math.Sqrt((k - m) * (k - m) + sigma* sigma));
       }
 
-      public static double sviVolatility(double strike, double forward, double expiryTime, List<double? > param)
+      public static double sviVolatility(Settings settings, double strike, double forward, double expiryTime, List<double? > param)
       {
          List<double> params_ = new List<double>();
          foreach (double? x in param)
             params_.Add(x.Value);
 
-         SviSmileSection sms = new SviSmileSection(expiryTime, forward, params_);
+         SviSmileSection sms = new SviSmileSection(settings, expiryTime, forward, params_);
          return sms.volatility(strike);
       }
    }

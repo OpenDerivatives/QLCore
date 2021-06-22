@@ -29,7 +29,7 @@ namespace TestSuite
       [Fact]
       public void testDirect()
       {
-
+         Settings settings = new Settings();
          Currency EUR = new EURCurrency(), USD = new USDCurrency();
 
          ExchangeRate eur_usd = new ExchangeRate(EUR, USD, 1.2042);
@@ -40,7 +40,7 @@ namespace TestSuite
          Money.conversionType = Money.ConversionType.NoConversion;
 
          Money calculated = eur_usd.exchange(m1);
-         Money expected = new Money(m1.value * eur_usd.rate, USD);
+         Money expected = new Money(settings, m1.value * eur_usd.rate, USD);
 
          if (!Utils.close(calculated, expected))
          {
@@ -48,7 +48,7 @@ namespace TestSuite
          }
 
          calculated = eur_usd.exchange(m2);
-         expected = new Money(m2.value / eur_usd.rate, EUR);
+         expected = new Money(settings, m2.value / eur_usd.rate, EUR);
 
          if (!Utils.close(calculated, expected))
          {
@@ -62,7 +62,7 @@ namespace TestSuite
       [Fact]
       public void testDerived()
       {
-
+         Settings settings = new Settings();
          Currency EUR = new EURCurrency(), USD = new USDCurrency(), GBP = new GBPCurrency();
 
          ExchangeRate eur_usd = new ExchangeRate(EUR, USD, 1.2042);
@@ -76,7 +76,7 @@ namespace TestSuite
          Money.conversionType = Money.ConversionType.NoConversion;
 
          Money calculated = derived.exchange(m1);
-         Money expected = new Money(m1.value * eur_usd.rate / eur_gbp.rate, USD);
+         Money expected = new Money(settings, m1.value * eur_usd.rate / eur_gbp.rate, USD);
 
          if (!Utils.close(calculated, expected))
          {
@@ -84,7 +84,7 @@ namespace TestSuite
          }
 
          calculated = derived.exchange(m2);
-         expected = new Money(m2.value * eur_gbp.rate / eur_usd.rate, GBP);
+         expected = new Money(settings, m2.value * eur_gbp.rate / eur_usd.rate, GBP);
 
          if (!Utils.close(calculated, expected))
          {
@@ -98,6 +98,7 @@ namespace TestSuite
       [Fact]
       public void testDirectLookup()
       {
+         Settings settings = new Settings();
          ExchangeRateManager rateManager = ExchangeRateManager.Instance;
          rateManager.clear();
 
@@ -113,38 +114,38 @@ namespace TestSuite
 
          Money.conversionType = Money.ConversionType.NoConversion;
 
-         ExchangeRate eur_usd = rateManager.lookup(EUR, USD, new Date(4, Month.August, 2004), ExchangeRate.Type.Direct);
+         ExchangeRate eur_usd = rateManager.lookup(settings, EUR, USD, new Date(4, Month.August, 2004), ExchangeRate.Type.Direct);
          Money calculated = eur_usd.exchange(m1);
-         Money expected = new Money(m1.value * eur_usd1.rate, USD);
+         Money expected = new Money(settings, m1.value * eur_usd1.rate, USD);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         eur_usd = rateManager.lookup(EUR, USD, new Date(5, Month.August, 2004), ExchangeRate.Type.Direct);
+         eur_usd = rateManager.lookup(settings, EUR, USD, new Date(5, Month.August, 2004), ExchangeRate.Type.Direct);
          calculated = eur_usd.exchange(m1);
-         expected = new Money(m1.value / eur_usd2.rate, USD);
+         expected = new Money(settings, m1.value / eur_usd2.rate, USD);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         ExchangeRate usd_eur = rateManager.lookup(USD, EUR, new Date(4, Month.August, 2004), ExchangeRate.Type.Direct);
+         ExchangeRate usd_eur = rateManager.lookup(settings, USD, EUR, new Date(4, Month.August, 2004), ExchangeRate.Type.Direct);
 
          calculated = usd_eur.exchange(m2);
-         expected = new Money(m2.value / eur_usd1.rate, EUR);
+         expected = new Money(settings, m2.value / eur_usd1.rate, EUR);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         usd_eur = rateManager.lookup(USD, EUR, new Date(5, Month.August, 2004), ExchangeRate.Type.Direct);
+         usd_eur = rateManager.lookup(settings, USD, EUR, new Date(5, Month.August, 2004), ExchangeRate.Type.Direct);
 
          calculated = usd_eur.exchange(m2);
-         expected = new Money(m2.value * eur_usd2.rate, EUR);
+         expected = new Money(settings, m2.value * eur_usd2.rate, EUR);
 
          if (!Utils.close(calculated, expected))
          {
@@ -158,7 +159,7 @@ namespace TestSuite
       [Fact]
       public void testTriangulatedLookup()
       {
-
+         Settings settings = new Settings();
          ExchangeRateManager rateManager = ExchangeRateManager.Instance;
          rateManager.clear();
 
@@ -174,38 +175,38 @@ namespace TestSuite
 
          Money.conversionType = Money.ConversionType.NoConversion;
 
-         ExchangeRate itl_usd = rateManager.lookup(ITL, USD, new Date(4, Month.August, 2004));
+         ExchangeRate itl_usd = rateManager.lookup(settings, ITL, USD, new Date(4, Month.August, 2004));
          Money calculated = itl_usd.exchange(m1);
-         Money expected = new Money(m1.value * eur_usd1.rate / 1936.27, USD);
+         Money expected = new Money(settings, m1.value * eur_usd1.rate / 1936.27, USD);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         itl_usd = rateManager.lookup(ITL, USD, new Date(5, Month.August, 2004));
+         itl_usd = rateManager.lookup(settings, ITL, USD, new Date(5, Month.August, 2004));
          calculated = itl_usd.exchange(m1);
-         expected = new Money(m1.value * eur_usd2.rate / 1936.27, USD);
+         expected = new Money(settings, m1.value * eur_usd2.rate / 1936.27, USD);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         ExchangeRate usd_itl = rateManager.lookup(USD, ITL, new Date(4, Month.August, 2004));
+         ExchangeRate usd_itl = rateManager.lookup(settings, USD, ITL, new Date(4, Month.August, 2004));
 
          calculated = usd_itl.exchange(m2);
-         expected = new Money(m2.value * 1936.27 / eur_usd1.rate, ITL);
+         expected = new Money(settings, m2.value * 1936.27 / eur_usd1.rate, ITL);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         usd_itl = rateManager.lookup(USD, ITL, new Date(5, Month.August, 2004));
+         usd_itl = rateManager.lookup(settings, USD, ITL, new Date(5, Month.August, 2004));
 
          calculated = usd_itl.exchange(m2);
-         expected = new Money(m2.value * 1936.27 / eur_usd2.rate, ITL);
+         expected = new Money(settings, m2.value * 1936.27 / eur_usd2.rate, ITL);
 
          if (!Utils.close(calculated, expected))
          {
@@ -219,7 +220,7 @@ namespace TestSuite
       [Fact]
       public void testSmartLookup()
       {
-
+         Settings settings = new Settings();
          Currency EUR = new EURCurrency(), USD = new USDCurrency(), GBP = new GBPCurrency(),
          CHF = new CHFCurrency(), SEK = new SEKCurrency(), JPY = new JPYCurrency();
 
@@ -262,18 +263,18 @@ namespace TestSuite
 
          // two-rate chain
 
-         ExchangeRate usd_sek = rateManager.lookup(USD, SEK, new Date(4, Month.August, 2004));
+         ExchangeRate usd_sek = rateManager.lookup(settings, USD, SEK, new Date(4, Month.August, 2004));
          Money calculated = usd_sek.exchange(m1);
-         Money expected = new Money(m1.value * usd_chf1.rate / chf_sek1.rate, SEK);
+         Money expected = new Money(settings, m1.value * usd_chf1.rate / chf_sek1.rate, SEK);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         usd_sek = rateManager.lookup(SEK, USD, new Date(5, Month.August, 2004));
+         usd_sek = rateManager.lookup(settings, SEK, USD, new Date(5, Month.August, 2004));
          calculated = usd_sek.exchange(m5);
-         expected = new Money(m5.value * usd_chf2.rate / chf_sek2.rate, USD);
+         expected = new Money(settings, m5.value * usd_chf2.rate / chf_sek2.rate, USD);
 
          if (!Utils.close(calculated, expected))
          {
@@ -282,18 +283,18 @@ namespace TestSuite
 
          // three-rate chain
 
-         ExchangeRate eur_sek = rateManager.lookup(EUR, SEK, new Date(4, Month.August, 2004));
+         ExchangeRate eur_sek = rateManager.lookup(settings, EUR, SEK, new Date(4, Month.August, 2004));
          calculated = eur_sek.exchange(m2);
-         expected = new Money(m2.value * eur_usd1.rate * usd_chf1.rate / chf_sek1.rate, SEK);
+         expected = new Money(settings, m2.value * eur_usd1.rate * usd_chf1.rate / chf_sek1.rate, SEK);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         eur_sek = rateManager.lookup(SEK, EUR, new Date(5, Month.August, 2004));
+         eur_sek = rateManager.lookup(settings, SEK, EUR, new Date(5, Month.August, 2004));
          calculated = eur_sek.exchange(m5);
-         expected = new Money(m5.value * eur_usd2.rate * usd_chf2.rate / chf_sek2.rate, EUR);
+         expected = new Money(settings, m5.value * eur_usd2.rate * usd_chf2.rate / chf_sek2.rate, EUR);
 
          if (!Utils.close(calculated, expected))
          {
@@ -302,18 +303,18 @@ namespace TestSuite
 
          // four-rate chain
 
-         ExchangeRate eur_jpy = rateManager.lookup(EUR, JPY, new Date(4, Month.August, 2004));
+         ExchangeRate eur_jpy = rateManager.lookup(settings, EUR, JPY, new Date(4, Month.August, 2004));
          calculated = eur_jpy.exchange(m2);
-         expected = new Money(m2.value * eur_usd1.rate * usd_chf1.rate * jpy_sek1.rate / chf_sek1.rate, JPY);
+         expected = new Money(settings, m2.value * eur_usd1.rate * usd_chf1.rate * jpy_sek1.rate / chf_sek1.rate, JPY);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         eur_jpy = rateManager.lookup(JPY, EUR, new Date(5, Month.August, 2004));
+         eur_jpy = rateManager.lookup(settings, JPY, EUR, new Date(5, Month.August, 2004));
          calculated = eur_jpy.exchange(m6);
-         expected = new Money(m6.value * jpy_sek2.rate * eur_usd2.rate * usd_chf2.rate / chf_sek2.rate, EUR);
+         expected = new Money(settings, m6.value * jpy_sek2.rate * eur_usd2.rate * usd_chf2.rate / chf_sek2.rate, EUR);
 
          if (!Utils.close(calculated, expected))
          {
@@ -322,18 +323,18 @@ namespace TestSuite
 
          // five-rate chain
 
-         ExchangeRate gbp_jpy = rateManager.lookup(GBP, JPY, new Date(4, Month.August, 2004));
+         ExchangeRate gbp_jpy = rateManager.lookup(settings, GBP, JPY, new Date(4, Month.August, 2004));
          calculated = gbp_jpy.exchange(m3);
-         expected = new Money(m3.value * eur_gbp1.rate * eur_usd1.rate * usd_chf1.rate * jpy_sek1.rate / chf_sek1.rate, JPY);
+         expected = new Money(settings, m3.value * eur_gbp1.rate * eur_usd1.rate * usd_chf1.rate * jpy_sek1.rate / chf_sek1.rate, JPY);
 
          if (!Utils.close(calculated, expected))
          {
             QAssert.Fail("Wrong result: expected: " + expected + " calculated: " + calculated);
          }
 
-         gbp_jpy = rateManager.lookup(JPY, GBP, new Date(5, Month.August, 2004));
+         gbp_jpy = rateManager.lookup(settings, JPY, GBP, new Date(5, Month.August, 2004));
          calculated = gbp_jpy.exchange(m6);
-         expected = new Money(m6.value * jpy_sek2.rate * eur_usd2.rate * usd_chf2.rate * eur_gbp2.rate / chf_sek2.rate, GBP);
+         expected = new Money(settings, m6.value * jpy_sek2.rate * eur_usd2.rate * usd_chf2.rate * eur_gbp2.rate / chf_sek2.rate, GBP);
 
          if (!Utils.close(calculated, expected))
          {

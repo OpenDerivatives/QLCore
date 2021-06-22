@@ -33,8 +33,9 @@ namespace QLCore
                                Handle<Quote> volatility,
                                Handle<YieldTermStructure> riskFreeRate,
                                Handle<YieldTermStructure> dividendYield,
+                               Settings settings,
                                CalibrationHelper.CalibrationErrorType errorType = CalibrationErrorType.RelativePriceError)
-         : base(volatility, riskFreeRate, errorType)
+         : base(volatility, riskFreeRate, settings, errorType)
       {
          maturity_ = maturity;
          calendar_ = calendar;
@@ -50,8 +51,9 @@ namespace QLCore
                                Handle<Quote> volatility,
                                Handle<YieldTermStructure> riskFreeRate,
                                Handle<YieldTermStructure> dividendYield,
+                               Settings settings,
                                CalibrationHelper.CalibrationErrorType errorType = CalibrationErrorType.RelativePriceError)
-         : base(volatility, riskFreeRate, errorType)
+         : base(volatility, riskFreeRate, settings, errorType)
       {
          maturity_ = maturity;
          calendar_ = calendar;
@@ -72,7 +74,7 @@ namespace QLCore
                  : Option.Type.Put;
          StrikedTypePayoff payoff = new PlainVanillaPayoff(type_, strikePrice_);
          Exercise exercise = new EuropeanExercise(exerciseDate_);
-         option_ = new VanillaOption(payoff, exercise);
+         option_ = new VanillaOption(termStructure_.link.settings(), payoff, exercise);
          base.performCalculations();
       }
 

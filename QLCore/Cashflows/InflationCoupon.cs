@@ -43,7 +43,7 @@ namespace QLCore
                              Date refPeriodStart = null,
                              Date refPeriodEnd = null,
                              Date exCouponDate = null)
-         : base(paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd, exCouponDate)    // ref period is before lag
+         : base(index.settings(), paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd, exCouponDate)    // ref period is before lag
       {
          index_ = index;
          observationLag_ = observationLag;

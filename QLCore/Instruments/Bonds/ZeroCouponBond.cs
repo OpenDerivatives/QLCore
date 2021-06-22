@@ -27,9 +27,9 @@ namespace QLCore
    */
    public class ZeroCouponBond : Bond
    {
-      public ZeroCouponBond(int settlementDays, Calendar calendar, double faceAmount, Date maturityDate,
+      public ZeroCouponBond(Settings settings, int settlementDays, Calendar calendar, double faceAmount, Date maturityDate,
                             BusinessDayConvention paymentConvention, double redemption, Date issueDate)
-         : base(settlementDays, calendar, issueDate)
+         : base(settings, settlementDays, calendar, issueDate)
       {
          maturityDate_ = maturityDate;
          Date redemptionDate = calendar_.adjust(maturityDate, paymentConvention);

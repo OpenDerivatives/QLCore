@@ -41,14 +41,14 @@ namespace QLCore
       void guess(Vector values, List<bool> paramIsFixed, double forward, double expiryTime, List<double> r,
                  List < double? > addParams);
 
-      IWrapper instance(double t, double forward, List < double? > param, List < double? > addParams);
+      IWrapper instance(Settings settings, double t, double forward, List < double? > param, List < double? > addParams);
       Vector inverse(Vector y, List<bool> b, List < double? > c, double d);
       double weight(double strike, double forward, double stdDev, List < double? > addParams);
    }
 
    public class XABRCoeffHolder<Model> where Model : IModel, new ()
    {
-      public XABRCoeffHolder(double t, double forward, List < double? > _params, List<bool> paramIsFixed,
+      public XABRCoeffHolder(Settings settings, double t, double forward, List < double? > _params, List<bool> paramIsFixed,
                              List < double? > addParams)
       {
          t_ = t;
@@ -61,6 +61,7 @@ namespace QLCore
          maxError_ = null;
          XABREndCriteria_ = EndCriteria.Type.None;
          model_ = FastActivator<Model>.Create();
+         settings_ = settings;
 
          Utils.QL_REQUIRE(t > 0.0, () => "expiry time must be positive: " + t + " not allowed");
          Utils.QL_REQUIRE(_params.Count == model_.dimension(), () =>
@@ -82,7 +83,7 @@ namespace QLCore
       public void updateModelInstance()
       {
          // forward might have changed
-         modelInstance_ = model_.instance(t_, forward_, params_, addParams_);
+         modelInstance_ = model_.instance(settings_, t_, forward_, params_, addParams_);
       }
 
       /*! Expiry, Forward */
@@ -106,12 +107,13 @@ namespace QLCore
       /*! Model instance (if required) */
       public IWrapper modelInstance_ { get; set; }
       public IModel model_ { get; set; }
+      public Settings settings_ { get; set; }
    }
 
    //template <class I1, class I2, typename Model>
    public class XABRInterpolationImpl<Model> : Interpolation.templateImpl where Model : IModel, new ()
    {
-      public XABRInterpolationImpl(List<double> xBegin, int size, List<double> yBegin, double t,
+      public XABRInterpolationImpl(Settings settings, List<double> xBegin, int size, List<double> yBegin, double t,
                                    double forward, List < double? > _params,
                                    List<bool> paramIsFixed, bool vegaWeighted,
                                    EndCriteria endCriteria,
@@ -129,7 +131,7 @@ namespace QLCore
          vegaWeighted_ = vegaWeighted;
          constraint_ = constraint ?? new NoXABRConstraint();
 
-         coeff_ = new XABRCoeffHolder<Model>(t, forward, _params, paramIsFixed, addParams);
+         coeff_ = new XABRCoeffHolder<Model>(settings, t, forward, _params, paramIsFixed, addParams);
          coeff_.weights_ = new InitializedList<double>(size, 1.0 / size);
       }
 

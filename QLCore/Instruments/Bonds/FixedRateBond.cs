@@ -41,7 +41,7 @@ namespace QLCore
                            Calendar exCouponCalendar = null,
                            BusinessDayConvention exCouponConvention = BusinessDayConvention.Unadjusted,
                            bool exCouponEndOfMonth = false)
-         : base(settlementDays, paymentCalendar ?? schedule.calendar(),
+         : base(schedule.settings(), settlementDays, paymentCalendar ?? schedule.calendar(),
                 issueDate)
       {
          frequency_ = schedule.tenor().frequency();
@@ -66,7 +66,8 @@ namespace QLCore
 
       /*! simple annual compounding coupon rates
           with internal schedule calculation */
-      public FixedRateBond(int settlementDays,
+      public FixedRateBond(Settings settings,
+                           int settlementDays,
                            Calendar calendar,
                            double faceAmount,
                            Date startDate,
@@ -86,7 +87,8 @@ namespace QLCore
                            Calendar exCouponCalendar = null,
                            BusinessDayConvention exCouponConvention = BusinessDayConvention.Unadjusted,
                            bool exCouponEndOfMonth = false)
-         : base(settlementDays, paymentCalendar ?? calendar,
+         : base(settings, 
+                settlementDays, paymentCalendar ?? calendar,
                 issueDate)
       {
 
@@ -122,7 +124,7 @@ namespace QLCore
          }
 
 
-         Schedule schedule = new Schedule(startDate, maturityDate_, tenor,
+         Schedule schedule = new Schedule(settings, startDate, maturityDate_, tenor,
                                           calendar, accrualConvention, accrualConvention,
                                           rule, endOfMonth,
                                           firstDate, nextToLastDate);
@@ -158,7 +160,8 @@ namespace QLCore
                            BusinessDayConvention exCouponConvention = BusinessDayConvention.Unadjusted,
                            bool exCouponEndOfMonth = false)
 
-         : base(settlementDays, paymentCalendar ?? schedule.calendar(),
+         : base(schedule.settings(),
+                settlementDays, paymentCalendar ?? schedule.calendar(),
                 issueDate)
       {
 

@@ -69,6 +69,11 @@ namespace QLCore
       /// <param name="lastPeriodDayCounter">Day-count convention for accrual in last period</param>
       /// <param name="rebatesAccrual">The protection seller pays the accrued scheduled current coupon at the start
       /// of the contract. The rebate date is not provided but computed to be two days after protection start.</param>
+      /// <param name="tradeDate">The contract's trade date. It will be used with the \p cashSettlementDays to determine 
+      /// the date on which the cash settlement amount is paid if \p upfrontDate is empty. If not 
+      /// given, the trade date is guessed from the protection start date and \p schedule date 
+      /// generation rule.</param>
+      /// <param name="cashSettlementDays">he number of business days from \p tradeDate to cash settlement date.</param>
       public CreditDefaultSwap(Protection.Side side,
                                double notional,
                                double spread,
@@ -80,9 +85,11 @@ namespace QLCore
                                Date protectionStart = null,
                                Claim claim = null,
                                DayCounter lastPeriodDayCounter = null,
-                               bool rebatesAccrual = true)
+                               bool rebatesAccrual = true,
+                               Date tradeDate = null,
+                               int cashSettlementDays = 3)
+               : base(schedule.settings())
       {
-
          side_ = side;
          notional_ = notional;
          upfront_ = null;
@@ -91,34 +98,10 @@ namespace QLCore
          paysAtDefaultTime_ = paysAtDefaultTime;
          claim_ = claim;
          protectionStart_ = protectionStart ?? schedule[0];
+         tradeDate_ = tradeDate;
+         cashSettlementDays_ = cashSettlementDays;
 
-         Utils.QL_REQUIRE(protectionStart_ <= schedule[0] ||
-                          schedule.rule() == DateGeneration.Rule.CDS ||
-                          schedule.rule() == DateGeneration.Rule.CDS2015
-                          , () => "protection can not start after accrual");
-
-         leg_ = new FixedRateLeg(schedule)
-         .withLastPeriodDayCounter(lastPeriodDayCounter)
-         .withCouponRates(spread, dayCounter)
-         .withNotionals(notional)
-         .withPaymentAdjustment(convention);
-
-         Date effectiveUpfrontDate = schedule.calendar().advance(protectionStart_, 2, TimeUnit.Days, convention);
-         // '2' is used above since the protection start is assumed to be on trade_date + 1
-         if (rebatesAccrual)
-         {
-            FixedRateCoupon firstCoupon = leg_[0] as FixedRateCoupon;
-
-            Date rebateDate = effectiveUpfrontDate;
-            accrualRebate_ = new SimpleCashFlow(firstCoupon.accruedAmount(protectionStart_), rebateDate);
-         }
-
-         upfrontPayment_ = new SimpleCashFlow(0.0, effectiveUpfrontDate);
-
-         if (claim_ == null)
-            claim_ = new FaceValueClaim();
-
-         maturity_ = schedule.dates().Last();
+         init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual);
       }
 
       /// <summary>
@@ -140,6 +123,11 @@ namespace QLCore
       /// <param name="lastPeriodDayCounter">Day-count convention for accrual in last period</param>
       /// <param name="rebatesAccrual">The protection seller pays the accrued scheduled current coupon at the start
       /// of the contract. The rebate date is not provided but computed to be two days after protection start.</param>
+            /// <param name="tradeDate">The contract's trade date. It will be used with the \p cashSettlementDays to determine 
+      /// the date on which the cash settlement amount is paid if \p upfrontDate is empty. If not 
+      /// given, the trade date is guessed from the protection start date and \p schedule date 
+      /// generation rule.</param>
+      /// <param name="cashSettlementDays">he number of business days from \p tradeDate to cash settlement date.</param>
       public CreditDefaultSwap(Protection.Side side,
                                double notional,
                                double upfront,
@@ -153,9 +141,11 @@ namespace QLCore
                                Date upfrontDate = null,
                                Claim claim = null,
                                DayCounter lastPeriodDayCounter = null,
-                               bool rebatesAccrual = true)
+                               bool rebatesAccrual = true,
+                               Date tradeDate = null,
+                               int cashSettlementDays = 3)
+            : base(schedule.settings())
       {
-
          side_ = side;
          notional_ = notional;
          upfront_ = upfront;
@@ -164,40 +154,86 @@ namespace QLCore
          paysAtDefaultTime_ = paysAtDefaultTime;
          claim_ = claim;
          protectionStart_ = protectionStart ?? schedule[0];
+         tradeDate_ = tradeDate;
+         cashSettlementDays_ = cashSettlementDays;
 
-         Utils.QL_REQUIRE(protectionStart_ <= schedule[0] ||
-                          schedule.rule() == DateGeneration.Rule.CDS
-                          , () => "protection can not start after accrual");
+         init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual, upfrontDate);
+      }
+
+      protected void init(Schedule schedule, BusinessDayConvention paymentConvention,
+                          DayCounter dayCounter, DayCounter lastPeriodDayCounter, bool rebatesAccrual,
+                          Date upfrontDate = null)                         
+      {
+         Utils.QL_REQUIRE(!schedule.empty(), () => "CreditDefaultSwap needs a non-empty schedule.");
+
+         bool postBigBang = false;
+         if (schedule.hasRule()) {
+            DateGeneration.Rule rule = schedule.rule();
+            postBigBang = rule == DateGeneration.Rule.CDS || rule == DateGeneration.Rule.CDS2015;
+         }
+
+         if (!postBigBang) {
+            Utils.QL_REQUIRE(protectionStart_ <= schedule[0], () => "protection can not start after accrual");
+         }
+
          leg_ = new FixedRateLeg(schedule)
          .withLastPeriodDayCounter(lastPeriodDayCounter)
-         .withCouponRates(runningSpread, dayCounter)
-         .withNotionals(notional)
-         .withPaymentAdjustment(convention);
+         .withCouponRates(runningSpread_, dayCounter)
+         .withNotionals(notional_.Value)
+         .withPaymentAdjustment(paymentConvention);
 
-         // If empty, adjust to T+3 standard settlement, alternatively add
-         //  an arbitrary date to the constructor
-         Date effectiveUpfrontDate = upfrontDate == null ?
-                                     schedule.calendar().advance(protectionStart_, 2, TimeUnit.Days, convention) : upfrontDate;
-         // '2' is used above since the protection start is assumed to be
-         //   on trade_date + 1
-         upfrontPayment_ = new SimpleCashFlow(notional * upfront, effectiveUpfrontDate);
-         Utils.QL_REQUIRE(effectiveUpfrontDate >= protectionStart_, () => "upfront can not be due before contract start");
+         // Deduce the trade date if not given.
+         if (tradeDate_ == null) {
+            if (postBigBang) {
+                tradeDate_ = protectionStart_;
+            } else {
+                tradeDate_ = protectionStart_ - 1;
+            }
+         }
 
+         // Deduce the cash settlement date if not given.
+         Date effectiveUpfrontDate = upfrontDate;
+         if (effectiveUpfrontDate == null) {
+            effectiveUpfrontDate = schedule.calendar().advance(tradeDate_,
+                cashSettlementDays_, TimeUnit.Days, paymentConvention);
+         }
+         Utils.QL_REQUIRE(effectiveUpfrontDate >= protectionStart_, () => "The cash settlement date must not be before the protection start date.");
+
+         // Create the upfront payment, if one is provided.
+         double upfrontAmount = 0.0;
+         if (upfront_ != null) // NOLINT(readability-implicit-bool-conversion)
+            upfrontAmount = upfront_.Value * notional_.Value;
+         upfrontPayment_ = new SimpleCashFlow(settings_, upfrontAmount, effectiveUpfrontDate);
+
+         // Set the maturity date.
+         maturity_ = schedule.dates().Last();
+
+         // Deal with the accrual rebate. We use the standard conventions for accrual calculation introduced with the 
+         // CDS Big Bang in 2009.
          if (rebatesAccrual)
          {
-            FixedRateCoupon firstCoupon = leg_[0] as FixedRateCoupon;
-            // adjust to T+3 standard settlement, alternatively add
-            //  an arbitrary date to the constructor
+            double rebateAmount = 0.0;
+            Date refDate = tradeDate_ + 1;
 
-            Date rebateDate = effectiveUpfrontDate;
+            if (tradeDate_ >= schedule.dates().First())
+            {
+               FixedRateCoupon cf = leg_[0] as FixedRateCoupon;
+               if (refDate < cf.date()) {
+                  rebateAmount = cf.accruedAmount(refDate);
+               }
+               else if (refDate > cf.date())
+               {
+                  // Must have trade date + 1 >= last coupon's payment date. '>' here probably does not make
+                  // sense - should possibly have an exception above if trade date >= last coupon's date.
+                  rebateAmount = cf.amount();
+               }
+            }
 
-            accrualRebate_ = new SimpleCashFlow(firstCoupon.accruedAmount(protectionStart_), rebateDate);
+            accrualRebate_ = new SimpleCashFlow(settings(), rebateAmount, effectiveUpfrontDate);
          }
 
          if (claim_ == null)
             claim_ = new FaceValueClaim();
-
-         maturity_ = schedule.dates().Last();
       }
 
       /// <summary>
@@ -228,6 +264,7 @@ namespace QLCore
          arguments.spread = runningSpread_;
          arguments.protectionStart = protectionStart_;
          arguments.maturity = maturity_;
+         arguments.settings = settings_;
       }
 
       public override void fetchResults(IPricingEngineResults r)
@@ -374,7 +411,7 @@ namespace QLCore
          SimpleQuote flatRate = new SimpleQuote(0.0);
 
          Handle<DefaultProbabilityTermStructure> probability = new Handle<DefaultProbabilityTermStructure>(
-            new FlatHazardRate(0, new WeekendsOnly(), new Handle<Quote>(flatRate), dayCounter));
+            new FlatHazardRate(settings(), 0, new WeekendsOnly(), new Handle<Quote>(flatRate), dayCounter));
 
          IPricingEngine engine = null;
          switch (model)
@@ -445,7 +482,7 @@ namespace QLCore
          SimpleQuote flatRate = new SimpleQuote(0.0);
 
          Handle<DefaultProbabilityTermStructure> probability = new Handle<DefaultProbabilityTermStructure>(
-            new FlatHazardRate(0, new WeekendsOnly(), new Handle<Quote>(flatRate), dayCounter));
+            new FlatHazardRate(settings(), 0, new WeekendsOnly(), new Handle<Quote>(flatRate), dayCounter));
 
          IPricingEngine engine = null;
          switch (model)
@@ -492,7 +529,7 @@ namespace QLCore
       protected CashFlow upfrontPayment_;
       protected CashFlow accrualRebate_;
       protected Date protectionStart_;
-      protected Date maturity_;
+      protected Date maturity_, tradeDate_;
       // results
       protected double? fairUpfront_;
       protected double? fairSpread_;
@@ -500,6 +537,8 @@ namespace QLCore
       protected double? upfrontBPS_, upfrontNPV_;
       protected double? defaultLegNPV_;
       protected double? accrualRebateNPV_;
+      protected int cashSettlementDays_;
+
 
 
       private class ObjectiveFunction : ISolver1d
@@ -547,6 +586,8 @@ namespace QLCore
          public Claim claim { get; set; }
          public Date protectionStart { get; set; }
          public Date maturity { get; set; }
+         public Settings settings { get; set; }
+
          public void validate()
          {
             Utils.QL_REQUIRE(side != (Protection.Side)(-1), () => "side not set");
@@ -572,7 +613,6 @@ namespace QLCore
          public double? upfrontBPS { get; set; }
          public double? upfrontNPV { get; set; }
          public double? accrualRebateNPV { get; set; }
-         public double? accruedAmountNPV { get; set; }
          public override void reset()
          {
             base.reset();
@@ -584,12 +624,10 @@ namespace QLCore
             upfrontBPS = null;
             upfrontNPV = null;
             accrualRebateNPV = null;
-            accruedAmountNPV = null;
          }
       }
 
       public abstract class Engine : GenericEngine<CreditDefaultSwap.Arguments, CreditDefaultSwap.Results>
       {}
-
    }
 }

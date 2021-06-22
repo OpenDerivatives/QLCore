@@ -27,45 +27,49 @@ namespace QLCore
       private Handle<Quote> volatility_;
 
       //! floating reference date, floating market data
-      public ConstantCapFloorTermVolatility(int settlementDays,
+      public ConstantCapFloorTermVolatility(Settings settings, 
+                                            int settlementDays,
                                             Calendar cal,
                                             BusinessDayConvention bdc,
                                             Handle<Quote> volatility,
                                             DayCounter dc)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          volatility_ = volatility;
       }
 
       //! fixed reference date, floating market data
-      public ConstantCapFloorTermVolatility(Date referenceDate,
+      public ConstantCapFloorTermVolatility(Settings settings, 
+                                            Date referenceDate,
                                             Calendar cal,
                                             BusinessDayConvention bdc,
                                             Handle<Quote> volatility,
                                             DayCounter dc)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {
          volatility_ = volatility;
       }
 
       //! floating reference date, fixed market data
-      public ConstantCapFloorTermVolatility(int settlementDays,
+      public ConstantCapFloorTermVolatility(Settings settings, 
+                                            int settlementDays,
                                             Calendar cal,
                                             BusinessDayConvention bdc,
                                             double volatility,
                                             DayCounter dc)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
       }
 
       // fixed reference date, fixed market data
-      public ConstantCapFloorTermVolatility(Date referenceDate,
+      public ConstantCapFloorTermVolatility(Settings settings, 
+                                            Date referenceDate,
                                             Calendar cal,
                                             BusinessDayConvention bdc,
                                             double volatility,
                                             DayCounter dc)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(volatility));
       }

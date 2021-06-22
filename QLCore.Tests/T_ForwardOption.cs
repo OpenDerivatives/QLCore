@@ -108,16 +108,17 @@ namespace TestSuite
             new ForwardOptionData(Option.Type.Put, 1.1, 60.0, 0.04, 0.08, 0.25, 1.0, 0.30, 8.2971, 1.0e-4)
          };
 
+         Settings settings = new Settings();
          DayCounter dc = new Actual360();
          Date today = Date.Today;
 
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.0);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, vol, dc));
 
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                 new Handle<YieldTermStructure>(qTS), new Handle<YieldTermStructure>(rTS),
@@ -138,7 +139,7 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
-            ForwardVanillaOption option = new ForwardVanillaOption(values[i].moneyness, reset, payoff, exercise);
+            ForwardVanillaOption option = new ForwardVanillaOption(settings, values[i].moneyness, reset, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -173,14 +174,14 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-
+         Settings settings = new Settings();
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(today, rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, today, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.0);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(today, vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, today, vol, dc));
 
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot),
                                                                                 new Handle<YieldTermStructure>(qTS), new Handle<YieldTermStructure>(rTS),
@@ -200,7 +201,7 @@ namespace TestSuite
             rRate.setValue(values[i].r);
             vol  .setValue(values[i].v);
 
-            ForwardVanillaOption option = new ForwardVanillaOption(values[i].moneyness, reset, payoff, exercise);
+            ForwardVanillaOption option = new ForwardVanillaOption(settings, values[i].moneyness, reset, payoff, exercise);
             option.setPricingEngine(engine);
 
             double calculated = option.NPV();
@@ -219,6 +220,7 @@ namespace TestSuite
 
       private void testForwardGreeks(Type engine_type)
       {
+         Settings settings = new Settings();
          Dictionary<String, double> calculated = new Dictionary<string, double>(),
          expected = new Dictionary<string, double>(),
          tolerance = new Dictionary<string, double>();
@@ -240,15 +242,15 @@ namespace TestSuite
 
          DayCounter dc = new Actual360();
          Date today = Date.Today;
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          SimpleQuote spot = new SimpleQuote(0.0);
          SimpleQuote qRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.0);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.0);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot), qTS, rTS, volTS);
 
@@ -271,7 +273,7 @@ namespace TestSuite
 
                      StrikedTypePayoff payoff = new PlainVanillaPayoff(types[i], 0.0);
 
-                     ForwardVanillaOption option = new ForwardVanillaOption(moneyness[j], reset, payoff, exercise);
+                     ForwardVanillaOption option = new ForwardVanillaOption(settings, moneyness[j], reset, payoff, exercise);
                      option.setPricingEngine(engine);
 
                      for (int l = 0; l < underlyings.Length; l++)
@@ -354,13 +356,13 @@ namespace TestSuite
 
                                     // perturb date and get theta
                                     double dT = dc.yearFraction(today - 1, today + 1);
-                                    Settings.Instance.setEvaluationDate(today - 1);
+                                    settings.setEvaluationDate(today - 1);
                                     option.update();
                                     value_m = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today + 1);
+                                    settings.setEvaluationDate(today + 1);
                                     option.update();
                                     value_p = option.NPV();
-                                    Settings.Instance.setEvaluationDate(today);
+                                    settings.setEvaluationDate(today);
                                     option.update();
                                     expected["theta"] = (value_p - value_m) / dT;
 
@@ -396,7 +398,7 @@ namespace TestSuite
       public void testGreeks()
       {
          // Testing forward option greeks
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          testForwardGreeks(typeof(ForwardVanillaEngine));
       }
@@ -405,7 +407,7 @@ namespace TestSuite
       public void testPerformanceGreeks()
       {
          // Testing forward performance option greeks
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
 
          testForwardGreeks(typeof(ForwardPerformanceVanillaEngine));
       }
@@ -423,17 +425,17 @@ namespace TestSuite
       {
          // Testing forward option greeks initialization
          DayCounter dc = new Actual360();
-         SavedSettings backup = new SavedSettings();
+         Settings settings = new Settings();
          Date today = Date.Today;
-         Settings.Instance.setEvaluationDate(today);
+         settings.setEvaluationDate(today);
 
          SimpleQuote spot = new SimpleQuote(100.0);
          SimpleQuote qRate = new SimpleQuote(0.04);
-         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(qRate, dc));
+         Handle<YieldTermStructure> qTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, qRate, dc));
          SimpleQuote rRate = new SimpleQuote(0.01);
-         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(rRate, dc));
+         Handle<YieldTermStructure> rTS = new Handle<YieldTermStructure>(Utilities.flatRate(settings, rRate, dc));
          SimpleQuote vol = new SimpleQuote(0.11);
-         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(vol, dc));
+         Handle<BlackVolTermStructure> volTS = new Handle<BlackVolTermStructure>(Utilities.flatVol(settings, vol, dc));
 
          BlackScholesMertonProcess stochProcess = new BlackScholesMertonProcess(new Handle<Quote>(spot), qTS, rTS, volTS);
 
@@ -443,11 +445,11 @@ namespace TestSuite
          Date reset = today + new Period(6, TimeUnit.Months);
          StrikedTypePayoff payoff = new PlainVanillaPayoff(Option.Type.Call, 0.0);
 
-         ForwardVanillaOption option = new ForwardVanillaOption(0.9, reset, payoff, exercise);
+         ForwardVanillaOption option = new ForwardVanillaOption(settings, 0.9, reset, payoff, exercise);
          option.setPricingEngine(engine);
 
          IPricingEngine ctrlengine = new TestBinomialEngine(stochProcess);
-         VanillaOption ctrloption = new VanillaOption(payoff, exercise);
+         VanillaOption ctrloption = new VanillaOption(settings, payoff, exercise);
          ctrloption.setPricingEngine(ctrlengine);
 
          double? delta = 0;

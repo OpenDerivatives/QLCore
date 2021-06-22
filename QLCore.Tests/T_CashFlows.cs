@@ -25,7 +25,6 @@ using System.Collections.Generic;
 
 namespace TestSuite
 {
-
    public class T_CashFlows
    {
       private void CHECK_INCLUSION(int n, int days, bool expected, List<CashFlow> leg, Date today)
@@ -57,22 +56,22 @@ namespace TestSuite
       public void testSettings()
       {
          // Testing cash-flow settings...
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date today = Date.Today;
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
 
             // cash flows at T+0, T+1, T+2
             List<CashFlow> leg = new List<CashFlow>();
 
             for (int i = 0; i < 3; ++i)
-               leg.Add(new SimpleCashFlow(1.0, today + i));
+               leg.Add(new SimpleCashFlow(settings, 1.0, today + i));
 
             // case 1: don't include reference-date payments, no override at
             //         today's date
 
-            Settings.Instance.includeReferenceDateEvents = false;
-            Settings.Instance.includeTodaysCashFlows = null;
+            settings.includeReferenceDateEvents = false;
+            settings.includeTodaysCashFlows = null;
 
             CHECK_INCLUSION(0, 0, false, leg, today);
             CHECK_INCLUSION(0, 1, false, leg, today);
@@ -87,8 +86,8 @@ namespace TestSuite
 
             // case 2: same, but with explicit setting at today's date
 
-            Settings.Instance.includeReferenceDateEvents = false;
-            Settings.Instance.includeTodaysCashFlows = false;
+            settings.includeReferenceDateEvents = false;
+            settings.includeTodaysCashFlows = false;
 
             CHECK_INCLUSION(0, 0, false, leg, today);
             CHECK_INCLUSION(0, 1, false, leg, today);
@@ -104,8 +103,8 @@ namespace TestSuite
             // case 3: do include reference-date payments, no override at
             //         today's date
 
-            Settings.Instance.includeReferenceDateEvents = true;
-            Settings.Instance.includeTodaysCashFlows = null;
+            settings.includeReferenceDateEvents = true;
+            settings.includeTodaysCashFlows = null;
 
             CHECK_INCLUSION(0, 0, true, leg, today);
             CHECK_INCLUSION(0, 1, false, leg, today);
@@ -121,8 +120,8 @@ namespace TestSuite
             // case 4: do include reference-date payments, explicit (and same)
             //         setting at today's date
 
-            Settings.Instance.includeReferenceDateEvents = true;
-            Settings.Instance.includeTodaysCashFlows = true;
+            settings.includeReferenceDateEvents = true;
+            settings.includeTodaysCashFlows = true;
 
             CHECK_INCLUSION(0, 0, true, leg, today);
             CHECK_INCLUSION(0, 1, false, leg, today);
@@ -138,8 +137,8 @@ namespace TestSuite
             // case 5: do include reference-date payments, override at
             //         today's date
 
-            Settings.Instance.includeReferenceDateEvents = true;
-            Settings.Instance.includeTodaysCashFlows = false;
+            settings.includeReferenceDateEvents = true;
+            settings.includeTodaysCashFlows = false;
 
             CHECK_INCLUSION(0, 0, false, leg, today);
             CHECK_INCLUSION(0, 1, false, leg, today);
@@ -156,13 +155,13 @@ namespace TestSuite
             InterestRate no_discount = new InterestRate(0.0, new Actual365Fixed(), Compounding.Continuous, Frequency.Annual);
 
             // no override
-            Settings.Instance.includeTodaysCashFlows = null;
+            settings.includeTodaysCashFlows = null;
 
             CHECK_NPV(false, 2.0, no_discount, leg, today);
             CHECK_NPV(true, 3.0, no_discount, leg, today);
 
             // override
-            Settings.Instance.includeTodaysCashFlows = false;
+            settings.includeTodaysCashFlows = false;
 
             CHECK_NPV(false, 2.0, no_discount, leg, today);
             CHECK_NPV(true, 2.0, no_discount, leg, today);
@@ -174,25 +173,26 @@ namespace TestSuite
       {
          // Testing dynamic cast of coupon in Black pricer...
 
-         using (SavedSettings backup = new SavedSettings())
+         using (Settings settings = new Settings())
          {
             Date todaysDate = new Date(7, Month.April, 2010);
             Date settlementDate = new Date(9, Month.April, 2010);
-            Settings.Instance.setEvaluationDate(todaysDate);
+            settings.setEvaluationDate(todaysDate);
             Calendar calendar = new TARGET();
 
             Handle<YieldTermStructure> rhTermStructure = new Handle<YieldTermStructure>(
-               Utilities.flatRate(settlementDate, 0.04875825, new Actual365Fixed()));
+               Utilities.flatRate(settings, settlementDate, 0.04875825, new Actual365Fixed()));
 
             double volatility = 0.10;
             Handle<OptionletVolatilityStructure> vol = new Handle<OptionletVolatilityStructure>(
-               new ConstantOptionletVolatility(2,
+               new ConstantOptionletVolatility(settings, 
+                                               2,
                                                calendar,
                                                BusinessDayConvention.ModifiedFollowing,
                                                volatility,
                                                new Actual365Fixed()));
 
-            IborIndex index3m = new USDLibor(new Period(3, TimeUnit.Months), rhTermStructure);
+            IborIndex index3m = new USDLibor(new Period(3, TimeUnit.Months), settings, rhTermStructure);
 
             Date payDate = new Date(20, Month.December, 2013);
             Date startDate = new Date(20, Month.September, 2013);
@@ -219,9 +219,10 @@ namespace TestSuite
       public void testDefaultSettlementDate()
       {
          // Testing default evaluation date in cashflows methods...
-         Date today = Settings.Instance.evaluationDate();
+         Settings settings = new Settings();
+         Date today = settings.evaluationDate();
          Schedule schedule = new
-         MakeSchedule()
+         MakeSchedule(settings)
          .from(today - new Period(2, TimeUnit.Months)).to(today + new Period(4, TimeUnit.Months))
          .withFrequency(Frequency.Semiannual)
          .withCalendar(new TARGET())
@@ -251,16 +252,17 @@ namespace TestSuite
       public void testNullFixingDays()
       {
          // Testing ibor leg construction with null fixing days...
-         Date today = Settings.Instance.evaluationDate();
+         Settings settings = new Settings();
+         Date today = settings.evaluationDate();
          Schedule schedule = new
-         MakeSchedule()
+         MakeSchedule(settings)
          .from(today - new Period(2, TimeUnit.Months)).to(today + new Period(4, TimeUnit.Months))
          .withFrequency(Frequency.Semiannual)
          .withCalendar(new TARGET())
          .withConvention(BusinessDayConvention.Following)
          .backwards().value();
 
-         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months));
+         IborIndex index = new USDLibor(new Period(6, TimeUnit.Months), settings);
          List<CashFlow> leg = new IborLeg(schedule, index)
          // this can happen with default values, and caused an
          // exception when the null was not managed properly

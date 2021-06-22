@@ -316,6 +316,7 @@ namespace QLCore
                                List<List<Handle<Quote> > > parametersGuess,
                                List<bool> isParameterFixed,
                                bool isAtmCalibrated,
+                               Settings settings = null,
                                EndCriteria endCriteria = null,
                                double? maxErrorTolerance = null,
                                OptimizationMethod optMethod = null,
@@ -325,7 +326,7 @@ namespace QLCore
                                bool backwardFlat = false,
                                double cutoffStrike = 0.0001)
       : base(atmVolStructure, optionTenors, swapTenors, strikeSpreads, volSpreads, swapIndexBase,
-             shortSwapIndexBase, vegaWeightedSmileFit)
+             shortSwapIndexBase, vegaWeightedSmileFit, settings)
       {
          parametersGuessQuotes_ = parametersGuess;
          isParameterFixed_ = isParameterFixed;
@@ -460,7 +461,8 @@ namespace QLCore
 
             List<double> guess = parametersGuess_.value(optionTimes[j], swapLengths[k]);
 
-            var sabrInterpolation = new SABRInterpolation(strikes,
+            var sabrInterpolation = new SABRInterpolation(this.settings(),
+                                                          strikes,
                                                           strikes.Count,
                                                           volatilities,
                                                           optionTimes[j], atmForward,
@@ -610,7 +612,7 @@ namespace QLCore
          calculate();
          List<double> sabrParameters = sabrParametersCube.value(optionTime, swapLength);
          double shiftTmp = atmVol_.link.shift(optionTime, swapLength);
-         return new SabrSmileSection(optionTime, sabrParameters[4], sabrParameters, volatilityType(), shiftTmp);   // ,shiftTmp
+         return new SabrSmileSection(settings(), optionTime, sabrParameters[4], sabrParameters, volatilityType(), shiftTmp);   // ,shiftTmp
       }
       protected Cube sabrCalibration(Cube marketVolCube)
       {
@@ -654,7 +656,8 @@ namespace QLCore
                List<double> guess = parametersGuess_.value(optionTimes[j], swapLengths[k]);
 
 
-               SABRInterpolation sabrInterpolation = new SABRInterpolation(strikes, strikes.Count,
+               SABRInterpolation sabrInterpolation = new SABRInterpolation(this.settings(),
+                                                                           strikes, strikes.Count,
                                                                            volatilities,
                                                                            optionTimes[j], atmForward,
                                                                            guess[0], guess[1],

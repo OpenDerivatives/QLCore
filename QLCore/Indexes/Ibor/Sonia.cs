@@ -23,8 +23,8 @@ namespace QLCore
    public class Sonia : OvernightIndex
    {
       //! %Sonia (Sterling Overnight Index Average) rate.
-      public Sonia(Handle<YieldTermStructure> h = null)
+      public Sonia(Settings settings, Handle<YieldTermStructure> h = null)
          : base("Sonia", 0, new GBPCurrency(), new UnitedKingdom(UnitedKingdom.Market.Exchange),
-                new Actual365Fixed(), h ?? new Handle<YieldTermStructure>()) {}
+                new Actual365Fixed(), settings, h ?? new Handle<YieldTermStructure>()) {}
    }
 }

@@ -34,11 +34,11 @@ namespace TestSuite
         {
             TestData d = new TestData();
 
-            SwapIndex cms10y = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), d.yts2, d.yts2);
-            SwapIndex cms2y = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), d.yts2, d.yts2);
+            SwapIndex cms10y = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), d.settings, d.yts2, d.yts2);
+            SwapIndex cms2y = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), d.settings, d.yts2, d.yts2);
             SwapSpreadIndex cms10y2y = new SwapSpreadIndex("cms10y2y", cms10y, cms2y);
 
-            Settings.Instance.enforcesTodaysHistoricFixings = false;
+            d.settings.enforcesTodaysHistoricFixings = false;
 
             try
             {
@@ -73,7 +73,7 @@ namespace TestSuite
             cms10y.clearFixings();
             cms2y.clearFixings();
 
-            Settings.Instance.enforcesTodaysHistoricFixings = true;
+            d.settings.enforcesTodaysHistoricFixings = true;
             try
             {
                 cms10y2y.fixing(d.refDate);
@@ -104,11 +104,12 @@ namespace TestSuite
         [Fact]
         public void testCouponPricing()
         {
+
             TestData d = new TestData();
             double tol = 1E-6; // abs tolerance coupon rate
 
-            SwapIndex cms10y = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), d.yts2, d.yts2);
-            SwapIndex cms2y = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), d.yts2, d.yts2);
+            SwapIndex cms10y = new EuriborSwapIsdaFixA(new Period(10, TimeUnit.Years), d.settings, d.yts2, d.yts2);
+            SwapIndex cms2y = new EuriborSwapIsdaFixA(new Period(2, TimeUnit.Years), d.settings, d.yts2, d.yts2);
             SwapSpreadIndex cms10y2y = new SwapSpreadIndex("cms10y2y", cms10y, cms2y);
 
             Date valueDate = cms10y2y.valueDate(d.refDate);
@@ -319,18 +320,19 @@ namespace TestSuite
         {
             public TestData()
             {
+                settings = new Settings();
                 refDate = new Date(23, Month.February, 2018);
-                Settings.Instance.setEvaluationDate(refDate);
+                settings.setEvaluationDate(refDate);
 
-                yts2 = new Handle<YieldTermStructure>(new FlatForward(refDate, 0.02, new Actual365Fixed()));
+                yts2 = new Handle<YieldTermStructure>(new FlatForward(settings, refDate, 0.02, new Actual365Fixed()));
 
-                swLn = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(refDate, new TARGET(),
+                swLn = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(settings, refDate, new TARGET(),
                                                                BusinessDayConvention.Following, 0.20, new Actual365Fixed(),
                                                                VolatilityType.ShiftedLognormal, 0.0));
-                swSln = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(refDate, new TARGET(),
+                swSln = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(settings, refDate, new TARGET(),
                                                                 BusinessDayConvention.Following, 0.10, new Actual365Fixed(),
                                                                 VolatilityType.ShiftedLognormal, 0.01));
-                swN = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(refDate, new TARGET(),
+                swN = new Handle<SwaptionVolatilityStructure>(new ConstantSwaptionVolatility(settings, refDate, new TARGET(),
                                                               BusinessDayConvention.Following, 0.0075, new Actual365Fixed(),
                                                               VolatilityType.Normal, 0.01));
 
@@ -345,13 +347,13 @@ namespace TestSuite
                 cmsspPricerN = new LognormalCmsSpreadPricer(cmsPricerN, cmsPricerN, correlation, yts2, 32);
             }
 
-            public SavedSettings backup;
             public Date refDate;
             public Handle<YieldTermStructure> yts2;
             public Handle<SwaptionVolatilityStructure> swLn, swSln, swN;
             public Handle<Quote> reversion, correlation;
             public CmsCouponPricer cmsPricerLn, cmsPricerSln, cmsPricerN;
             public CmsSpreadCouponPricer cmsspPricerLn, cmsspPricerSln, cmsspPricerN;
+            public Settings settings;
         }
     }
 }

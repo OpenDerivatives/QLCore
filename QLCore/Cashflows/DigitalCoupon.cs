@@ -68,7 +68,9 @@ namespace QLCore
    public class DigitalCoupon : FloatingRateCoupon
    {
       // need by CashFlowVectors
-      public DigitalCoupon() { }
+      public DigitalCoupon() : base(new Settings()) { }
+
+      public DigitalCoupon(Settings settings) : base(settings) { }
 
       //! Constructors
       //! general constructor
@@ -247,12 +249,11 @@ namespace QLCore
       // Coupon interface
       public override double rate()
       {
-
          Utils.QL_REQUIRE(underlying_.pricer() != null, () => "pricer not set");
 
          Date fixingDate = underlying_.fixingDate();
-         Date today = Settings.Instance.evaluationDate();
-         bool enforceTodaysHistoricFixings = Settings.Instance.enforcesTodaysHistoricFixings;
+         Date today = settings().evaluationDate();
+         bool enforceTodaysHistoricFixings = settings().enforcesTodaysHistoricFixings;
          double underlyingRate = underlying_.rate();
          if (fixingDate < today || ((fixingDate == today) && enforceTodaysHistoricFixings))
          {

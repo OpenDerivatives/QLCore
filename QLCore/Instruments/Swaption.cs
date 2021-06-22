@@ -88,7 +88,7 @@ namespace QLCore
                       Exercise exercise,
                       Settlement.Type delivery = Settlement.Type.Physical,
                       Settlement.Method settlementMethod = Settlement.Method.PhysicalOTC)
-         : base(new Payoff(), exercise)
+         : base(swap.settings(), new Payoff(), exercise)
       {
          settlementType_ = delivery;
          settlementMethod_ = settlementMethod;
@@ -98,7 +98,7 @@ namespace QLCore
       // Instrument interface
       public override bool isExpired()
       {
-         return new simple_event(exercise_.dates().Last()).hasOccurred();
+         return new simple_event(settings(), exercise_.dates().Last()).hasOccurred();
       }
 
       public override void setupArguments(IPricingEngineArguments args)
@@ -185,7 +185,6 @@ namespace QLCore
 
    public class ImpliedVolHelper_ : ISolver1d
    {
-
       private IPricingEngine engine_;
       private Handle<YieldTermStructure> discountCurve_;
       private double targetValue_;

@@ -29,7 +29,8 @@ namespace QLCore
       private AnalyticHestonEngine.Integration integration_;
 
       public HestonBlackVolSurface(Handle<HestonModel> hestonModel)
-         : base(hestonModel.link.process().riskFreeRate().link.referenceDate(),
+         : base(hestonModel.link.process().riskFreeRate().link.settings(),
+                hestonModel.link.process().riskFreeRate().link.referenceDate(),
                 new NullCalendar(),
                 BusinessDayConvention.Following,
                 hestonModel.link.process().riskFreeRate().link.dayCounter())

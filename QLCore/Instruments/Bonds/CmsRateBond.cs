@@ -38,7 +38,7 @@ namespace QLCore
                          bool inArrears = false,
                          double redemption = 100.0,
                          Date issueDate = null)
-      : base(settlementDays, schedule.calendar(), issueDate)
+      : base(schedule.settings(), settlementDays, schedule.calendar(), issueDate)
       {
          // Optional value check
          if (gearings == null)

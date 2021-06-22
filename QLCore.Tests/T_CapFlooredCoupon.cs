@@ -46,35 +46,35 @@ namespace TestSuite
          public double volatility;
 
          // cleanup
-         SavedSettings backup;
+         public Settings settings;
 
          // setup
          public CommonVars()
          {
             termStructure = new RelinkableHandle<YieldTermStructure>();
-            backup = new SavedSettings();
+            settings = new Settings();
             length = 20;           //years
             volatility = 0.20;
             nominal = 100.0;
             nominals = new InitializedList<double>(length, nominal);
             frequency = Frequency.Annual;
-            index = new Euribor1Y(termStructure);
+            index = new Euribor1Y(settings, termStructure);
             calendar = index.fixingCalendar();
             convention = BusinessDayConvention.ModifiedFollowing;
             today = calendar.adjust(Date.Today);
-            Settings.Instance.setEvaluationDate(today);
+            settings.setEvaluationDate(today);
             settlementDays = 2;
             fixingDays = 2;
             settlement = calendar.advance(today, settlementDays, TimeUnit.Days);
             startDate = settlement;
-            termStructure.linkTo(Utilities.flatRate(settlement, 0.05, new ActualActual(ActualActual.Convention.ISDA)));
+            termStructure.linkTo(Utilities.flatRate(settings, settlement, 0.05, new ActualActual(ActualActual.Convention.ISDA)));
          }
 
          // utilities
          public List<CashFlow> makeFixedLeg(Date sDate, int len)
          {
             Date endDate = calendar.advance(sDate, len, TimeUnit.Years, convention);
-            Schedule schedule = new Schedule(sDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, sDate, endDate, new Period(frequency), calendar,
                                              convention, convention, DateGeneration.Rule.Forward, false);
             List<double> coupons = new InitializedList<double>(len, 0.0);
             return new FixedRateLeg(schedule)
@@ -85,7 +85,7 @@ namespace TestSuite
          public List<CashFlow> makeFloatingLeg(Date sDate, int len, double gearing = 1.0, double spread = 0.0)
          {
             Date endDate = calendar.advance(sDate, len, TimeUnit.Years, convention);
-            Schedule schedule = new Schedule(sDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, sDate, endDate, new Period(frequency), calendar,
                                              convention, convention, DateGeneration.Rule.Forward, false);
             List<double> gearingVector = new InitializedList<double>(len, gearing);
             List<double> spreadVector = new InitializedList<double>(len, spread);
@@ -102,10 +102,10 @@ namespace TestSuite
                                                  double volatility, double gearing = 1.0, double spread = 0.0)
          {
             Date endDate = calendar.advance(sDate, len, TimeUnit.Years, convention);
-            Schedule schedule = new Schedule(sDate, endDate, new Period(frequency), calendar,
+            Schedule schedule = new Schedule(settings, sDate, endDate, new Period(frequency), calendar,
                                              convention, convention, DateGeneration.Rule.Forward, false);
             Handle<OptionletVolatilityStructure> vol = new Handle<OptionletVolatilityStructure>(new
-                  ConstantOptionletVolatility(0, calendar, BusinessDayConvention.Following, volatility, new Actual365Fixed()));
+                  ConstantOptionletVolatility(settings, 0, calendar, BusinessDayConvention.Following, volatility, new Actual365Fixed()));
             IborCouponPricer pricer = new BlackIborCouponPricer(vol);
             List<double> gearingVector = new InitializedList<double>(len, gearing);
             List<double> spreadVector = new InitializedList<double>(len, spread);
@@ -136,13 +136,13 @@ namespace TestSuite
             switch (type)
             {
                case CapFloorType.Cap:
-                  result = new Cap(leg, new InitializedList<double>(1, capStrike));
+                  result = new Cap(settings, leg, new InitializedList<double>(1, capStrike));
                   break;
                case CapFloorType.Floor:
-                  result = new Floor(leg, new InitializedList<double>(1, floorStrike));
+                  result = new Floor(settings, leg, new InitializedList<double>(1, floorStrike));
                   break;
                case CapFloorType.Collar:
-                  result = new Collar(leg, new InitializedList<double>(1, capStrike),
+                  result = new Collar(settings, leg, new InitializedList<double>(1, capStrike),
                                       new InitializedList<double>(1, floorStrike));
                   break;
                default:
@@ -177,8 +177,8 @@ namespace TestSuite
          List<CashFlow> collaredLeg = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors, vars.volatility);
 
          IPricingEngine engine = new DiscountingSwapEngine(vars.termStructure);
-         Swap vanillaLeg = new Swap(fixedLeg, floatLeg);
-         Swap collarLeg = new Swap(fixedLeg, collaredLeg);
+         Swap vanillaLeg = new Swap(vars.settings, fixedLeg, floatLeg);
+         Swap collarLeg = new Swap(vars.settings, fixedLeg, collaredLeg);
          vanillaLeg.setPricingEngine(engine);
          collarLeg.setPricingEngine(engine);
          double npvVanilla = vanillaLeg.NPV();
@@ -226,11 +226,11 @@ namespace TestSuite
          // floating leg with negative gearing (gearing_n) and spread<>0
          List<CashFlow> floatLeg_n = vars.makeFloatingLeg(vars.startDate, vars.length, gearing_n, spread_n);
          // Swap with null fixed leg and floating leg with gearing=1 and spread=0
-         Swap vanillaLeg = new Swap(fixedLeg, floatLeg);
+         Swap vanillaLeg = new Swap(vars.settings, fixedLeg, floatLeg);
          // Swap with null fixed leg and floating leg with positive gearing and spread<>0
-         Swap vanillaLeg_p = new Swap(fixedLeg, floatLeg_p);
+         Swap vanillaLeg_p = new Swap(vars.settings, fixedLeg, floatLeg_p);
          // Swap with null fixed leg and floating leg with negative gearing and spread<>0
-         Swap vanillaLeg_n = new Swap(fixedLeg, floatLeg_n);
+         Swap vanillaLeg_n = new Swap(vars.settings, fixedLeg, floatLeg_n);
 
          IPricingEngine engine = new DiscountingSwapEngine(vars.termStructure);
          vanillaLeg.setPricingEngine(engine);
@@ -246,9 +246,9 @@ namespace TestSuite
 
          // Case gearing = 1 and spread = 0
          List<CashFlow> cappedLeg = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors0, vars.volatility);
-         Swap capLeg = new Swap(fixedLeg, cappedLeg);
+         Swap capLeg = new Swap(vars.settings, fixedLeg, cappedLeg);
          capLeg.setPricingEngine(engine);
-         Cap cap = new Cap(floatLeg, new InitializedList<double>(1, capstrike));
+         Cap cap = new Cap(vars.settings, floatLeg, new InitializedList<double>(1, capstrike));
          cap.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg.NPV();
          npvCappedLeg = capLeg.NPV();
@@ -272,9 +272,9 @@ namespace TestSuite
          */
 
          List<CashFlow> flooredLeg = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps0, floors, vars.volatility);
-         Swap floorLeg = new Swap(fixedLeg, flooredLeg);
+         Swap floorLeg = new Swap(vars.settings, fixedLeg, flooredLeg);
          floorLeg.setPricingEngine(engine);
-         Floor floor = new Floor(floatLeg, new InitializedList<double>(1, floorstrike));
+         Floor floor = new Floor(vars.settings, floatLeg, new InitializedList<double>(1, floorstrike));
          floor.setPricingEngine(vars.makeEngine(vars.volatility));
          npvFlooredLeg = floorLeg.NPV();
          npvFloor = floor.NPV();
@@ -295,9 +295,9 @@ namespace TestSuite
          */
 
          List<CashFlow> collaredLeg = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors, vars.volatility);
-         Swap collarLeg = new Swap(fixedLeg, collaredLeg);
+         Swap collarLeg = new Swap(vars.settings, fixedLeg, collaredLeg);
          collarLeg.setPricingEngine(engine);
-         Collar collar = new Collar(floatLeg, new InitializedList<double>(1, capstrike),
+         Collar collar = new Collar(vars.settings, floatLeg, new InitializedList<double>(1, capstrike),
                                     new InitializedList<double>(1, floorstrike));
          collar.setPricingEngine(vars.makeEngine(vars.volatility));
          npvCollaredLeg = collarLeg.NPV();
@@ -328,9 +328,9 @@ namespace TestSuite
          // Positive gearing
          List<CashFlow> cappedLeg_p = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors0,
                                                              vars.volatility, gearing_p, spread_p);
-         Swap capLeg_p = new Swap(fixedLeg, cappedLeg_p);
+         Swap capLeg_p = new Swap(vars.settings, fixedLeg, cappedLeg_p);
          capLeg_p.setPricingEngine(engine);
-         Cap cap_p = new Cap(floatLeg_p, new InitializedList<double>(1, capstrike));
+         Cap cap_p = new Cap(vars.settings, floatLeg_p, new InitializedList<double>(1, capstrike));
          cap_p.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg_p.NPV();
          npvCappedLeg = capLeg_p.NPV();
@@ -353,9 +353,9 @@ namespace TestSuite
          // Negative gearing
          List<CashFlow> cappedLeg_n = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors0,
                                                              vars.volatility, gearing_n, spread_n);
-         Swap capLeg_n = new Swap(fixedLeg, cappedLeg_n);
+         Swap capLeg_n = new Swap(vars.settings, fixedLeg, cappedLeg_n);
          capLeg_n.setPricingEngine(engine);
-         Floor floor_n = new Floor(floatLeg, new InitializedList<double>(1, (capstrike - spread_n) / gearing_n));
+         Floor floor_n = new Floor(vars.settings, floatLeg, new InitializedList<double>(1, (capstrike - spread_n) / gearing_n));
          floor_n.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg_n.NPV();
          npvCappedLeg = capLeg_n.NPV();
@@ -391,9 +391,9 @@ namespace TestSuite
          // Positive gearing
          List<CashFlow> flooredLeg_p1 = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps0, floors,
                                                                vars.volatility, gearing_p, spread_p);
-         Swap floorLeg_p1 = new Swap(fixedLeg, flooredLeg_p1);
+         Swap floorLeg_p1 = new Swap(vars.settings, fixedLeg, flooredLeg_p1);
          floorLeg_p1.setPricingEngine(engine);
-         Floor floor_p1 = new Floor(floatLeg_p, new InitializedList<double>(1, floorstrike));
+         Floor floor_p1 = new Floor(vars.settings, floatLeg_p, new InitializedList<double>(1, floorstrike));
          floor_p1.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg_p.NPV();
          npvFlooredLeg = floorLeg_p1.NPV();
@@ -414,9 +414,9 @@ namespace TestSuite
          // Negative gearing
          List<CashFlow> flooredLeg_n = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps0, floors,
                                                               vars.volatility, gearing_n, spread_n);
-         Swap floorLeg_n = new Swap(fixedLeg, flooredLeg_n);
+         Swap floorLeg_n = new Swap(vars.settings, fixedLeg, flooredLeg_n);
          floorLeg_n.setPricingEngine(engine);
-         Cap cap_n = new Cap(floatLeg, new InitializedList<double>(1, (floorstrike - spread_n) / gearing_n));
+         Cap cap_n = new Cap(vars.settings, floatLeg, new InitializedList<double>(1, (floorstrike - spread_n) / gearing_n));
          cap_n.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg_n.NPV();
          npvFlooredLeg = floorLeg_n.NPV();
@@ -444,9 +444,9 @@ namespace TestSuite
          // Positive gearing
          List<CashFlow> collaredLeg_p = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors,
                                                                vars.volatility, gearing_p, spread_p);
-         Swap collarLeg_p1 = new Swap(fixedLeg, collaredLeg_p);
+         Swap collarLeg_p1 = new Swap(vars.settings, fixedLeg, collaredLeg_p);
          collarLeg_p1.setPricingEngine(engine);
-         Collar collar_p = new Collar(floatLeg_p, new InitializedList<double>(1, capstrike),
+         Collar collar_p = new Collar(vars.settings, floatLeg_p, new InitializedList<double>(1, capstrike),
                                       new InitializedList<double>(1, floorstrike));
          collar_p.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg_p.NPV();
@@ -471,9 +471,9 @@ namespace TestSuite
          // Negative gearing
          List<CashFlow> collaredLeg_n = vars.makeCapFlooredLeg(vars.startDate, vars.length, caps, floors,
                                                                vars.volatility, gearing_n, spread_n);
-         Swap collarLeg_n1 = new Swap(fixedLeg, collaredLeg_n);
+         Swap collarLeg_n1 = new Swap(vars.settings, fixedLeg, collaredLeg_n);
          collarLeg_n1.setPricingEngine(engine);
-         Collar collar_n = new Collar(floatLeg, new InitializedList<double>(1, (floorstrike - spread_n) / gearing_n),
+         Collar collar_n = new Collar(vars.settings, floatLeg, new InitializedList<double>(1, (floorstrike - spread_n) / gearing_n),
                                       new InitializedList<double>(1, (capstrike - spread_n) / gearing_n));
          collar_n.setPricingEngine(vars.makeEngine(vars.volatility));
          npvVanilla = vanillaLeg_n.NPV();

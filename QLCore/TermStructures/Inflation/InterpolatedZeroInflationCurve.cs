@@ -26,11 +26,11 @@ namespace QLCore
    public class InterpolatedZeroInflationCurve<Interpolator> : ZeroInflationTermStructure, InterpolatedCurve
       where Interpolator : class, IInterpolationFactory, new ()
    {
-      public InterpolatedZeroInflationCurve(Date referenceDate, Calendar calendar, DayCounter dayCounter, Period lag,
+      public InterpolatedZeroInflationCurve(Settings settings, Date referenceDate, Calendar calendar, DayCounter dayCounter, Period lag,
                                             Frequency frequency, bool indexIsInterpolated, Handle<YieldTermStructure> yTS,
                                             List<Date> dates, List<double> rates,
                                             Interpolator interpolator = default(Interpolator))
-         : base(referenceDate, calendar, dayCounter, rates[0],
+         : base(settings, referenceDate, calendar, dayCounter, rates[0],
                 lag, frequency, indexIsInterpolated, yTS)
       {
          times_ = new List<double>();
@@ -159,7 +159,8 @@ namespace QLCore
           (or can't) provide the points for interpolation on
           construction.
       */
-      protected internal InterpolatedZeroInflationCurve(Date referenceDate,
+      protected internal InterpolatedZeroInflationCurve(Settings settings, 
+                                               Date referenceDate,
                                                Calendar calendar,
                                                DayCounter dayCounter,
                                                Period lag,
@@ -168,7 +169,7 @@ namespace QLCore
                                                double baseZeroRate,
                                                Handle<YieldTermStructure> yTS,
                                                Interpolator interpolator = default(Interpolator))
-         : base(referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, yTS)
+         : base(settings, referenceDate, calendar, dayCounter, baseZeroRate, lag, frequency, indexIsInterpolated, yTS)
       {
          interpolator_ = interpolator ?? FastActivator<Interpolator>.Create();
       }

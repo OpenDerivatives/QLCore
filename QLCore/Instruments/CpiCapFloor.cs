@@ -64,7 +64,8 @@ namespace QLCore
          public Handle<ZeroInflationIndex> infIndex { get; set; }
          public Period observationLag { get; set; }
          public InterpolationType observationInterpolation { get; set; }
-
+         public Settings settings { get; set; }
+         
          public void validate()
          {
             // Nothing to do here
@@ -78,7 +79,8 @@ namespace QLCore
 
       public class Engine : GenericEngine<CPICapFloor.Arguments, CPICapFloor.Results> {}
 
-      public CPICapFloor(Option.Type type,
+      public CPICapFloor(Settings settings,
+                         Option.Type type,
                          double nominal,
                          Date startDate,   // start date of contract (only)
                          double baseCPI,
@@ -91,6 +93,7 @@ namespace QLCore
                          Handle<ZeroInflationIndex> infIndex,
                          Period observationLag,
                          InterpolationType observationInterpolation = InterpolationType.AsIndex)
+         : base(settings)
       {
          type_ = type;
          nominal_ = nominal;
@@ -139,7 +142,7 @@ namespace QLCore
       public Period observationLag() { return observationLag_; }
 
       // Instrument interface
-      public override bool isExpired() {return (Settings.Instance.evaluationDate() > maturity_);}
+      public override bool isExpired() {return (settings().evaluationDate() > maturity_);}
       public override void setupArguments(IPricingEngineArguments args)
       {
          // correct PricingEngine?
@@ -162,7 +165,7 @@ namespace QLCore
          arguments.infIndex = infIndex_;
          arguments.observationLag = observationLag_;
          arguments.observationInterpolation = observationInterpolation_;
-
+         arguments.settings = settings_;
       }
 
       protected Option.Type type_;
@@ -179,6 +182,4 @@ namespace QLCore
       protected Period observationLag_;
       protected InterpolationType observationInterpolation_;
    }
-
-
 }

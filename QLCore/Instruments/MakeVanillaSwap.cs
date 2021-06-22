@@ -71,16 +71,19 @@ namespace QLCore
          type_ = flag ? VanillaSwap.Type.Receiver : VanillaSwap.Type.Payer;
          return this;
       }
+
       public MakeVanillaSwap withType(VanillaSwap.Type type)
       {
          type_ = type;
          return this;
       }
+
       public MakeVanillaSwap withNominal(double n)
       {
          nominal_ = n;
          return this;
       }
+
       public MakeVanillaSwap withSettlementDays(int settlementDays)
       {
          settlementDays_ = settlementDays;
@@ -119,26 +122,31 @@ namespace QLCore
          engine_ = engine;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegTenor(Period t)
       {
          fixedTenor_ = t;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegCalendar(Calendar cal)
       {
          fixedCalendar_ = cal;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegConvention(BusinessDayConvention bdc)
       {
          fixedConvention_ = bdc;
          return this;
       }
+      
       public MakeVanillaSwap withFixedLegTerminationDateConvention(BusinessDayConvention bdc)
       {
          fixedTerminationDateConvention_ = bdc;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegRule(DateGeneration.Rule r)
       {
          fixedRule_ = r;
@@ -150,16 +158,19 @@ namespace QLCore
          fixedEndOfMonth_ = flag;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegFirstDate(Date d)
       {
          fixedFirstDate_ = d;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegNextToLastDate(Date d)
       {
          fixedNextToLastDate_ = d;
          return this;
       }
+
       public MakeVanillaSwap withFixedLegDayCount(DayCounter dc)
       {
          fixedDayCount_ = dc;
@@ -171,21 +182,25 @@ namespace QLCore
          floatTenor_ = t;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegCalendar(Calendar cal)
       {
          floatCalendar_ = cal;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegConvention(BusinessDayConvention bdc)
       {
          floatConvention_ = bdc;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegTerminationDateConvention(BusinessDayConvention bdc)
       {
          floatTerminationDateConvention_ = bdc;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegRule(DateGeneration.Rule r)
       {
          floatRule_ = r;
@@ -202,22 +217,24 @@ namespace QLCore
          floatFirstDate_ = d;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegNextToLastDate(Date d)
       {
          floatNextToLastDate_ = d;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegDayCount(DayCounter dc)
       {
          floatDayCount_ = dc;
          return this;
       }
+
       public MakeVanillaSwap withFloatingLegSpread(double sp)
       {
          floatSpread_ = sp;
          return this;
       }
-
 
       // swap creator
       public static implicit operator VanillaSwap(MakeVanillaSwap o) { return o.value(); }
@@ -229,7 +246,7 @@ namespace QLCore
             startDate = effectiveDate_;
          else
          {
-            Date refDate = Settings.Instance.evaluationDate();
+            Date refDate = iborIndex_.settings().evaluationDate();
             // if the evaluation date is not a business day
             // then move to the next business day
             refDate = floatCalendar_.adjust(refDate);
@@ -274,13 +291,13 @@ namespace QLCore
                Utils.QL_FAIL("unknown fixed leg default tenor for " + curr);
          }
 
-         Schedule fixedSchedule = new Schedule(startDate, endDate,
+         Schedule fixedSchedule = new Schedule(iborIndex_.settings(), startDate, endDate,
                                                fixedTenor, fixedCalendar_,
                                                fixedConvention_, fixedTerminationDateConvention_,
                                                fixedRule_, fixedEndOfMonth_,
                                                fixedFirstDate_, fixedNextToLastDate_);
 
-         Schedule floatSchedule = new Schedule(startDate, endDate,
+         Schedule floatSchedule = new Schedule(iborIndex_.settings(), startDate, endDate,
                                                floatTenor_, floatCalendar_,
                                                floatConvention_, floatTerminationDateConvention_,
                                                floatRule_, floatEndOfMonth_,

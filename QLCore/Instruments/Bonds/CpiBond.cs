@@ -46,7 +46,7 @@ namespace QLCore
                      Calendar exCouponCalendar = null,
                      BusinessDayConvention exCouponConvention = BusinessDayConvention.Unadjusted,
                      bool exCouponEndOfMonth = false)
-         : base(settlementDays, paymentCalendar ?? schedule.calendar(), issueDate)
+         : base(schedule.settings(), settlementDays, paymentCalendar ?? schedule.calendar(), issueDate)
       {
          frequency_ = schedule.tenor().frequency();
          dayCounter_ = accrualDayCounter;

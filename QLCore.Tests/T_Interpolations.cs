@@ -974,6 +974,7 @@ namespace TestSuite
       public void testSabrInterpolation()
       {
          // Testing Sabr interpolation...
+         Settings settings = new Settings();
 
          // Test SABR function against input volatilities
          double tolerance = 1.0e-12;
@@ -1067,7 +1068,7 @@ namespace TestSuite
                            // guess (i.e. optimization runs into a local minimum) - then a series of
                            // random start values for optimization is chosen until our tight custom
                            // error threshold is satisfied.
-                           SABRInterpolation sabrInterpolation = new SABRInterpolation(
+                           SABRInterpolation sabrInterpolation = new SABRInterpolation(settings,
                               strikes, strikes.Count, volatilities,
                               expiry, forward, isAlphaFixed[k_a] ? initialAlpha : alphaGuess,
                               isBetaFixed[k_b] ? initialBeta : betaGuess,
@@ -1145,6 +1146,7 @@ namespace TestSuite
       public void testNormalSabrInterpolation()
       {
          // Testing Sabr interpolation...
+         Settings settings = new Settings();
 
          // Test SABR function against input volatilities
          double tolerance = 1.0e-12;
@@ -1239,7 +1241,7 @@ namespace TestSuite
                            // guess (i.e. optimization runs into a local minimum) - then a series of
                            // random start values for optimization is chosen until our tight custom
                            // error threshold is satisfied.
-                           SABRInterpolation sabrInterpolation = new SABRInterpolation(
+                           SABRInterpolation sabrInterpolation = new SABRInterpolation(settings,
                               strikes, strikes.Count, volatilities,
                               expiry, forward, isAlphaFixed[k_a] ? initialAlpha : alphaGuess,
                               isBetaFixed[k_b] ? initialBeta : betaGuess,
@@ -1703,7 +1705,7 @@ namespace TestSuite
       public void testSabrSingleCases()
       {
          // Testing Sabr calibration single cases...
-
+         Settings settings = new Settings();
          List<double> strikes = new List<double>() { 0.01, 0.01125, 0.0125, 0.01375, 0.0150};
          List<double> vols = new List<double>() {0.1667, 0.2020, 0.2785, 0.3279, 0.3727};
 
@@ -1711,7 +1713,7 @@ namespace TestSuite
          double tte = 0.3833;
          double forward = 0.011025;
 
-         SABRInterpolation s0 = new SABRInterpolation(strikes, strikes.Count, vols, tte, forward,
+         SABRInterpolation s0 = new SABRInterpolation(settings, strikes, strikes.Count, vols, tte, forward,
                                                       null, 0.25, null, null,
                                                       false, true, false, false);
          s0.update();

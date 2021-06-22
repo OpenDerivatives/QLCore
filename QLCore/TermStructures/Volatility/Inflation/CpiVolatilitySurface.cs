@@ -33,14 +33,15 @@ namespace QLCore
           evaluation date.
       */
 
-      protected CPIVolatilitySurface(int settlementDays,
+      protected CPIVolatilitySurface(Settings settings, 
+                                     int settlementDays,
                                      Calendar cal,
                                      BusinessDayConvention bdc,
                                      DayCounter dc,
                                      Period observationLag,
                                      Frequency frequency,
                                      bool indexIsInterpolated)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          baseLevel_ = null;
          observationLag_ = observationLag;

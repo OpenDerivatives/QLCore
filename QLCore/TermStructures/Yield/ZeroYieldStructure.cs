@@ -38,16 +38,16 @@ namespace QLCore
    {
       #region Constructors
 
-      protected ZeroYieldStructure(DayCounter dc = null, List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-         : base(dc, jumps, jumpDates) {}
+      protected ZeroYieldStructure(Settings settings, DayCounter dc = null, List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
+         : base(settings, dc, jumps, jumpDates) {}
 
-      protected ZeroYieldStructure(Date referenceDate, Calendar calendar = null, DayCounter dc = null,
+      protected ZeroYieldStructure(Settings settings, Date referenceDate, Calendar calendar = null, DayCounter dc = null,
                                    List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-         : base(referenceDate, calendar, dc, jumps, jumpDates) { }
+         : base(settings, referenceDate, calendar, dc, jumps, jumpDates) { }
 
-      protected ZeroYieldStructure(int settlementDays, Calendar calendar, DayCounter dc = null,
+      protected ZeroYieldStructure(Settings settings, int settlementDays, Calendar calendar, DayCounter dc = null,
                                    List<Handle<Quote>> jumps = null, List<Date> jumpDates = null)
-         : base(settlementDays, calendar, dc, jumps, jumpDates) { }
+         : base(settings, settlementDays, calendar, dc, jumps, jumpDates) { }
 
       #endregion
 

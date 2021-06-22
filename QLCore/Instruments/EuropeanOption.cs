@@ -24,6 +24,6 @@ namespace QLCore
    /*! \ingroup instruments */
    public class EuropeanOption : VanillaOption
    {
-      public EuropeanOption(StrikedTypePayoff payoff, Exercise exercise) : base(payoff, exercise) {}
+      public EuropeanOption(Settings settings, StrikedTypePayoff payoff, Exercise exercise) : base(settings, payoff, exercise) {}
    }
 }

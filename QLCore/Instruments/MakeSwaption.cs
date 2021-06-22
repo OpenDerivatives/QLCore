@@ -104,7 +104,7 @@ namespace QLCore
 
       public Swaption value()
       {
-         Date evaluationDate = Settings.Instance.evaluationDate();
+         Date evaluationDate = swapIndex_.settings().evaluationDate();
          Calendar fixingCalendar = swapIndex_.fixingCalendar();
          fixingDate_ = fixingCalendar.advance(evaluationDate, optionTenor_, optionConvention_);
 

@@ -30,14 +30,14 @@ namespace QLCore
 
          discountCurve_ = discountCurve;
          vol_ = new Handle<OptionletVolatilityStructure>(
-            new ConstantOptionletVolatility(0, new NullCalendar(), BusinessDayConvention.Following, vol,
+            new ConstantOptionletVolatility(discountCurve_.link.settings(), 0, new NullCalendar(), BusinessDayConvention.Following, vol,
                                             dc ?? new Actual365Fixed())) ;
       }
       public BachelierCapFloorEngine(Handle<YieldTermStructure> discountCurve, Handle<Quote> vol, DayCounter dc = null)
       {
          discountCurve_ = discountCurve;
          vol_ = new Handle<OptionletVolatilityStructure>(
-            new ConstantOptionletVolatility(0, new NullCalendar(), BusinessDayConvention.Following, vol,
+            new ConstantOptionletVolatility(discountCurve_.link.settings(), 0, new NullCalendar(), BusinessDayConvention.Following, vol,
                                             dc ?? new Actual365Fixed()));
       }
       public BachelierCapFloorEngine(Handle<YieldTermStructure> discountCurve, Handle<OptionletVolatilityStructure> vol)

@@ -26,14 +26,15 @@ namespace QLCore
    public class CapFloorTermVolSurface : CapFloorTermVolatilityStructure
    {
       //! floating reference date, floating market data
-      public CapFloorTermVolSurface(int settlementDays,
+      public CapFloorTermVolSurface(Settings settings, 
+                                    int settlementDays,
                                     Calendar calendar,
                                     BusinessDayConvention bdc,
                                     List<Period> optionTenors,
                                     List<double> strikes,
                                     List<List<Handle<Quote> > > vols,
                                     DayCounter dc = null)
-         : base(settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
+         : base(settings, settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -59,14 +60,15 @@ namespace QLCore
       }
 
       //! fixed reference date, floating market data
-      public CapFloorTermVolSurface(Date settlementDate,
+      public CapFloorTermVolSurface(Settings settings, 
+                                    Date settlementDate,
                                     Calendar calendar,
                                     BusinessDayConvention bdc,
                                     List<Period> optionTenors,
                                     List<double> strikes,
                                     List<List<Handle<Quote> > > vols,
                                     DayCounter dc = null)
-         : base(settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
+         : base(settings, settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -90,14 +92,15 @@ namespace QLCore
       }
 
       //! fixed reference date, fixed market data
-      public CapFloorTermVolSurface(Date settlementDate,
+      public CapFloorTermVolSurface(Settings settings, 
+                                    Date settlementDate,
                                     Calendar calendar,
                                     BusinessDayConvention bdc,
                                     List<Period> optionTenors,
                                     List<double> strikes,
                                     Matrix vols,
                                     DayCounter dc = null)
-         : base(settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
+         : base(settings, settlementDate, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -121,14 +124,15 @@ namespace QLCore
       }
 
       //! floating reference date, fixed market data
-      public CapFloorTermVolSurface(int settlementDays,
+      public CapFloorTermVolSurface(Settings settings, 
+                                    int settlementDays,
                                     Calendar calendar,
                                     BusinessDayConvention bdc,
                                     List<Period> optionTenors,
                                     List<double> strikes,
                                     Matrix vols,
                                     DayCounter dc = null)
-         : base(settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
+         : base(settings, settlementDays, calendar, bdc, dc ?? new Actual365Fixed())
       {
          nOptionTenors_ = optionTenors.Count;
          optionTenors_ = optionTenors;
@@ -165,7 +169,7 @@ namespace QLCore
          // recalculate dates if necessary...
          if (moving_)
          {
-            Date d = Settings.Instance.evaluationDate() ;
+            Date d = this.settings().evaluationDate() ;
             if (evaluationDate_ != d)
             {
                evaluationDate_ = d;

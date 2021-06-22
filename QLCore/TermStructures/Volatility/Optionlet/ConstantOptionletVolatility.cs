@@ -26,33 +26,33 @@ namespace QLCore
       private Handle<Quote> volatility_;
 
       //! floating reference date, floating market data
-      public ConstantOptionletVolatility(int settlementDays, Calendar cal, BusinessDayConvention bdc,
+      public ConstantOptionletVolatility(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc,
                                          Handle<Quote> vol, DayCounter dc)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          volatility_ = vol;
       }
 
       //! fixed reference date, floating market data
-      public ConstantOptionletVolatility(Date referenceDate, Calendar cal, BusinessDayConvention bdc,
+      public ConstantOptionletVolatility(Settings settings, Date referenceDate, Calendar cal, BusinessDayConvention bdc,
                                          Handle<Quote> vol, DayCounter dc)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {
          volatility_ = vol;
       }
 
       //! floating reference date, fixed market data
-      public ConstantOptionletVolatility(int settlementDays, Calendar cal, BusinessDayConvention bdc,
+      public ConstantOptionletVolatility(Settings settings, int settlementDays, Calendar cal, BusinessDayConvention bdc,
                                          double vol, DayCounter dc)
-         : base(settlementDays, cal, bdc, dc)
+         : base(settings, settlementDays, cal, bdc, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(vol));
       }
 
       //! fixed reference date, fixed market data
-      public ConstantOptionletVolatility(Date referenceDate, Calendar cal, BusinessDayConvention bdc,
+      public ConstantOptionletVolatility(Settings settings, Date referenceDate, Calendar cal, BusinessDayConvention bdc,
                                          double vol, DayCounter dc)
-         : base(referenceDate, cal, bdc, dc)
+         : base(settings, referenceDate, cal, bdc, dc)
       {
          volatility_ = new Handle<Quote>(new SimpleQuote(vol));
       }
@@ -65,13 +65,13 @@ namespace QLCore
       protected override SmileSection smileSectionImpl(Date d)
       {
          double atmVol = volatility_.link.value();
-         return new FlatSmileSection(d, atmVol, dayCounter(), referenceDate());
+         return new FlatSmileSection(this.settings(), d, atmVol, dayCounter(), referenceDate());
       }
 
       protected override SmileSection smileSectionImpl(double optionTime)
       {
          double atmVol = volatility_.link.value();
-         return new FlatSmileSection(optionTime, atmVol, dayCounter());
+         return new FlatSmileSection(this.settings(), optionTime, atmVol, dayCounter());
       }
 
       protected override double volatilityImpl(double d1, double d2)

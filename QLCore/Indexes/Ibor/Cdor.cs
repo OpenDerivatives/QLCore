@@ -36,12 +36,12 @@ namespace QLCore
    /// </summary>
    public class Cdor : IborIndex
    {
-      public Cdor(Period tenor)
-         : base("CDOR", tenor, 0, new CADCurrency(), new Canada(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), new Handle<YieldTermStructure>())
+      public Cdor(Period tenor, Settings settings)
+         : base("CDOR", tenor, 0, new CADCurrency(), new Canada(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), settings, new Handle<YieldTermStructure>())
       {}
 
-      public Cdor(Period tenor, Handle<YieldTermStructure> h)
-         : base("CDOR", tenor, 0, new CADCurrency(), new Canada(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), h)
+      public Cdor(Period tenor, Settings settings, Handle<YieldTermStructure> h)
+         : base("CDOR", tenor, 0, new CADCurrency(), new Canada(), BusinessDayConvention.ModifiedFollowing, false, new Actual365Fixed(), settings, h)
       {}
    }
 }
